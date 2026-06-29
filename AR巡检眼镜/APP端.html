@@ -1003,6 +1003,25 @@
             color: var(--color-primary);
             border-color: var(--color-primary-border);
         }
+        .filter-tag .count {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 500;
+            min-width: 16px;
+            height: 16px;
+            line-height: 16px;
+            text-align: center;
+            border-radius: var(--radius-full);
+            background: rgba(0,0,0,0.06);
+            color: var(--text-tertiary);
+            margin-left: 3px;
+            padding: 0 5px;
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+        .filter-tag.active .count {
+            background: rgba(37, 99, 235, 0.15);
+            color: var(--color-primary);
+        }
 
         /* Doc list */
         .doc-item {
@@ -1292,6 +1311,382 @@
         }
 
         /* ============================================================
+           COMPONENT: Compare Row (人脸/车辆 登记照 vs 识别照)
+           ============================================================ */
+        .compare-row {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+        .compare-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            min-width: 0;
+        }
+        .compare-thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: var(--radius-md);
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border: var(--border-subtle);
+        }
+        .compare-thumb .ct-watermark {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 9px;
+            font-family: var(--font-mono);
+            color: var(--text-tertiary);
+            letter-spacing: 0.3px;
+            pointer-events: none;
+        }
+        .compare-thumb .ct-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            font-size: 9px;
+            font-weight: 500;
+            padding: 2px 7px;
+            border-radius: var(--radius-full);
+            pointer-events: none;
+        }
+        .ct-badge.ref {
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--color-primary);
+        }
+        .ct-badge.live {
+            background: rgba(22, 163, 74, 0.12);
+            color: var(--color-success);
+        }
+        .compare-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 500;
+        }
+        .compare-meta {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            text-align: center;
+        }
+
+        /* ============================================================
+           COMPONENT: Conversation List (AI助手-对话记录)
+           ============================================================ */
+        .conv-item {
+            padding: var(--space-md) 0;
+            border-bottom: var(--border-subtle);
+            cursor: default;
+            transition: background var(--transition-fast);
+        }
+        .conv-item:last-child { border-bottom: none; }
+        .conv-item:hover { background: rgba(0,0,0,0.015); }
+
+        .conv-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .conv-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-family: var(--font-mono);
+        }
+        .conv-user {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .conv-q, .conv-a {
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 4px;
+            display: flex;
+            gap: var(--space-xs);
+        }
+        .conv-q .conv-prefix {
+            color: var(--color-primary);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .conv-a .conv-prefix {
+            color: var(--color-success);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .conv-q .conv-text {
+            color: var(--text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .conv-a .conv-text {
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .conv-status {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            margin-top: 4px;
+        }
+        .conv-status.success {
+            background: var(--color-success-bg);
+            color: var(--color-success);
+        }
+        .conv-status.fail {
+            background: var(--color-danger-bg);
+            color: var(--color-danger);
+        }
+
+        .conv-filter-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-sm);
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .conv-filter-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           COMPONENT: Glass Device List (通讯录-关联设备)
+           ============================================================ */
+        .glass-device-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 14px var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: default;
+            transition: background var(--transition-fast);
+            border: 1px solid transparent;
+            margin-bottom: 2px;
+        }
+        .glass-device-item:hover { background: var(--bg-surface-hover); }
+        .glass-device-item.online { cursor: pointer; }
+        .glass-device-item.online:hover { background: var(--color-primary-bg); border-color: var(--color-primary-border); }
+
+        .glass-device-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .glass-device-item.online .glass-device-icon {
+            background: var(--color-primary-bg);
+        }
+
+        .glass-device-info { flex: 1; min-width: 0; }
+        .glass-device-info .gd-name {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .glass-device-info .gd-meta {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        .gd-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .gd-status-dot.online {
+            background: var(--color-success);
+            box-shadow: 0 0 6px rgba(22, 163, 74, 0.4);
+        }
+        .gd-status-dot.offline { background: rgba(0,0,0,0.15); }
+
+        .gd-status-text {
+            font-size: 11px;
+            font-weight: 500;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .gd-status-text.online { color: var(--color-success); }
+        .gd-status-text.offline { color: var(--text-tertiary); }
+
+        .gd-view-btn {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--color-primary);
+            background: var(--color-primary-bg);
+            border: 1px solid var(--color-primary-border);
+            border-radius: var(--radius-full);
+            padding: 4px 14px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-family: inherit;
+        }
+        .gd-view-btn:hover {
+            background: var(--color-primary);
+            color: #fff;
+        }
+
+        .gd-section-stat {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+        .gd-section-stat .online-count { color: var(--color-success); font-weight: 600; }
+
+        /* ============================================================
+           DEV PANEL — 开发时交互说明面板
+           ============================================================ */
+        .dev-panel {
+            position: fixed;
+            top: 52px;
+            right: 12px;
+            width: 290px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+            background: var(--bg-app);
+            border: var(--border-emphasis);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-elevated);
+            z-index: 9998;
+            padding: var(--space-lg);
+            font-family: var(--font-stack);
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-secondary);
+        }
+
+        .dev-panel .dev-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding-bottom: var(--space-sm);
+            border-bottom: 1px solid rgba(0,0,0,0.08);
+        }
+        .dev-panel .dev-section {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: var(--border-subtle);
+        }
+        .dev-panel .dev-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .dev-panel .dev-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+            margin-bottom: 8px;
+        }
+        .dev-panel .dev-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: var(--space-sm);
+            margin-bottom: 5px;
+        }
+        .dev-panel .dev-label {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .dev-panel .dev-value {
+            color: var(--text-primary);
+            font-weight: 500;
+            text-align: right;
+            word-break: break-all;
+            font-size: 12px;
+        }
+        .dev-panel .dev-value.action {
+            color: #1D4ED8;
+            font-weight: 600;
+        }
+        .dev-panel .dev-value.effect {
+            color: var(--text-secondary);
+            font-weight: 400;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .dev-panel .dev-empty {
+            color: var(--text-tertiary);
+            text-align: center;
+            padding: 20px 0;
+            font-size: 13px;
+        }
+        .dev-panel .dev-timestamp {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            text-align: right;
+            font-family: var(--font-mono);
+            margin-top: 2px;
+        }
+        /* 清单项样式 */
+        .dev-panel .dev-cat {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: block;
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+        .dev-panel .dev-item-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .dev-panel .dev-item-action {
+            font-size: 12px;
+            color: #374151;
+            display: block;
+            padding-left: 8px;
+            line-height: 1.6;
+        }
+        .dev-panel .dev-item-state {
+            font-size: 10px;
+            color: #6B7280;
+            background: #F3F4F6;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 4px;
+            font-weight: 500;
+        }
+
+        /* Dev panel mobile fallback */
+        @media (max-width: 760px) {
+            .dev-panel { top: 38px; right: 4px; width: 240px; max-height: 50vh; font-size: 12px; padding: var(--space-md); }
+        }
+
+        /* ============================================================
            RESPONSIVE
            ============================================================ */
         @media (max-width: 420px) {
@@ -1375,11 +1770,11 @@
                             </span>
                             <span>识别记录</span>
                         </button>
-                        <button class="quick-btn" id="quickContacts" aria-label="通讯录">
+                        <button class="quick-btn" id="quickMonitor" aria-label="视频监控">
                             <span class="circle" aria-hidden="true">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="10" r="3"/><path d="M3 20v-1a4 4 0 014-4h4a4 4 0 014 4v1"/><path d="M16 14h4a3 3 0 013 3v1"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 14h20"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><path d="M17 10l4-3v10l-4-3"/></svg>
                             </span>
-                            <span>通讯录</span>
+                            <span>视频监控</span>
                         </button>
                         <button class="quick-btn" id="quickKnowledge" aria-label="知识库">
                             <span class="circle" aria-hidden="true">
@@ -1392,12 +1787,6 @@
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>
                             </span>
                             <span>AI助手</span>
-                        </button>
-                        <button class="quick-btn" id="quickMonitor" aria-label="视频监控">
-                            <span class="circle" aria-hidden="true">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 14h20"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><path d="M14 13v4"/><path d="M10 15h8"/></svg>
-                            </span>
-                            <span>视频监控</span>
                         </button>
                         <button class="quick-btn" id="quickRemote" aria-label="远程协作">
                             <span class="circle" aria-hidden="true">
@@ -1473,12 +1862,12 @@
                 </div>
 
                 <!-- 筛选标签 -->
-                <div class="filter-row">
-                    <button class="filter-tag active" data-filter="all">全部</button>
-                    <button class="filter-tag" data-filter="人脸">人脸</button>
-                    <button class="filter-tag" data-filter="车辆">车辆</button>
-                    <button class="filter-tag" data-filter="隐患">隐患</button>
-                    <button class="filter-tag" data-filter="物体">物体</button>
+                <div class="filter-row" id="recordFilterRow">
+                    <button class="filter-tag active" data-filter="all">全部 <span class="count">7</span></button>
+                    <button class="filter-tag" data-filter="人脸">人脸 <span class="count">0</span></button>
+                    <button class="filter-tag" data-filter="车辆">车辆 <span class="count">0</span></button>
+                    <button class="filter-tag" data-filter="隐患">隐患 <span class="count">0</span></button>
+                    <button class="filter-tag" data-filter="物体">物体 <span class="count">0</span></button>
                 </div>
 
                 <!-- 识别记录 -->
@@ -1604,13 +1993,9 @@
                             <div class="org">XX安保支队</div>
                         </div>
                     </div>
-                    <button class="assistant-btn" aria-label="AI 助手">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>
-                    </button>
                 </div>
                 <div class="card card--inset">
                     <div class="menu-list">
-                        <button class="menu-item"><span>我的预约记录</span><span class="right">今日 14:00 会议室A</span></button>
                         <button class="menu-item"><span>设备固件升级</span><span class="right"><span class="badge-dot" aria-label="新版本"></span> 新版本</span></button>
                         <button class="menu-item"><span>隐私与锁屏设置</span><span class="right">›</span></button>
                         <button class="menu-item" style="color:var(--text-disabled);"><span>退出登录</span><span class="right">›</span></button>
@@ -1892,6 +2277,83 @@
                 hideSecondary();
             });
 
+            /* 二级页面事件委托：查看画面 / 直播返回 */
+            DOM.secondaryPage.addEventListener('click', function(e) {
+                // 点击"查看画面"按钮（设备）
+                var viewBtn = e.target.closest('[data-action="view-stream"]');
+                if (viewBtn) {
+                    var deviceIdx = parseInt(viewBtn.dataset.deviceIdx, 10);
+                    openDeviceLiveStream(deviceIdx);
+                    return;
+                }
+                // 点击"查看画面"按钮（人员）
+                var viewPersonBtn = e.target.closest('[data-action="view-person-stream"]');
+                if (viewPersonBtn) {
+                    var personIdx = parseInt(viewPersonBtn.dataset.personIdx, 10);
+                    openPersonLiveStream(personIdx);
+                    return;
+                }
+                // 点击在线设备整行
+                var deviceItem = e.target.closest('.glass-device-item.online');
+                if (deviceItem) {
+                    if (deviceItem.dataset.device) {
+                        var dev = safeParseJSON(deviceItem.dataset.device);
+                        if (dev && dev.status === 'online') {
+                            openDeviceLiveStreamByName(dev.name);
+                        }
+                    } else if (deviceItem.dataset.person) {
+                        var person = safeParseJSON(deviceItem.dataset.person);
+                        if (person && person.status === 'online') {
+                            openPersonLiveStreamByName(person.name);
+                        }
+                    }
+                    return;
+                }
+                // 直播页返回按钮
+                var streamBack = e.target.closest('[data-action="stream-back"]');
+                if (streamBack) {
+                    var source = streamBack.dataset.streamSource || 'monitor';
+                    hideSecondary();
+                    setTimeout(function() {
+                        var btn = document.getElementById(source === 'device' ? 'quickContacts' : 'quickMonitor');
+                        if (btn) btn.click();
+                    }, 250);
+                    return;
+                }
+                // 对话记录筛选标签
+                var convTag = e.target.closest('[data-conv-filter]');
+                if (convTag) {
+                    var filterType = convTag.dataset.convFilter;
+                    var filterValue = convTag.dataset.convValue;
+                    // 更新同类标签的 active 状态
+                    var parentRow = convTag.parentElement;
+                    parentRow.querySelectorAll('.filter-tag[data-conv-filter="' + filterType + '"]').forEach(function(t) {
+                        t.classList.remove('active');
+                    });
+                    convTag.classList.add('active');
+                    // 收集当前所有筛选条件
+                    var timeFilter = 'all';
+                    var userFilter = 'all';
+                    var allRows = document.querySelectorAll('.conv-filter-row');
+                    allRows.forEach(function(row) {
+                        var active = row.querySelector('.filter-tag.active');
+                        if (active && active.dataset.convFilter === 'time') timeFilter = active.dataset.convValue;
+                        if (active && active.dataset.convFilter === 'user') userFilter = active.dataset.convValue;
+                    });
+                    // 获取原始数据并重新渲染
+                    var convList = document.getElementById('convList');
+                    if (convList && convList.dataset.convData) {
+                        var allData = safeParseJSON(convList.dataset.convData, []);
+                        var filtered = filterConversations(allData, timeFilter, userFilter);
+                        convList.innerHTML = renderConvItems(filtered);
+                        // 更新统计数
+                        var statEl = document.querySelector('.gd-section-stat');
+                        if (statEl) statEl.textContent = '共 ' + filtered.length + ' 条';
+                    }
+                    return;
+                }
+            });
+
             // Also cleanup bt timer when nav switches away
             var bottomNav = document.querySelector('.bottom-nav');
             bottomNav.addEventListener('click', function(e) {
@@ -1983,8 +2445,66 @@
                     html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><path d="M12 2L2 20h20L12 2z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.5" fill="' + accentColor + '"/></svg></div><div class="detail-row"><span class="d-label">识别时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">识别隐患</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row detail-row--col"><span class="d-label">建议处理措施 <span class="text-xs text-muted">（AI 生成）</span></span><span class="d-value ai-suggestion" style="max-width:100%; text-align:left;">' + (data.suggestion || '暂无建议') + '</span></div></div><div class="card action-footer"><span class="action-link danger" style="margin-right:16px;">查看现场图像</span><span class="action-link primary">生成整改单</span></div>';
                 } else if (type === '物体') {
                     html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 10h4"/><path d="M10 14h4"/></svg></div><div class="detail-row"><span class="d-label">识别时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">识别物体</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row detail-row--col"><span class="d-label">功能说明</span><span class="d-value" style="font-weight:400; font-size:13px; line-height:1.6; max-width:100%;">' + (data.function || '暂无说明') + '</span></div></div><div class="card action-footer"><span class="action-link success" style="margin-right:16px;">查看实物图像</span><span class="action-link primary">记录位置</span></div>';
-                } else {
-                    html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg></div><div class="detail-row"><span class="d-label">识别类型</span><span class="d-value">' + type + '</span></div><div class="detail-row"><span class="d-label">匹配结果</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row"><span class="d-label">匹配度</span><span class="d-value">' + (data.match || '—') + '</span></div><div class="detail-row"><span class="d-label">时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">详情</span><span class="d-value" style="font-weight:400;">' + (data.detail || '') + '</span></div></div><div class="card action-footer"><span class="action-link primary">查看原始图像</span></div>';
+                } else if (type === '人脸') {
+                    // 人脸：登记照 vs 识别抓拍 并排对比
+                    html = '<div class="card">' +
+                        '<div class="compare-row">' +
+                            '<div class="compare-col">' +
+                                '<div class="compare-thumb">' +
+                                    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.45"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>' +
+                                    '<span class="ct-badge ref">人员库</span>' +
+                                    '<span class="ct-watermark">入库: 2026-03-15</span>' +
+                                '</div>' +
+                                '<span class="compare-label">登记人脸</span>' +
+                                '<span class="compare-meta">安保人员库 · ID:SF-A032</span>' +
+                            '</div>' +
+                            '<div class="compare-col">' +
+                                '<div class="compare-thumb">' +
+                                    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.5" opacity="0.65"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="' + accentColor + '" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/></svg>' +
+                                    '<span class="ct-badge live">抓拍</span>' +
+                                    '<span class="ct-watermark">抓拍: ' + data.time + '</span>' +
+                                '</div>' +
+                                '<span class="compare-label">识别抓拍</span>' +
+                                '<span class="compare-meta">设备: HoloLens Pro · 眼镜抓拍</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="detail-row"><span class="d-label">识别类型</span><span class="d-value">' + type + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">匹配结果</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">匹配度</span><span class="d-value">' + (data.match || '—') + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">时间</span><span class="d-value">' + data.time + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">详情</span><span class="d-value" style="font-weight:400;">' + (data.detail || '') + '</span></div>' +
+                    '</div>' +
+                    '<div class="card action-footer"><span class="action-link primary">查看原始图像</span></div>';
+                } else if (type === '车辆') {
+                    // 车辆：登记车牌 vs 识别抓拍 并排对比
+                    html = '<div class="card">' +
+                        '<div class="compare-row">' +
+                            '<div class="compare-col">' +
+                                '<div class="compare-thumb">' +
+                                    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.45"><rect x="2" y="8" width="20" height="10" rx="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>' +
+                                    '<span class="ct-badge ref">车辆库</span>' +
+                                    '<span class="ct-watermark">入库: 2026-01-20</span>' +
+                                '</div>' +
+                                '<span class="compare-label">登记车牌</span>' +
+                                '<span class="compare-meta">重点车辆库 · 京A·88888</span>' +
+                            '</div>' +
+                            '<div class="compare-col">' +
+                                '<div class="compare-thumb">' +
+                                    '<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.5" opacity="0.65"><rect x="2" y="8" width="20" height="10" rx="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="' + accentColor + '" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/></svg>' +
+                                    '<span class="ct-badge live">抓拍</span>' +
+                                    '<span class="ct-watermark">抓拍: ' + data.time + '</span>' +
+                                '</div>' +
+                                '<span class="compare-label">识别抓拍</span>' +
+                                '<span class="compare-meta">设备: HoloLens Pro · 眼镜抓拍</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="detail-row"><span class="d-label">识别类型</span><span class="d-value">' + type + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">匹配结果</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">匹配度</span><span class="d-value">' + (data.match || '—') + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">时间</span><span class="d-value">' + data.time + '</span></div>' +
+                        '<div class="detail-row"><span class="d-label">详情</span><span class="d-value" style="font-weight:400;">' + (data.detail || '') + '</span></div>' +
+                    '</div>' +
+                    '<div class="card action-footer"><span class="action-link primary">查看原始图像</span></div>';
                 }
                 showSecondary('识别记录详情', html);
             });
@@ -2010,8 +2530,205 @@
                 });
             });
 
+            /* 计算筛选标签上的记录数量 */
+            function updateFilterCounts() {
+                var counts = { all: 0 };
+                var items = document.querySelectorAll('.record-item');
+                items.forEach(function(item) {
+                    var type = item.dataset.type;
+                    if (type) {
+                        counts[type] = (counts[type] || 0) + 1;
+                        counts.all++;
+                    }
+                });
+
+                var row = document.getElementById('recordFilterRow');
+                if (!row) return;
+                var tags = row.querySelectorAll('.filter-tag');
+                tags.forEach(function(tag) {
+                    var filter = tag.dataset.filter;
+                    var countEl = tag.querySelector('.count');
+                    if (countEl && counts[filter] !== undefined) {
+                        countEl.textContent = counts[filter];
+                    }
+                });
+            }
+
+            // 页面初始化时计算一次
+            updateFilterCounts();
+
             /* ============================================================
-               QUICK ACTIONS — Event Delegation (6 入口)
+               眼镜设备 — 查看实时直播画面
+               ============================================================ */
+            var glassDevicesCache = [
+                { name:'HoloLens Pro',   model:'HL-200X',   status:'online',  location:'A区周界 · 巡检中',   operator:'张三' },
+                { name:'Rokid Glass 2',  model:'RG-500',    status:'online',  location:'B2停车场 · 待命中',  operator:'李四' },
+                { name:'巡检记录仪-P01',  model:'PT-100A',   status:'offline', location:'C区设备间',           operator:'王五' },
+                { name:'智能安全帽-C02',  model:'SH-200',    status:'offline', location:'仓库',                operator:'赵六' }
+            ];
+
+            function openDeviceLiveStream(idx) {
+                var dev = glassDevicesCache[idx];
+                if (!dev || dev.status !== 'online') return;
+                renderLiveStream(dev);
+            }
+
+            function openDeviceLiveStreamByName(name) {
+                var dev = glassDevicesCache.find(function(d) { return d.name === name; });
+                if (!dev || dev.status !== 'online') return;
+                renderLiveStream(dev);
+            }
+
+            function renderLiveStream(dev) {
+                var now = new Date();
+                var timeStr = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+
+                var html = '<div class="card" style="padding:12px;">' +
+                    '<div class="video-window" style="height:220px; margin-bottom:8px; position:relative;">' +
+                        '<span>实时画面传输中</span>' +
+                        '<div class="badge" style="position:absolute;top:10px;right:14px;">直播 · 1080P</div>' +
+                        '<div class="watermark" style="position:absolute;bottom:10px;left:14px;">' + dev.name + ' · ' + timeStr + '</div>' +
+                    '</div>' +
+                    '<div class="video-controls" style="margin-bottom:0;">' +
+                        '<button aria-label="截图">截图</button>' +
+                        '<button aria-label="录制">录制</button>' +
+                        '<button aria-label="静音">静音</button>' +
+                        '<button aria-label="切换视角">切换视角</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="card card--compact">' +
+                    '<div class="detail-row"><span class="d-label">设备名称</span><span class="d-value">' + dev.name + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">型号</span><span class="d-value">' + dev.model + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">当前位置</span><span class="d-value">' + dev.location + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">操作员</span><span class="d-value">' + dev.operator + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">画面质量</span><span class="d-value" style="color:var(--color-success);">1080P · 30fps</span></div>' +
+                '</div>' +
+                '<div class="card action-footer">' +
+                    '<span class="action-link primary" style="margin-right:16px;" data-action="stream-back" data-stream-source="device">← 返回设备列表</span>' +
+                    '<span class="action-link" style="color:var(--text-tertiary);">发起标注</span>' +
+                '</div>';
+                showSecondary(dev.name + ' · 实时画面', html);
+            }
+
+            /* 人员眼镜直播（视频监控入口） */
+            var personnelCache = [
+                { name:'张三', role:'巡检员', device:'HoloLens Pro',  deviceModel:'HL-200X', status:'online',  location:'A区周界 · 巡检中' },
+                { name:'李四', role:'巡检员', device:'Rokid Glass 2', deviceModel:'RG-500',  status:'online',  location:'B2停车场 · 待命中' },
+                { name:'王五', role:'巡检员', device:'巡检记录仪-P01',  deviceModel:'PT-100A', status:'offline', location:'C区设备间' },
+                { name:'赵六', role:'巡检员', device:'智能安全帽-C02',  deviceModel:'SH-200',  status:'offline', location:'仓库' }
+            ];
+
+            function openPersonLiveStream(idx) {
+                var person = personnelCache[idx];
+                if (!person || person.status !== 'online') return;
+                renderPersonLiveStream(person);
+            }
+
+            function openPersonLiveStreamByName(name) {
+                var person = personnelCache.find(function(p) { return p.name === name; });
+                if (!person || person.status !== 'online') return;
+                renderPersonLiveStream(person);
+            }
+
+            function renderPersonLiveStream(person) {
+                var now = new Date();
+                var timeStr = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0') + ' ' +
+                    String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+
+                var html = '<div class="card" style="padding:12px;">' +
+                    '<div class="video-window" style="height:220px; margin-bottom:8px; position:relative;">' +
+                        '<span>实时画面传输中</span>' +
+                        '<div class="badge" style="position:absolute;top:10px;right:14px;">直播 · 1080P</div>' +
+                        '<div class="watermark" style="position:absolute;bottom:10px;left:14px;">' + person.device + ' · ' + timeStr + '</div>' +
+                    '</div>' +
+                    '<div class="video-controls" style="margin-bottom:0;">' +
+                        '<button aria-label="截图">截图</button>' +
+                        '<button aria-label="录制">录制</button>' +
+                        '<button aria-label="静音">静音</button>' +
+                        '<button aria-label="切换视角">切换视角</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="card card--compact">' +
+                    '<div class="detail-row"><span class="d-label">姓名</span><span class="d-value">' + person.name + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">角色</span><span class="d-value">' + person.role + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">佩戴设备</span><span class="d-value">' + person.device + '（' + person.deviceModel + '）</span></div>' +
+                    '<div class="detail-row"><span class="d-label">当前位置</span><span class="d-value">' + person.location + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">画面质量</span><span class="d-value" style="color:var(--color-success);">1080P · 30fps</span></div>' +
+                '</div>' +
+                '<div class="card action-footer">' +
+                    '<span class="action-link primary" style="margin-right:16px;" data-action="stream-back" data-stream-source="monitor">← 返回联系人列表</span>' +
+                    '<span class="action-link" style="color:var(--text-tertiary);">发起标注</span>' +
+                '</div>';
+                showSecondary(person.name + ' · 实时画面', html);
+            }
+
+            /* ============================================================
+               AI助手 — 对话记录渲染 & 筛选
+               ============================================================ */
+            function renderConvItems(conversations) {
+                if (!conversations || conversations.length === 0) {
+                    return '<div style="text-align:center;padding:32px 0;color:var(--text-tertiary);font-size:13px;">暂无匹配的对话记录</div>';
+                }
+                var html = '';
+                conversations.forEach(function(c) {
+                    var isSuccess = c.status === 'success';
+                    html += '<div class="conv-item">' +
+                        '<div class="conv-header">' +
+                            '<span class="conv-time">' + c.time + '</span>' +
+                            '<span class="conv-user">' + c.user + '</span>' +
+                        '</div>' +
+                        '<div class="conv-q"><span class="conv-prefix">Q:</span><span class="conv-text" title="' + c.question.replace(/"/g, '&quot;') + '">' + c.question + '</span></div>' +
+                        '<div class="conv-a"><span class="conv-prefix">A:</span><span class="conv-text" title="' + c.answer.replace(/"/g, '&quot;') + '">' + c.answer + '</span></div>' +
+                        '<span class="conv-status ' + (isSuccess ? 'success' : 'fail') + '">' + (isSuccess ? '✓ 成功' : '✕ 失败') + '</span>' +
+                    '</div>';
+                });
+                return html;
+            }
+
+            // 根据筛选条件过滤对话记录
+            function filterConversations(data, timeFilter, userFilter) {
+                var now = new Date();
+                var today = now.getFullYear() + '-' +
+                    String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(now.getDate()).padStart(2, '0');
+                var yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                var yesterdayStr = yesterday.getFullYear() + '-' +
+                    String(yesterday.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(yesterday.getDate()).padStart(2, '0');
+                // 本周一
+                var dayOfWeek = now.getDay() || 7;
+                var monday = new Date(now);
+                monday.setDate(monday.getDate() - dayOfWeek + 1);
+                var mondayStr = monday.getFullYear() + '-' +
+                    String(monday.getMonth() + 1).padStart(2, '0') + '-' +
+                    String(monday.getDate()).padStart(2, '0');
+
+                return data.filter(function(c) {
+                    // 用户筛选
+                    if (userFilter !== 'all' && c.user !== userFilter) return false;
+                    // 时间筛选
+                    if (timeFilter !== 'all') {
+                        var cDate = c.time.substring(0, 10);
+                        if (timeFilter === 'today' && cDate !== today) return false;
+                        if (timeFilter === 'yesterday' && cDate !== yesterdayStr) return false;
+                        if (timeFilter === 'week' && cDate < mondayStr) return false;
+                    }
+                    return true;
+                });
+            }
+
+            /* ============================================================
+               QUICK ACTIONS — Event Delegation (5 入口)
                ============================================================ */
             DOM.contentArea.addEventListener('click', function(e) {
                 var btn = e.target.closest('.quick-btn');
@@ -2025,22 +2742,27 @@
                     return;
                 }
 
-                // 通讯录 → 打开专家/联系人列表
-                if (btnId === 'quickContacts') {
-                    var html = '<div class="card"><div class="section-header"><h3 class="section-title">通讯录</h3></div><div class="expert-list" style="flex-wrap:wrap; gap:14px;">';
-                    var contacts = [
-                        {name:'王工',role:'电气工程师',dept:'运维部'},
-                        {name:'李专家',role:'安防顾问',dept:'技术部'},
-                        {name:'张总',role:'项目总监',dept:'管理部'},
-                        {name:'赵博士',role:'AI算法',dept:'研发部'},
-                        {name:'陈工',role:'结构工程师',dept:'工程部'},
-                        {name:'刘主任',role:'安保主任',dept:'安保部'}
-                    ];
-                    contacts.forEach(function(c) {
-                        html += '<div class="expert-item" style="margin-bottom:12px;"><div class="expert-avatar">' + c.name.charAt(0) + '</div><span class="expert-name">' + c.name + '</span><span class="text-xs text-muted">' + c.role + '</span></div>';
+                // 视频监控 → 查看在线联系人眼镜直播
+                if (btnId === 'quickMonitor') {
+                    var onlineCount = personnelCache.filter(function(p) { return p.status === 'online'; }).length;
+
+                    var html = '<div class="card"><div class="section-header"><h3 class="section-title">在线联系人</h3><span class="gd-section-stat">共 ' + personnelCache.length + ' 人 · <span class="online-count">' + onlineCount + ' 人在线</span></span></div>';
+                    personnelCache.forEach(function(person, idx) {
+                        var isOnline = person.status === 'online';
+                        html += '<div class="glass-device-item' + (isOnline ? ' online' : '') + '" data-person=\'' + JSON.stringify(person) + '\' tabindex="0" role="button" aria-label="' + person.name + ' — ' + (isOnline ? '在线，点击查看眼镜直播' : '离线') + '">';
+                        html += '<div class="glass-device-icon" style="border-radius:50%;">';
+                        html += '<span style="font-size:17px;font-weight:600;color:' + (isOnline ? 'var(--color-primary)' : 'var(--text-tertiary)') + ';">' + person.name.charAt(0) + '</span>';
+                        html += '</div>';
+                        html += '<div class="glass-device-info"><div class="gd-name">' + person.name + '</div><div class="gd-meta">' + person.role + ' · ' + person.location + ' · <span style="color:var(--text-secondary);">' + person.device + '</span></div></div>';
+                        html += '<span class="gd-status-dot ' + (isOnline ? 'online' : 'offline') + '" aria-hidden="true"></span>';
+                        html += '<span class="gd-status-text ' + (isOnline ? 'online' : 'offline') + '">' + (isOnline ? '在线' : '离线') + '</span>';
+                        if (isOnline) {
+                            html += '<button class="gd-view-btn" data-action="view-person-stream" data-person-idx="' + idx + '">查看画面</button>';
+                        }
+                        html += '</div>';
                     });
-                    html += '</div></div>';
-                    showSecondary('通讯录', html);
+                    html += '</div><div class="card action-footer"><span class="text-xs text-muted">点击在线联系人查看眼镜实时画面</span></div>';
+                    showSecondary('视频监控', html);
                     return;
                 }
 
@@ -2051,17 +2773,62 @@
                     return;
                 }
 
-                // AI助手
+                // AI助手 → 对话记录列表
                 if (btnId === 'quickAI') {
-                    var html = '<div class="card"><div style="width:100%; height:120px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.2" opacity="0.5"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg></div><div class="detail-row"><span class="d-label">AI 巡检助手</span><span class="d-value" style="color:var(--color-primary);">v2.4.1 在线</span></div><div class="detail-row"><span class="d-label">今日分析</span><span class="d-value">已处理 23 条记录</span></div><div class="detail-row"><span class="d-label">异常预警</span><span class="d-value" style="color:var(--color-danger);">2 条待确认</span></div></div><div class="card action-footer"><span class="action-link primary" style="margin-right:16px;">开始对话</span><span class="action-link" style="color:var(--text-tertiary);">查看历史</span></div>';
-                    showSecondary('AI助手', html);
-                    return;
-                }
+                    // 对话记录数据
+                    var conversations = [
+                        { time:'2026-06-29 10:32', user:'张三', question:'配电箱温度异常如何处理？', answer:'根据SOP v2.0第3.2节，应立即断开电源，用红外测温仪确认温度，若超过80℃需通知电工班组检修并设置警示围栏。', status:'success' },
+                        { time:'2026-06-29 09:15', user:'李四', question:'B2区发现可疑车辆如何核查？', answer:'请对准车牌进行二次识别，系统将自动比对重点车辆库。若匹配度低于85%，建议人工复核并拍照留档。', status:'success' },
+                        { time:'2026-06-29 08:05', user:'王五', question:'安全帽过期标准是什么？', answer:'根据GB 2811-2019，安全帽使用期限为30个月（塑料帽），到期前3个月系统会自动推送更换提醒。', status:'success' },
+                        { time:'2026-06-28 15:40', user:'张三', question:'消防器材过期如何处理？', answer:'抱歉，AI服务请求超时，请稍后重试或联系管理员。', status:'fail' },
+                        { time:'2026-06-28 14:20', user:'赵六', question:'C区设备间巡检要点有哪些？', answer:'1. 检查温湿度（温度18-26℃，湿度40-70%）；2. 查看设备运行指示灯；3. 检查线缆有无松动；4. 确认消防器材在位。', status:'success' },
+                        { time:'2026-06-28 11:10', user:'李四', question:'监控画面模糊怎么调焦？', answer:'对着目标区域说"调焦"，眼镜会自动对焦；也可手动双指在触控板上缩放。若仍模糊请清洁镜头并检查固件版本。', status:'success' },
+                        { time:'2026-06-27 16:55', user:'张三', question:'周界报警误报太多怎么办？', answer:'建议调整AI识别灵敏度至中等（当前为高），可在系统设置→识别参数中修改。同时检查周界摄像头是否有树叶遮挡。', status:'success' },
+                        { time:'2026-06-27 10:30', user:'王五', question:'巡检报告自动生成失败', answer:'检测到网络波动导致报告上传中断，已缓存本地。请在网络恢复后进入"我的→离线记录"手动重传。', status:'fail' }
+                    ];
 
-                // 视频监控 → 打开实时监控视图
-                if (btnId === 'quickMonitor') {
-                    var html = '<div class="card" style="padding:12px;"><div class="video-window" style="height:180px; margin-bottom:8px;"><span>实时监控画面</span><div class="badge">在线 · 4路</div></div><div class="video-controls" style="margin-bottom:0;"><button>切换画面</button><button>截图</button><button>全屏</button></div></div><div class="card card--compact"><div class="section-header" style="margin-bottom:4px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">监控点位</span></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">A区周界 — 1号枪机</div><div class="doc-status">在线 · 1080P</div></div></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">B2停车场 — 3号球机</div><div class="doc-status">在线 · 1080P</div></div></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">C区设备间 — 2号半球</div><div class="doc-status">在线 · 720P</div></div></div></div>';
-                    showSecondary('视频监控', html);
+                    // 提取唯一用户名列表
+                    var uniqueUsers = [];
+                    conversations.forEach(function(c) {
+                        if (uniqueUsers.indexOf(c.user) === -1) uniqueUsers.push(c.user);
+                    });
+
+                    var html = '<div class="card">' +
+                        '<div class="section-header" style="margin-bottom:2px;">' +
+                            '<h3 class="section-title">对话记录</h3>' +
+                            '<span class="gd-section-stat">共 ' + conversations.length + ' 条</span>' +
+                        '</div>' +
+                        // 时间筛选
+                        '<div class="conv-filter-row">' +
+                            '<span class="conv-filter-label">时间：</span>' +
+                            '<button class="filter-tag active" data-conv-filter="time" data-conv-value="all">全部</button>' +
+                            '<button class="filter-tag" data-conv-filter="time" data-conv-value="today">今天</button>' +
+                            '<button class="filter-tag" data-conv-filter="time" data-conv-value="yesterday">昨天</button>' +
+                            '<button class="filter-tag" data-conv-filter="time" data-conv-value="week">本周</button>' +
+                        '</div>' +
+                        // 用户筛选
+                        '<div class="conv-filter-row">' +
+                            '<span class="conv-filter-label">用户：</span>' +
+                            '<button class="filter-tag active" data-conv-filter="user" data-conv-value="all">全部</button>';
+                    uniqueUsers.forEach(function(u) {
+                        html += '<button class="filter-tag" data-conv-filter="user" data-conv-value="' + u + '">' + u + '</button>';
+                    });
+                    html += '</div></div>' +
+                        // 对话列表
+                        '<div class="card card--inset" id="convList">' +
+                            renderConvItems(conversations) +
+                        '</div>' +
+                        '<div class="card action-footer">' +
+                            '<span class="action-link primary" style="margin-right:16px;">开始新对话</span>' +
+                            '<span class="action-link" style="color:var(--text-tertiary);">导出记录</span>' +
+                        '</div>';
+                    showSecondary('AI助手', html);
+
+                    // 存储原始数据到 DOM 以便筛选
+                    setTimeout(function() {
+                        var convList = document.getElementById('convList');
+                        if (convList) convList.dataset.convData = JSON.stringify(conversations);
+                    }, 50);
                     return;
                 }
 
@@ -2071,6 +2838,518 @@
                     return;
                 }
             });
+
+        /* ============================================================
+           DEV PANEL — 开发时交互说明（业务外功能，固定展示）
+           ============================================================ */
+            var devActive = true; // 固定开启
+            var lastInteraction = null;
+
+            // 创建面板 DOM
+            var panel = document.createElement('div');
+            panel.className = 'dev-panel';
+            panel.innerHTML = '<div class="dev-title">🔧 交互说明</div>' +
+                '<div class="dev-empty">点击手机内任意可交互元素<br>此处将显示功能说明</div>';
+            document.body.appendChild(panel);
+
+            // 组件说明映射表（最近交互用，纯中文描述）
+            function describeInteraction(el, event) {
+                var info = { component: '', action: '', effect: '', page: state.activePage, data: {} };
+
+                // 快捷入口
+                var quickBtn = el.closest('.quick-btn');
+                if (quickBtn) {
+                    var btnNames = { quickRecords:'识别记录', quickMonitor:'视频监控', quickKnowledge:'知识库', quickAI:'AI助手', quickRemote:'远程协作' };
+                    var descs = {
+                        quickRecords:   { action:'从工作台跳转至识别页', effect:'底部导航同步切换，展示识别入口、筛选标签和识别记录列表' },
+                        quickMonitor:   { action:'打开视频监控二级页', effect:'弹出覆盖层，展示关联账号下的联系人列表（含在线和离线两种状态），在线者可查看眼镜实时画面' },
+                        quickKnowledge: { action:'打开知识库二级页', effect:'展示搜索栏、分类筛选和文档列表（含缓存和云端两种状态）' },
+                        quickAI:        { action:'打开AI助手二级页', effect:'展示对话记录列表，支持按时间和用户双维度组合筛选，筛选后自动更新计数' },
+                        quickRemote:    { action:'从工作台跳转至协同页', effect:'底部导航同步切换，展示实时画面传输窗口和远程标注协作功能' }
+                    };
+                    var d = descs[quickBtn.id] || { action:'触发快捷入口', effect:'打开对应功能页面' };
+                    info.component = '金刚区 · ' + (btnNames[quickBtn.id] || quickBtn.id);
+                    info.action = d.action;
+                    info.effect = d.effect;
+                    info.data = { btnId: quickBtn.id };
+                    return info;
+                }
+
+                // 筛选标签
+                var filterTag = el.closest('.filter-tag');
+                if (filterTag && filterTag.dataset.filter) {
+                    var fv = filterTag.dataset.filter;
+                    info.component = '类型筛选 · ' + fv;
+                    info.action = '将识别记录按"' + fv + '"进行过滤';
+                    info.effect = fv === 'all' ? '显示全部类型记录' : '仅显示"' + fv + '"类记录，其余隐藏；标签高亮切换';
+                    info.data = { filter: fv };
+                    return info;
+                }
+                if (filterTag && filterTag.dataset.convFilter) {
+                    var fType = filterTag.dataset.convFilter === 'time' ? '时间' : '用户';
+                    info.component = '对话筛选 · ' + fType + '=' + filterTag.dataset.convValue;
+                    info.action = '按' + fType + '过滤对话记录';
+                    info.effect = '列表即时刷新，与另一维度筛选条件取交集，同步更新页头计数';
+                    info.data = { filterType: filterTag.dataset.convFilter, value: filterTag.dataset.convValue };
+                    return info;
+                }
+
+                // 识别记录项
+                var recordItem = el.closest('.record-item');
+                if (recordItem && recordItem.dataset.record) {
+                    var recData = safeParseJSON(recordItem.dataset.record);
+                    if (recData) {
+                        var typeMap = {
+                            '隐患': '展示隐患现场示意与AI生成的处理建议（含橙色警示条），底部提供"生成整改单"入口',
+                            '人脸': '并排对比登记人脸与识别抓拍照片，展示匹配度、时间和详情，底部提供"查看原始图像"',
+                            '车辆': '并排对比登记车牌与识别抓拍照片，展示匹配度、时间和详情，底部提供"查看原始图像"',
+                            '物体': '展示物体示意图与功能说明，底部提供"记录位置"入口'
+                        };
+                        info.component = '识别记录 · ' + (recData.type || '') + ' · ' + (recData.name || '');
+                        info.action = '打开识别记录详情二级页';
+                        info.effect = typeMap[recData.type] || '展示识别详情';
+                        info.data = { type: recData.type, name: recData.name, time: recData.time };
+                    }
+                    return info;
+                }
+
+                // 巡检任务卡片
+                var taskCard = el.closest('.task-card');
+                if (taskCard && taskCard.dataset.task) {
+                    var taskData = safeParseJSON(taskCard.dataset.task);
+                    if (taskData) {
+                        var hasPoints = taskData.order === '有序' && taskData.points && taskData.points.length > 0;
+                        info.component = '巡检任务 · ' + (taskData.name || '');
+                        info.action = '打开任务详情二级页';
+                        info.effect = hasPoints
+                            ? '有序巡检：动态渲染点位地图（含进度标记）和点位清单，展示时间/执行人/描述，底部提供"开始执行"和"查看附件"'
+                            : '无序巡检：展示时间安排、执行人和任务描述，底部提供操作入口';
+                        info.data = { name: taskData.name, status: taskData.status, order: taskData.order };
+                    }
+                    return info;
+                }
+
+                // 设备按钮
+                if (el.closest('#unbindBtn')) {
+                    info.component = '设备卡片 · 解绑按钮';
+                    info.action = '解除当前眼镜设备绑定';
+                    info.effect = '设备卡片切换为未绑定引导视图，显示"连接设备"主按钮和"模拟绑定"次按钮';
+                    return info;
+                }
+                if (el.closest('#bindBtn')) {
+                    info.component = '设备卡片 · 模拟绑定（开发调试用）';
+                    info.action = '跳过蓝牙流程直接恢复绑定态';
+                    info.effect = '设备卡片恢复已绑定视图：显示设备名、在线状态、固件版本、电量环和解绑按钮';
+                    return info;
+                }
+                if (el.closest('#addDeviceBtn')) {
+                    info.component = '设备卡片 · 连接设备';
+                    info.action = '打开蓝牙扫描页面';
+                    info.effect = '弹出蓝牙扫描界面，雷达动画搜索附近设备，每0.6秒发现一台，点击设备进入连接流程（约1.2秒），连接成功后自动绑定并关闭';
+                    return info;
+                }
+
+                // 蓝牙设备项
+                var btItem = el.closest('.bt-device-item');
+                if (btItem) {
+                    var isConnecting = btItem.classList.contains('connecting');
+                    var isConnected = btItem.classList.contains('connected');
+                    info.component = '蓝牙设备 · ' + (btItem.dataset.btName || '');
+                    if (isConnected) {
+                        info.action = '设备已连接，不可重复操作';
+                        info.effect = '行样式：绿色边框和背景，状态显示"已连接"';
+                    } else if (isConnecting) {
+                        info.action = '连接进行中，不可重复点击';
+                        info.effect = '行样式：蓝色边框和背景，状态显示"连接中"，约1.2秒后自动切换为已连接';
+                    } else {
+                        info.action = '发起蓝牙连接';
+                        info.effect = '状态流转：未连接→连接中（蓝色/1.2秒）→已连接（绿色/0.8秒后自动关闭扫描页并更新设备卡片）';
+                    }
+                    return info;
+                }
+
+                // 眼镜设备/联系人行
+                var glassItem = el.closest('.glass-device-item');
+                if (glassItem) {
+                    if (glassItem.dataset.device) {
+                        var gd = safeParseJSON(glassItem.dataset.device);
+                        info.component = '关联设备 · ' + (gd ? gd.name : '');
+                        info.action = gd && gd.status === 'online' ? '打开设备眼镜实时直播' : '设备离线，不可操作';
+                        info.effect = gd && gd.status === 'online' ? '进入直播页面：视频窗口（1080P水印）+ 截图/录制/静音/切换视角 + 设备信息卡 + 返回和标注入口' : '无交互效果';
+                    } else if (glassItem.dataset.person) {
+                        var gp = safeParseJSON(glassItem.dataset.person);
+                        info.component = '在线联系人 · ' + (gp ? gp.name : '');
+                        info.action = gp && gp.status === 'online' ? '打开该人员眼镜实时直播' : '人员离线，不可操作';
+                        info.effect = gp && gp.status === 'online' ? '进入直播页面：视频窗口 + 人员信息卡（姓名/角色/佩戴设备/位置/画质）+ 控制栏 + 返回和标注入口' : '无交互效果';
+                    }
+                    return info;
+                }
+
+                // 查看画面按钮
+                var viewBtn = el.closest('[data-action="view-stream"], [data-action="view-person-stream"]');
+                if (viewBtn) {
+                    info.component = '查看画面按钮';
+                    info.action = '打开眼镜实时直播画面';
+                    info.effect = '进入全屏直播页面，视频窗口带水印和1080P标记，提供截图/录制/静音/切换视角控制，下方展示设备或人员信息卡片';
+                    return info;
+                }
+
+                // 直播返回
+                if (el.closest('[data-action="stream-back"]')) {
+                    info.component = '直播页 · 返回按钮';
+                    info.action = '关闭直播画面，返回上级列表';
+                    info.effect = '关闭直播页面后短暂回到主页，随即自动重新打开设备/联系人列表（模拟返回上级的用户预期）';
+                    return info;
+                }
+
+                // 悬浮锁屏
+                if (el.closest('#floatLock')) {
+                    var willLock = !state.isLocked;
+                    info.component = '悬浮锁屏按钮';
+                    info.action = willLock ? '锁定屏幕' : '解锁屏幕';
+                    info.effect = willLock ? '图标切换为锁定态，按钮变黄色，内容区停止响应触摸以防误触（导航和锁屏按钮自身除外）' : '图标恢复解锁态，按钮恢复默认色，全部触摸交互恢复正常';
+                    info.data = { action: willLock ? 'lock' : 'unlock' };
+                    return info;
+                }
+
+                // 识别入口
+                var recogEntry = el.closest('.recog-entry');
+                if (recogEntry) {
+                    var label = recogEntry.querySelector('.recog-label');
+                    var isFace = label && label.textContent.indexOf('人脸') !== -1;
+                    info.component = '识别入口 · ' + (label ? label.textContent : '');
+                    info.action = isFace ? '触发人脸识别' : '触发车辆识别';
+                    info.effect = isFace
+                        ? '眼镜摄像头抓拍→AI比对人员库→返回匹配结果→自动跳转详情页（并排对比登记人脸与抓拍照片）'
+                        : '眼镜摄像头抓拍车牌→AI比对车辆库→返回匹配结果→自动跳转详情页（并排对比登记车牌与抓拍照片）';
+                    return info;
+                }
+
+                // 二级页返回
+                if (el.closest('#secondaryBack')) {
+                    info.component = '二级页头部 · 返回按钮';
+                    info.action = '关闭当前二级详情页';
+                    info.effect = '覆盖层消失，主页面恢复交互，蓝牙扫描等临时定时器被安全清理，筛选和列表状态保留';
+                    return info;
+                }
+
+                // 菜单项
+                var menuItem = el.closest('.menu-item');
+                if (menuItem) {
+                    var menuText = menuItem.querySelector('span') ? menuItem.querySelector('span').textContent : menuItem.textContent.replace(/[›•]/g, '').trim();
+                    var isDisabled = menuItem.style.color === 'var(--text-disabled)';
+                    info.component = '菜单项 · ' + (menuText || '').substring(0, 16);
+                    info.action = isDisabled ? '当前为禁用态，不可点击' : '执行对应菜单功能';
+                    info.effect = isDisabled ? '无交互效果' : '打开对应功能页面或触发系统操作';
+                    info.data = { disabled: isDisabled };
+                    return info;
+                }
+
+                // 通用回退
+                var tagName = el.tagName.toLowerCase();
+                if (tagName === 'button' || el.closest('button') || el.closest('[role="button"]')) {
+                    var label = (el.textContent || el.getAttribute('aria-label') || '').trim().substring(0, 20);
+                    info.component = '按钮 · ' + label;
+                    info.action = '触发点击交互';
+                    info.effect = '执行按钮绑定的回调';
+                    return info;
+                }
+
+                return null;
+            }
+
+            // 全局点击监听（捕获阶段，获取所有交互）
+            document.addEventListener('click', function(e) {
+                // 忽略面板自身的点击
+                if (e.target.closest('.dev-panel')) return;
+
+                var info = describeInteraction(e.target, e);
+                if (!info) return;
+
+                lastInteraction = info;
+                updateDevPanel(info);
+                // 延迟扫描页面，等待 DOM 更新
+                setTimeout(updateDevPanel, 120);
+            }, true); // 捕获阶段
+
+            // 获取当前页面的完整交互清单（纯中文、同类去重、不含底部导航）
+            function scanPageInteractions() {
+                var items = [];
+                var secondaryActive = document.querySelector('.secondary-page.active');
+                var currentPage = state.activePage;
+
+                // 悬浮锁屏（所有页面可见）
+                items.push({
+                    cat: '全局',
+                    label: '悬浮锁屏按钮',
+                    action: state.isLocked
+                        ? '解除锁定，恢复触摸交互，图标和按钮颜色恢复默认态'
+                        : '锁定屏幕，图标切换为锁定态、按钮变黄色，内容区停止响应触摸以防误触（底部导航和锁屏按钮自身仍可操作）',
+                    state: state.isLocked ? '已锁' : '解锁'
+                });
+
+                // ========== 工作台 ==========
+                if (currentPage === 'work' && !secondaryActive) {
+                    if (state.isBound) {
+                        items.push({
+                            cat: '设备管理',
+                            label: '解绑设备',
+                            action: '解除当前眼镜绑定，设备卡片切换为未绑定引导视图，显示"连接设备"入口和"模拟绑定"入口',
+                            state: '已绑定'
+                        });
+                    } else {
+                        items.push({
+                            cat: '设备管理',
+                            label: '连接设备',
+                            action: '打开蓝牙扫描页面，雷达动画搜索附近设备，每0.6秒发现一台，点击设备进入连接流程（约1.2秒），成功后自动绑定并关闭扫描页',
+                            state: '未绑定'
+                        });
+                        items.push({
+                            cat: '设备管理',
+                            label: '模拟绑定（开发用）',
+                            action: '跳过真实蓝牙流程直接恢复已绑定状态，设备卡片显示设备名、在线状态、固件版本和电量环',
+                            state: '调试入口'
+                        });
+                    }
+                    // 金刚区（5个不同入口，逐一列出）
+                    var quickDescs = [
+                        { label:'识别记录', action:'跳转至识别页，展示识别入口、筛选标签（含数量角标）和识别记录列表' },
+                        { label:'视频监控', action:'打开二级页，展示关联账号下的联系人列表（含在线和离线两种状态），在线者点击可查看眼镜实时直播画面' },
+                        { label:'知识库',   action:'打开二级页，展示搜索栏、分类筛选和文档列表（含缓存和云端两种状态）' },
+                        { label:'AI助手',   action:'打开二级页，展示对话记录列表，支持按时间和用户组合筛选，筛选后自动更新计数' },
+                        { label:'远程协作', action:'跳转至协同页，展示实时画面传输窗口与远程专家标注协作功能' }
+                    ];
+                    quickDescs.forEach(function(q) {
+                        items.push({ cat:'金刚区快捷入口', label: q.label, action: q.action });
+                    });
+                    // 巡检任务（同类去重）
+                    items.push({
+                        cat: '巡检任务列表',
+                        label: '巡检任务',
+                        action: '点击打开详情二级页：有序任务渲染动态点位地图和进度清单，无序任务展示时间/执行人/描述；底部提供"开始执行"和"查看附件"入口',
+                        state: '进行中/待执行/已完成'
+                    });
+                }
+
+                // ========== 识别页 ==========
+                if (currentPage === 'recog' && !secondaryActive) {
+                    // 识别入口（2个不同功能，逐一列出）
+                    items.push({
+                        cat: '识别入口',
+                        label: '人脸识别',
+                        action: '眼镜摄像头实时抓拍 → AI算法比对人员库 → 返回匹配结果与相似度 → 自动跳转详情页并排对比登记人脸与抓拍照片'
+                    });
+                    items.push({
+                        cat: '识别入口',
+                        label: '车辆对比',
+                        action: '眼镜摄像头抓拍车牌 → AI算法比对车辆库 → 返回匹配结果与相似度 → 自动跳转详情页并排对比登记车牌与抓拍照片'
+                    });
+                    // 筛选标签（不同值，逐一列出）
+                    var filterVals = ['全部', '人脸', '车辆', '隐患', '物体'];
+                    filterVals.forEach(function(f) {
+                        var isActive = state.activeFilter === f;
+                        items.push({
+                            cat: '类型筛选',
+                            label: (isActive ? '● ' : '') + f,
+                            action: '仅显示"' + f + '"类识别记录，其余隐藏；标签高亮切换',
+                            state: isActive ? '当前选中' : ''
+                        });
+                    });
+                    // 识别记录（按类型去重，每类一条说明）
+                    var typeDesc = {
+                        '人脸': '打开人脸识别详情：并排对比登记人脸与眼镜抓拍照片，展示匹配度、时间、详情',
+                        '车辆': '打开车辆识别详情：并排对比登记车牌与眼镜抓拍照片，展示匹配度、时间、详情',
+                        '隐患': '打开隐患详情：展示现场示意图、识别时间、AI生成的处理建议（橙色警示条），底部提供"生成整改单"入口',
+                        '物体': '打开物体详情：展示物体示意图、识别时间、功能说明，底部提供"记录位置"入口'
+                    };
+                    var seenTypes = {};
+                    document.querySelectorAll('#page-recog .record-item').forEach(function(item) {
+                        var t = item.dataset.type;
+                        if (t && !seenTypes[t] && typeDesc[t]) {
+                            seenTypes[t] = true;
+                            items.push({
+                                cat: '识别记录列表',
+                                label: t + '类记录',
+                                action: typeDesc[t],
+                                state: t
+                            });
+                        }
+                    });
+                }
+
+                // ========== 协同页 ==========
+                if (currentPage === 'collab' && !secondaryActive) {
+                    items.push({
+                        cat: '视频控制',
+                        label: '截图',
+                        action: '捕获当前实时画面帧，自动叠加设备水印和时间戳后保存至本地存储'
+                    });
+                    items.push({
+                        cat: '视频控制',
+                        label: '录制',
+                        action: '开始或停止录制实时画面，录制中按钮变红色脉冲态，视频自动保存，单段最长5分钟'
+                    });
+                    items.push({
+                        cat: '视频控制',
+                        label: '静音',
+                        action: '切换麦克风采集状态，静音时按钮高亮橙色，远端听不到现场声音，再次点击恢复'
+                    });
+                    items.push({
+                        cat: '远程标注',
+                        label: '发起标注',
+                        action: '邀请在线专家进行远程协作，专家接受后在视频画面上实时绘制箭头和圈点标注，标注内容叠加到眼镜佩戴者视野中'
+                    });
+                    // 在线专家（同类去重）
+                    items.push({
+                        cat: '在线专家',
+                        label: '在线专家',
+                        action: '点击专家头像一键呼叫，发起实时音视频通话，专家端可查看眼镜第一视角画面，支持远程标注和语音指导'
+                    });
+                }
+
+                // ========== 我的页 ==========
+                if (currentPage === 'me' && !secondaryActive) {
+                    // 菜单项（每项功能不同，逐一列出但使用预定义描述）
+                    var menuDefs = [
+                        { label:'设备固件升级', action:'检查固件版本并对比云端最新版，有新版本时显示红点提示，升级过程约3分钟设备不可用' },
+                        { label:'隐私与锁屏设置', action:'配置自动锁屏时间、数据上传策略（仅WiFi或全部网络）、清除本地缓存' },
+                        { label:'退出登录', action:'当前为禁用态不可点击；实际应用中清除本地身份凭证并跳转至登录页', state:'禁用' }
+                    ];
+                    menuDefs.forEach(function(m) {
+                        items.push({ cat:'菜单项', label: m.label, action: m.action, state: m.state || '' });
+                    });
+                }
+
+                // ========== 二级页通用 ==========
+                if (secondaryActive) {
+                    var secTitle = document.getElementById('secondaryTitle');
+                    var titleText = secTitle ? secTitle.textContent : '二级页';
+                    items.push({
+                        cat: '二级页',
+                        label: '← 返回按钮',
+                        action: '关闭当前"' + titleText + '"页面，清理蓝牙扫描等临时定时器，返回主页面后筛选和列表状态保留'
+                    });
+
+                    // 蓝牙设备
+                    var btItems = document.querySelectorAll('.bt-device-item');
+                    if (btItems.length > 0) {
+                        items.push({
+                            cat: '蓝牙设备',
+                            label: '可连接设备',
+                            action: '点击设备发起连接，状态流转：未连接 → 连接中（蓝色高亮/约1.2秒）→ 已连接（绿色高亮）→ 自动关闭扫描页并更新设备卡片为已绑定',
+                            state: '未连接/连接中/已连接'
+                        });
+                    }
+
+                    // 关联设备/联系人
+                    var hasDevices = document.querySelectorAll('.glass-device-item[data-device]').length > 0;
+                    var hasPersons = document.querySelectorAll('.glass-device-item[data-person]').length > 0;
+                    if (hasDevices) {
+                        items.push({
+                            cat: '关联设备',
+                            label: '关联设备',
+                            action: '在线设备：点击打开眼镜实时直播（视频窗口+控制栏+设备信息卡+返回和标注入口）。离线设备：行灰色不可点击',
+                            state: '在线/离线'
+                        });
+                    }
+                    if (hasPersons) {
+                        items.push({
+                            cat: '在线联系人',
+                            label: '在线联系人',
+                            action: '在线人员：点击打开其眼镜实时直播（视频窗口+人员信息卡+控制栏+返回和标注入口）。离线人员：行灰色不可点击',
+                            state: '在线/离线'
+                        });
+                    }
+
+                    // 直播控制（仅直播页面出现时）
+                    if (document.querySelector('[data-action="stream-back"]')) {
+                        items.push({ cat:'直播控制', label:'截图', action:'捕获当前眼镜直播画面帧，叠加水印和时戳保存至本地' });
+                        items.push({ cat:'直播控制', label:'录制', action:'开始或停止录制直播流，录制中按钮红色脉冲，视频保存至本地' });
+                        items.push({ cat:'直播控制', label:'静音', action:'切换直播音频上行，静音时按钮高亮橙色，远端听不到现场声音' });
+                        items.push({ cat:'直播控制', label:'切换视角', action:'在眼镜多摄像头间切换（主摄/广角/微距），切换时画面短暂黑屏约0.3秒' });
+                        items.push({ cat:'直播操作', label:'返回列表', action:'关闭直播页面，自动重新打开设备或联系人列表' });
+                        items.push({ cat:'直播操作', label:'发起标注', action:'邀请在线专家在直播画面上实时绘制标注，标注叠加到眼镜佩戴者视野' });
+                    }
+
+                    // 对话筛选
+                    var convFilters = document.querySelectorAll('[data-conv-filter]');
+                    if (convFilters.length > 0) {
+                        items.push({
+                            cat: '对话筛选',
+                            label: '时间 + 用户双维度筛选',
+                            action: '可选择全部/今天/昨天/本周的时间范围和按用户过滤，两个维度取交集，筛选后列表即时刷新并更新计数'
+                        });
+                    }
+                }
+
+                return items;
+            }
+
+            function updateDevPanel(info) {
+                var now = new Date();
+                var timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                    String(now.getMinutes()).padStart(2, '0') + ':' +
+                    String(now.getSeconds()).padStart(2, '0');
+
+                var pageNames = { work:'工作台', recog:'识别', collab:'协同', me:'我的' };
+                var secondaryActive = document.querySelector('.secondary-page.active');
+                var currentPageLabel = secondaryActive
+                    ? '二级页 · ' + (document.getElementById('secondaryTitle') ? document.getElementById('secondaryTitle').textContent : '')
+                    : (pageNames[state.activePage] || state.activePage);
+
+                var html = '<div class="dev-title">🔧 交互说明 · ' + currentPageLabel + '</div>';
+
+                // 最近交互
+                if (info) {
+                    html += '<div class="dev-section">' +
+                        '<div class="dev-section-title">📌 最近交互</div>' +
+                        '<div class="dev-row"><span class="dev-label">组件</span><span class="dev-value">' + info.component + '</span></div>' +
+                        '<div class="dev-row"><span class="dev-label">页面</span><span class="dev-value">' + (pageNames[info.page] || info.page) + '</span></div>' +
+                        '<div class="dev-row"><span class="dev-label">动作</span><span class="dev-value action">' + info.action + '</span></div>' +
+                        '<div class="dev-row"><span class="dev-label">效果</span><span class="dev-value effect">' + info.effect + '</span></div>';
+                    html += '</div>';
+                }
+
+                // 当前页面交互清单
+                var allItems = scanPageInteractions();
+                if (allItems.length > 0) {
+                    var groups = {};
+                    allItems.forEach(function(item) {
+                        if (!groups[item.cat]) groups[item.cat] = [];
+                        groups[item.cat].push(item);
+                    });
+
+                    html += '<div class="dev-section">' +
+                        '<div class="dev-section-title">📋 页面交互清单</div>';
+
+                    Object.keys(groups).forEach(function(cat) {
+                        html += '<span class="dev-cat">' + cat + '</span>';
+                        groups[cat].forEach(function(item) {
+                            var stateTag = item.state ? '<span class="dev-item-state">' + item.state + '</span>' : '';
+                            html += '<span class="dev-item-label">' + item.label + '</span>' + stateTag +
+                                '<span class="dev-item-action">' + item.action + '</span>';
+                        });
+                    });
+
+                    html += '</div>';
+                }
+
+                html += '<div class="dev-timestamp">⏱ ' + timeStr + '</div>';
+                panel.innerHTML = html;
+            }
+
+            // 初始化时扫描
+            setTimeout(updateDevPanel, 200);
+
+            // 同步 state 变化时自动刷新面板
+            var _origSetState = setState;
+            setState = function(key, value) {
+                _origSetState(key, value);
+                if (devActive && lastInteraction) {
+                    lastInteraction.page = state.activePage;
+                    updateDevPanel(lastInteraction);
+                }
+            };
         })();
     </script>
 </body>
