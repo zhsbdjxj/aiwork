@@ -1865,7 +1865,7 @@
                         <h3 class="section-title">巡检任务</h3>
                         <a href="#" class="section-link" role="button">查看全部 ›</a>
                     </div>
-                    <div class="task-card status-progress" data-task='{"name":"A区周界巡检","status":"进行中","start":"09:30","end":"10:00","order":"有序","executor":"张三","desc":"重点检查周界围栏及监控设备运行状况。","points":[{"name":"入口岗亭","status":"已完成"},{"name":"监控室","status":"已完成"},{"name":"东门","status":"待执行"}]}' tabindex="0" role="button" aria-label="A区周界巡检，进行中">
+                    <div class="task-card status-progress" data-task='{"name":"A区周界巡检","status":"进行中","start":"09:30","end":"10:00","order":"有序","executor":"李明","desc":"重点检查周界围栏及监控设备运行状况。","points":[{"name":"入口岗亭","status":"已完成"},{"name":"监控室","status":"已完成"},{"name":"东门","status":"待执行"}]}' tabindex="0" role="button" aria-label="A区周界巡检，进行中">
                         <div class="task-header">
                             <span class="task-title">A区周界巡检</span>
                             <span class="task-badge progress">进行中</span>
@@ -1875,9 +1875,8 @@
                             <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">10:00</span></span>
                             <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">有序</span></span>
                         </div>
-                        <div class="task-executor">执行人：<span class="executor-name">张三</span></div>
                     </div>
-                    <div class="task-card status-pending" data-task='{"name":"B2停车场车辆巡检","status":"待执行","start":"11:15","end":"11:45","order":"无序","executor":"李四","desc":"对B2停车场所有车辆进行车牌识别及违停检查。"}' tabindex="0" role="button" aria-label="B2停车场车辆巡检，待执行">
+                    <div class="task-card status-pending" data-task='{"name":"B2停车场车辆巡检","status":"待执行","start":"11:15","end":"11:45","order":"无序","executor":"李明","desc":"对B2停车场所有车辆进行车牌识别及违停检查。"}' tabindex="0" role="button" aria-label="B2停车场车辆巡检，待执行">
                         <div class="task-header">
                             <span class="task-title">B2停车场车辆巡检</span>
                             <span class="task-badge pending">待执行</span>
@@ -1887,9 +1886,8 @@
                             <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">11:45</span></span>
                             <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">无序</span></span>
                         </div>
-                        <div class="task-executor">执行人：<span class="executor-name">李四</span></div>
                     </div>
-                    <div class="task-card status-done" data-task='{"name":"C区设备间巡检","status":"已完成","start":"08:00","end":"08:30","order":"有序","executor":"王五","desc":"巡检C区所有设备间，检查温湿度及设备运行日志。","points":[{"name":"设备间1","status":"已完成"},{"name":"设备间2","status":"已完成"}]}' tabindex="0" role="button" aria-label="C区设备间巡检，已完成">
+                    <div class="task-card status-done" data-task='{"name":"C区设备间巡检","status":"已完成","start":"08:00","end":"08:30","order":"有序","executor":"李明","desc":"巡检C区所有设备间，检查温湿度及设备运行日志。","points":[{"name":"设备间1","status":"已完成"},{"name":"设备间2","status":"已完成"}]}' tabindex="0" role="button" aria-label="C区设备间巡检，已完成">
                         <div class="task-header">
                             <span class="task-title">C区设备间巡检</span>
                             <span class="task-badge done">已完成</span>
@@ -1899,7 +1897,6 @@
                             <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">08:30</span></span>
                             <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">有序</span></span>
                         </div>
-                        <div class="task-executor">执行人：<span class="executor-name">王五</span></div>
                     </div>
                 </div>
             </div>
@@ -2823,14 +2820,12 @@
                巡检任务 — 查看全部列表 & 筛选
                ============================================================ */
             var allTasks = [
-                { name:'A区周界巡检', status:'进行中', start:'09:30', end:'10:00', order:'有序', executor:'张三', date:'2026-06-29', desc:'重点检查周界围栏及监控设备运行状况。', points:[{name:'入口岗亭',status:'已完成'},{name:'监控室',status:'已完成'},{name:'东门',status:'待执行'}] },
-                { name:'B2停车场车辆巡检', status:'待执行', start:'11:15', end:'11:45', order:'无序', executor:'李四', date:'2026-06-29', desc:'对B2停车场所有车辆进行车牌识别及违停检查。' },
-                { name:'C区设备间巡检', status:'已完成', start:'08:00', end:'08:30', order:'有序', executor:'王五', date:'2026-06-29', desc:'巡检C区所有设备间，检查温湿度及设备运行日志。', points:[{name:'设备间1',status:'已完成'},{name:'设备间2',status:'已完成'}] },
-                { name:'D区消防设施检查', status:'进行中', start:'14:00', end:'15:00', order:'有序', executor:'张三', date:'2026-06-29', desc:'检查D区所有消防栓、灭火器及报警装置。', points:[{name:'消防栓A',status:'已完成'},{name:'灭火器组',status:'进行中'},{name:'报警装置',status:'待执行'}] },
-                { name:'E区配电房巡检', status:'待执行', start:'16:00', end:'17:00', order:'无序', executor:'赵六', date:'2026-06-28', desc:'检查配电房变压器、开关柜及线缆温度。' },
-                { name:'F区仓库周界巡检', status:'已完成', start:'07:00', end:'08:00', order:'有序', executor:'李四', date:'2026-06-28', desc:'巡检仓库周边围栏、门禁及照明设施。', points:[{name:'北门',status:'已完成'},{name:'东围栏',status:'已完成'}] },
-                { name:'G区办公楼巡检', status:'已完成', start:'10:00', end:'11:00', order:'有序', executor:'王五', date:'2026-06-27', desc:'检查办公楼门禁系统、电梯运行及应急通道。', points:[{name:'大厅',status:'已完成'},{name:'电梯间',status:'已完成'},{name:'应急通道',status:'已完成'}] },
-                { name:'H区停车场夜间巡检', status:'待执行', start:'22:00', end:'23:00', order:'无序', executor:'赵六', date:'2026-06-27', desc:'夜间对H区停车场进行照明检查和车辆违停排查。' }
+                { name:'A区周界巡检', status:'进行中', start:'09:30', end:'10:00', order:'有序', executor:'李明', date:'2026-06-29', desc:'重点检查周界围栏及监控设备运行状况。', points:[{name:'入口岗亭',status:'已完成'},{name:'监控室',status:'已完成'},{name:'东门',status:'待执行'}] },
+                { name:'B2停车场车辆巡检', status:'待执行', start:'11:15', end:'11:45', order:'无序', executor:'李明', date:'2026-06-29', desc:'对B2停车场所有车辆进行车牌识别及违停检查。' },
+                { name:'C区设备间巡检', status:'已完成', start:'08:00', end:'08:30', order:'有序', executor:'李明', date:'2026-06-29', desc:'巡检C区所有设备间，检查温湿度及设备运行日志。', points:[{name:'设备间1',status:'已完成'},{name:'设备间2',status:'已完成'}] },
+                { name:'D区消防设施检查', status:'已完成', start:'14:00', end:'15:00', order:'有序', executor:'李明', date:'2026-06-28', desc:'检查D区所有消防栓、灭火器及报警装置。', points:[{name:'消防栓A',status:'已完成'},{name:'灭火器组',status:'已完成'},{name:'报警装置',status:'已完成'}] },
+                { name:'E区配电房巡检', status:'进行中', start:'16:00', end:'17:00', order:'无序', executor:'李明', date:'2026-06-28', desc:'检查配电房变压器、开关柜及线缆温度。' },
+                { name:'F区仓库周界巡检', status:'待执行', start:'22:00', end:'23:00', order:'有序', executor:'李明', date:'2026-06-27', desc:'巡检仓库周边围栏、门禁及照明设施。', points:[{name:'北门',status:'已完成'},{name:'东围栏',status:'已完成'}] }
             ];
 
             function renderTaskList(tasks) {
@@ -2845,13 +2840,12 @@
                         '<span class="task-list-status ' + sc + '" aria-hidden="true"></span>' +
                         '<div class="task-list-info"><div class="tl-name">' + t.name + '</div><div class="tl-meta">' + t.start + '-' + t.end + ' · ' + pointInfo + ' · ' + t.date + '</div></div>' +
                         '<span class="task-list-badge ' + sc + '">' + t.status + '</span>' +
-                        '<span class="task-list-executor">' + t.executor + '</span>' +
                     '</div>';
                 });
                 return html;
             }
 
-            function filterTaskList(data, timeFilter, statusFilter, executorFilter) {
+            function filterTaskList(data, timeFilter, statusFilter) {
                 var now = new Date();
                 var today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
                 var weekStart = new Date(now);
@@ -2861,7 +2855,6 @@
 
                 return data.filter(function(t) {
                     if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-                    if (executorFilter !== 'all' && t.executor !== executorFilter) return false;
                     if (timeFilter === 'today' && t.date !== today) return false;
                     if (timeFilter === 'week' && t.date < weekStr) return false;
                     if (timeFilter === 'month' && t.date.substring(0,7) !== monthStr) return false;
@@ -2870,10 +2863,6 @@
             }
 
             function openTaskList() {
-                var uniqueExecutors = [];
-                allTasks.forEach(function(t) { if (uniqueExecutors.indexOf(t.executor) === -1) uniqueExecutors.push(t.executor); });
-                var statusMap = { '进行中':'progress', '待执行':'pending', '已完成':'done' };
-
                 var html = '<div class="card"><div class="section-header" style="margin-bottom:2px;"><h3 class="section-title">巡检任务列表</h3><span class="gd-section-stat">共 ' + allTasks.length + ' 条</span></div>' +
                     '<div class="conv-filter-row"><span class="conv-filter-label">时间：</span>' +
                         '<button class="filter-tag active" data-task-filter="time" data-task-value="all">全部</button>' +
@@ -2887,12 +2876,7 @@
                         '<button class="filter-tag" data-task-filter="status" data-task-value="待执行">待执行</button>' +
                         '<button class="filter-tag" data-task-filter="status" data-task-value="已完成">已完成</button>' +
                     '</div>' +
-                    '<div class="conv-filter-row"><span class="conv-filter-label">执行人：</span>' +
-                        '<button class="filter-tag active" data-task-filter="executor" data-task-value="all">全部</button>';
-                uniqueExecutors.forEach(function(e) {
-                    html += '<button class="filter-tag" data-task-filter="executor" data-task-value="' + e + '">' + e + '</button>';
-                });
-                html += '</div></div>' +
+                    '</div>' +
                     '<div class="card card--inset" id="taskListView">' + renderTaskList(allTasks) + '</div>';
 
                 showSecondary('巡检任务列表', html);
@@ -2915,19 +2899,18 @@
                 parentRow.querySelectorAll('.filter-tag[data-task-filter="' + filterType + '"]').forEach(function(t) { t.classList.remove('active'); });
                 taskTag.classList.add('active');
 
-                var timeFilter = 'all', statusFilter = 'all', executorFilter = 'all';
+                var timeFilter = 'all', statusFilter = 'all';
                 document.querySelectorAll('.conv-filter-row').forEach(function(row) {
                     var active = row.querySelector('.filter-tag.active');
                     if (!active || !active.dataset.taskFilter) return;
                     if (active.dataset.taskFilter === 'time') timeFilter = active.dataset.taskValue;
                     if (active.dataset.taskFilter === 'status') statusFilter = active.dataset.taskValue;
-                    if (active.dataset.taskFilter === 'executor') executorFilter = active.dataset.taskValue;
                 });
 
                 var listView = document.getElementById('taskListView');
                 if (listView && listView.dataset.taskData) {
                     var allData = safeParseJSON(listView.dataset.taskData, []);
-                    var filtered = filterTaskList(allData, timeFilter, statusFilter, executorFilter);
+                    var filtered = filterTaskList(allData, timeFilter, statusFilter);
                     listView.innerHTML = renderTaskList(filtered);
                     var statEl = document.querySelector('.gd-section-stat');
                     if (statEl) statEl.textContent = '共 ' + filtered.length + ' 条';
@@ -3498,8 +3481,8 @@
                     if (taskFilters.length > 0) {
                         items.push({
                             cat: '任务列表筛选',
-                            label: '时间 + 状态 + 执行人三维筛选',
-                            action: '可按时间区间（全部/今天/本周/本月）、状态（全部/进行中/待执行/已完成）、执行人过滤，三个维度取交集，筛选后列表即时刷新并更新计数'
+                            label: '时间 + 状态双维度筛选',
+                            action: '可按时间区间（全部/今天/本周/本月）和状态（全部/进行中/待执行/已完成）过滤，两个维度取交集，筛选后列表即时刷新并更新计数'
                         });
                         items.push({
                             cat: '任务列表项',
