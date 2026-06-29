@@ -1687,6 +1687,68 @@
         }
 
         /* ============================================================
+           COMPONENT: Task List Item (巡检任务全部列表)
+           ============================================================ */
+        .task-list-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 12px var(--space-sm);
+            border-bottom: var(--border-subtle);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border-radius: var(--radius-xs);
+        }
+        .task-list-item:last-child { border-bottom: none; }
+        .task-list-item:hover { background: rgba(0,0,0,0.03); }
+
+        .task-list-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .task-list-status.progress { background: var(--color-primary); }
+        .task-list-status.pending  { background: var(--color-warning); }
+        .task-list-status.done     { background: var(--color-success); }
+
+        .task-list-info { flex: 1; min-width: 0; }
+        .task-list-info .tl-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .task-list-info .tl-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        .task-list-badge {
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+            flex-shrink: 0;
+        }
+        .task-list-badge.progress { color: var(--color-primary); background: var(--color-primary-bg); }
+        .task-list-badge.pending  { color: var(--color-warning); background: var(--color-warning-bg); }
+        .task-list-badge.done     { color: var(--color-success); background: var(--color-success-bg); }
+
+        .task-list-executor {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            width: 36px;
+            text-align: center;
+        }
+        .task-list-empty {
+            text-align: center;
+            padding: 32px 0;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        /* ============================================================
            RESPONSIVE
            ============================================================ */
         @media (max-width: 420px) {
@@ -2277,6 +2339,36 @@
                 hideSecondary();
             });
 
+            /* 二级页面事件委托：任务列表项 → 打开详情 */
+            DOM.secondaryPage.addEventListener('click', function(e) {
+                var item = e.target.closest('.task-list-item');
+                if (!item || !item.dataset.task) return;
+                var taskData = safeParseJSON(item.dataset.task);
+                if (!taskData) return;
+                var hasPoints = taskData.order === '有序' && taskData.points && taskData.points.length > 0;
+                var mapHtml = '';
+                if (hasPoints) {
+                    var mapPointsHtml = '', listHtml = '';
+                    taskData.points.forEach(function(p, idx) {
+                        var sc = p.status === '已完成' ? 'done' : 'pending';
+                        var pLeft = 15 + (idx % 3) * 30;
+                        var pTop = 30 + idx * 15;
+                        mapPointsHtml += '<div class="map-point ' + sc + '" style="left:' + pLeft + '%;top:' + pTop + '%;">' + (idx+1) + '<span class="point-label">' + p.name + '</span><span class="point-status">' + (p.status==='已完成'?'✓':'…') + '</span></div>';
+                        listHtml += '<div class="point-item"><span class="point-idx">' + (idx+1) + '</span><span class="point-name">' + p.name + '</span><span class="point-status-text ' + sc + '">' + p.status + '</span></div>';
+                    });
+                    mapHtml = '<div class="map-container"><div class="map-grid"></div><div class="map-road h"></div><div class="map-road v"></div><div class="map-road d1"></div><div class="map-road d2"></div>' + mapPointsHtml + '</div><div class="point-list">' + listHtml + '</div>';
+                }
+                var sc = taskData.status === '进行中' ? 'progress' : taskData.status === '待执行' ? 'pending' : 'done';
+                var html = '<div class="card"><div class="detail-header"><span class="detail-title">' + taskData.name + '</span><span class="task-badge ' + sc + '">' + taskData.status + '</span></div>' + mapHtml +
+                    '<div class="detail-row"><span class="d-label">开始时间</span><span class="d-value">' + taskData.start + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">结束时间</span><span class="d-value">' + taskData.end + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">执行顺序</span><span class="d-value">' + taskData.order + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">执行人</span><span class="d-value">' + taskData.executor + '</span></div>' +
+                    '<div class="detail-row"><span class="d-label">任务描述</span><span class="d-value" style="font-weight:400;">' + (taskData.desc||'无') + '</span></div></div>' +
+                    '<div class="card action-footer"><span class="action-link primary" style="margin-right:16px;">开始执行</span><span class="action-link" style="color:var(--text-tertiary);">查看附件</span></div>';
+                showSecondary('巡检任务详情', html);
+            });
+
             /* 二级页面事件委托：查看画面 / 直播返回 */
             DOM.secondaryPage.addEventListener('click', function(e) {
                 // 点击"查看画面"按钮（设备）
@@ -2728,8 +2820,133 @@
             }
 
             /* ============================================================
+               巡检任务 — 查看全部列表 & 筛选
+               ============================================================ */
+            var allTasks = [
+                { name:'A区周界巡检', status:'进行中', start:'09:30', end:'10:00', order:'有序', executor:'张三', date:'2026-06-29', desc:'重点检查周界围栏及监控设备运行状况。', points:[{name:'入口岗亭',status:'已完成'},{name:'监控室',status:'已完成'},{name:'东门',status:'待执行'}] },
+                { name:'B2停车场车辆巡检', status:'待执行', start:'11:15', end:'11:45', order:'无序', executor:'李四', date:'2026-06-29', desc:'对B2停车场所有车辆进行车牌识别及违停检查。' },
+                { name:'C区设备间巡检', status:'已完成', start:'08:00', end:'08:30', order:'有序', executor:'王五', date:'2026-06-29', desc:'巡检C区所有设备间，检查温湿度及设备运行日志。', points:[{name:'设备间1',status:'已完成'},{name:'设备间2',status:'已完成'}] },
+                { name:'D区消防设施检查', status:'进行中', start:'14:00', end:'15:00', order:'有序', executor:'张三', date:'2026-06-29', desc:'检查D区所有消防栓、灭火器及报警装置。', points:[{name:'消防栓A',status:'已完成'},{name:'灭火器组',status:'进行中'},{name:'报警装置',status:'待执行'}] },
+                { name:'E区配电房巡检', status:'待执行', start:'16:00', end:'17:00', order:'无序', executor:'赵六', date:'2026-06-28', desc:'检查配电房变压器、开关柜及线缆温度。' },
+                { name:'F区仓库周界巡检', status:'已完成', start:'07:00', end:'08:00', order:'有序', executor:'李四', date:'2026-06-28', desc:'巡检仓库周边围栏、门禁及照明设施。', points:[{name:'北门',status:'已完成'},{name:'东围栏',status:'已完成'}] },
+                { name:'G区办公楼巡检', status:'已完成', start:'10:00', end:'11:00', order:'有序', executor:'王五', date:'2026-06-27', desc:'检查办公楼门禁系统、电梯运行及应急通道。', points:[{name:'大厅',status:'已完成'},{name:'电梯间',status:'已完成'},{name:'应急通道',status:'已完成'}] },
+                { name:'H区停车场夜间巡检', status:'待执行', start:'22:00', end:'23:00', order:'无序', executor:'赵六', date:'2026-06-27', desc:'夜间对H区停车场进行照明检查和车辆违停排查。' }
+            ];
+
+            function renderTaskList(tasks) {
+                if (!tasks || tasks.length === 0) {
+                    return '<div class="task-list-empty">暂无匹配的巡检任务</div>';
+                }
+                var html = '';
+                tasks.forEach(function(t) {
+                    var sc = t.status === '进行中' ? 'progress' : t.status === '待执行' ? 'pending' : 'done';
+                    var pointInfo = t.order === '有序' && t.points ? t.points.length + '个点位' : '无序';
+                    html += '<div class="task-list-item" data-task=\'' + JSON.stringify(t).replace(/'/g, "&#39;") + '\' tabindex="0" role="button">' +
+                        '<span class="task-list-status ' + sc + '" aria-hidden="true"></span>' +
+                        '<div class="task-list-info"><div class="tl-name">' + t.name + '</div><div class="tl-meta">' + t.start + '-' + t.end + ' · ' + pointInfo + ' · ' + t.date + '</div></div>' +
+                        '<span class="task-list-badge ' + sc + '">' + t.status + '</span>' +
+                        '<span class="task-list-executor">' + t.executor + '</span>' +
+                    '</div>';
+                });
+                return html;
+            }
+
+            function filterTaskList(data, timeFilter, statusFilter, executorFilter) {
+                var now = new Date();
+                var today = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+                var weekStart = new Date(now);
+                weekStart.setDate(weekStart.getDate() - ((now.getDay()||7) - 1));
+                var weekStr = weekStart.getFullYear() + '-' + String(weekStart.getMonth()+1).padStart(2,'0') + '-' + String(weekStart.getDate()).padStart(2,'0');
+                var monthStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+
+                return data.filter(function(t) {
+                    if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+                    if (executorFilter !== 'all' && t.executor !== executorFilter) return false;
+                    if (timeFilter === 'today' && t.date !== today) return false;
+                    if (timeFilter === 'week' && t.date < weekStr) return false;
+                    if (timeFilter === 'month' && t.date.substring(0,7) !== monthStr) return false;
+                    return true;
+                });
+            }
+
+            function openTaskList() {
+                var uniqueExecutors = [];
+                allTasks.forEach(function(t) { if (uniqueExecutors.indexOf(t.executor) === -1) uniqueExecutors.push(t.executor); });
+                var statusMap = { '进行中':'progress', '待执行':'pending', '已完成':'done' };
+
+                var html = '<div class="card"><div class="section-header" style="margin-bottom:2px;"><h3 class="section-title">巡检任务列表</h3><span class="gd-section-stat">共 ' + allTasks.length + ' 条</span></div>' +
+                    '<div class="conv-filter-row"><span class="conv-filter-label">时间：</span>' +
+                        '<button class="filter-tag active" data-task-filter="time" data-task-value="all">全部</button>' +
+                        '<button class="filter-tag" data-task-filter="time" data-task-value="today">今天</button>' +
+                        '<button class="filter-tag" data-task-filter="time" data-task-value="week">本周</button>' +
+                        '<button class="filter-tag" data-task-filter="time" data-task-value="month">本月</button>' +
+                    '</div>' +
+                    '<div class="conv-filter-row"><span class="conv-filter-label">状态：</span>' +
+                        '<button class="filter-tag active" data-task-filter="status" data-task-value="all">全部</button>' +
+                        '<button class="filter-tag" data-task-filter="status" data-task-value="进行中">进行中</button>' +
+                        '<button class="filter-tag" data-task-filter="status" data-task-value="待执行">待执行</button>' +
+                        '<button class="filter-tag" data-task-filter="status" data-task-value="已完成">已完成</button>' +
+                    '</div>' +
+                    '<div class="conv-filter-row"><span class="conv-filter-label">执行人：</span>' +
+                        '<button class="filter-tag active" data-task-filter="executor" data-task-value="all">全部</button>';
+                uniqueExecutors.forEach(function(e) {
+                    html += '<button class="filter-tag" data-task-filter="executor" data-task-value="' + e + '">' + e + '</button>';
+                });
+                html += '</div></div>' +
+                    '<div class="card card--inset" id="taskListView">' + renderTaskList(allTasks) + '</div>';
+
+                showSecondary('巡检任务列表', html);
+
+                // 存储数据
+                setTimeout(function() {
+                    var listView = document.getElementById('taskListView');
+                    if (listView) listView.dataset.taskData = JSON.stringify(allTasks);
+                }, 50);
+            }
+
+            /* 二级页面事件委托：任务列表筛选 */
+            var origSecClick = DOM.secondaryPage.onclick;
+            DOM.secondaryPage.addEventListener('click', function(e) {
+                var taskTag = e.target.closest('[data-task-filter]');
+                if (!taskTag) return;
+                var filterType = taskTag.dataset.taskFilter;
+                var filterValue = taskTag.dataset.taskValue;
+                var parentRow = taskTag.parentElement;
+                parentRow.querySelectorAll('.filter-tag[data-task-filter="' + filterType + '"]').forEach(function(t) { t.classList.remove('active'); });
+                taskTag.classList.add('active');
+
+                var timeFilter = 'all', statusFilter = 'all', executorFilter = 'all';
+                document.querySelectorAll('.conv-filter-row').forEach(function(row) {
+                    var active = row.querySelector('.filter-tag.active');
+                    if (!active || !active.dataset.taskFilter) return;
+                    if (active.dataset.taskFilter === 'time') timeFilter = active.dataset.taskValue;
+                    if (active.dataset.taskFilter === 'status') statusFilter = active.dataset.taskValue;
+                    if (active.dataset.taskFilter === 'executor') executorFilter = active.dataset.taskValue;
+                });
+
+                var listView = document.getElementById('taskListView');
+                if (listView && listView.dataset.taskData) {
+                    var allData = safeParseJSON(listView.dataset.taskData, []);
+                    var filtered = filterTaskList(allData, timeFilter, statusFilter, executorFilter);
+                    listView.innerHTML = renderTaskList(filtered);
+                    var statEl = document.querySelector('.gd-section-stat');
+                    if (statEl) statEl.textContent = '共 ' + filtered.length + ' 条';
+                }
+            });
+
+            /* ============================================================
                QUICK ACTIONS — Event Delegation (5 入口)
                ============================================================ */
+            /* "查看全部" 链接 */
+            DOM.contentArea.addEventListener('click', function(e) {
+                var link = e.target.closest('.section-link');
+                if (link) {
+                    e.preventDefault();
+                    openTaskList();
+                    return;
+                }
+            });
+
             DOM.contentArea.addEventListener('click', function(e) {
                 var btn = e.target.closest('.quick-btn');
                 if (!btn) return;
@@ -3122,12 +3339,17 @@
                     quickDescs.forEach(function(q) {
                         items.push({ cat:'金刚区快捷入口', label: q.label, action: q.action });
                     });
-                    // 巡检任务（同类去重）
+                    // 巡检任务
                     items.push({
                         cat: '巡检任务列表',
-                        label: '巡检任务',
+                        label: '巡检任务卡片',
                         action: '点击打开详情二级页：有序任务渲染动态点位地图和进度清单，无序任务展示时间/执行人/描述；底部提供"开始执行"和"查看附件"入口',
                         state: '进行中/待执行/已完成'
+                    });
+                    items.push({
+                        cat: '巡检任务列表',
+                        label: '查看全部 ›',
+                        action: '打开巡检任务全部列表二级页，展示所有任务（含历史），支持按时间区间、状态、执行人三维筛选，筛选后自动更新计数'
                     });
                 }
 
@@ -3269,6 +3491,22 @@
                         items.push({ cat:'直播控制', label:'切换视角', action:'在眼镜多摄像头间切换（主摄/广角/微距），切换时画面短暂黑屏约0.3秒' });
                         items.push({ cat:'直播操作', label:'返回列表', action:'关闭直播页面，自动重新打开设备或联系人列表' });
                         items.push({ cat:'直播操作', label:'发起标注', action:'邀请在线专家在直播画面上实时绘制标注，标注叠加到眼镜佩戴者视野' });
+                    }
+
+                    // 任务列表筛选
+                    var taskFilters = document.querySelectorAll('[data-task-filter]');
+                    if (taskFilters.length > 0) {
+                        items.push({
+                            cat: '任务列表筛选',
+                            label: '时间 + 状态 + 执行人三维筛选',
+                            action: '可按时间区间（全部/今天/本周/本月）、状态（全部/进行中/待执行/已完成）、执行人过滤，三个维度取交集，筛选后列表即时刷新并更新计数'
+                        });
+                        items.push({
+                            cat: '任务列表项',
+                            label: '任务条目',
+                            action: '点击打开对应任务详情二级页，展示点位地图（有序任务）、时间安排、执行人和任务描述',
+                            state: '进行中/待执行/已完成'
+                        });
                     }
 
                     // 对话筛选
