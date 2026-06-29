@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>档案中心 - 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 16px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar .page-title .breadcrumb {
+            font-weight: 400;
+            font-size: 14px;
+            color: #6b7f9a;
+        }
+        .topbar .page-title .breadcrumb span {
+            margin: 0 6px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 32px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-header .desc {
+            font-weight: 400;
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eef3fc;
+            color: #2a5f9c;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+        /* 新增：路线类型专属配色 */
+        .badge.route-一日游 {
+            background: #e3f0ff;
+            color: #1a6fc4;
+        }
+        .badge.route-两日游 {
+            background: #ddf4ff;
+            color: #0e7a9e;
+        }
+        .badge.route-三日游 {
+            background: #d9f0e6;
+            color: #0d7a5a;
+        }
+        .badge.route-景区专线 {
+            background: #fff3d6;
+            color: #b3721a;
+        }
+        .badge.route-接送 {
+            background: #f0e6ff;
+            color: #6b3fa0;
+        }
+        .badge.route-包车 {
+            background: #ffe6e6;
+            color: #b33a3a;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn-primary {
+            background: #4f9cf7;
+        }
+        .btn-primary:hover {
+            background: #3a7fcb;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+
+        .archive-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .archive-nav {
+            min-width: 180px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 6px 0;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+        }
+        .archive-nav .nav-item {
+            padding: 10px 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7f9a;
+            border-left: 3px solid transparent;
+            transition: all 0.15s;
+        }
+        .archive-nav .nav-item:hover {
+            background: #f4f8ff;
+            color: #1a2639;
+        }
+        .archive-nav .nav-item.active {
+            background: #f0f6ff;
+            color: #4f9cf7;
+            border-left-color: #4f9cf7;
+        }
+        .archive-nav .nav-item .icon {
+            font-size: 16px;
+        }
+        .archive-nav .nav-item .count {
+            margin-left: auto;
+            font-size: 12px;
+            font-weight: 400;
+            color: #b0bcca;
+        }
+        .archive-nav .nav-item.active .count {
+            color: #4f9cf7;
+        }
+
+        .archive-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .module-panel {
+            display: none;
+        }
+        .module-panel.active {
+            display: block;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            min-width: 130px;
+        }
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .filter-bar .search-input {
+            min-width: 200px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            text-align: left;
+            padding: 10px 6px 8px 0;
+            color: #6b7f9a;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #edf2f9;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 6px 10px 0;
+            border-bottom: 1px solid #f2f6fc;
+            color: #1e2c41;
+            vertical-align: middle;
+        }
+        td .sub-text {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: block;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .status-dot.green {
+            background: #1fb873;
+        }
+        .status-dot.orange {
+            background: #f5a623;
+        }
+        .status-dot.red {
+            background: #e65f5f;
+        }
+        .status-dot.gray {
+            background: #b0bcca;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 580px;
+            width: 94%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field label .required {
+            color: #e65f5f;
+            margin-left: 2px;
+        }
+        .modal .field label .hint {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-left: 6px;
+        }
+        .modal .field input,
+        .modal .field select,
+        .modal .field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            transition: all 0.15s;
+        }
+        .modal .field input:focus,
+        .modal .field select:focus,
+        .modal .field textarea:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .modal .field textarea {
+            min-height: 50px;
+            resize: vertical;
+        }
+        .modal .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 20px;
+        }
+        .modal .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            border-top: 1px solid #edf2f9;
+            padding-top: 18px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 4px;
+        }
+
+        /* 途经点多选组件 */
+        .waypoint-select-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .waypoint-select-row select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .waypoint-select-row select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .waypoint-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            min-height: 32px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border: 1px dashed #d5dee9;
+            border-radius: 8px;
+        }
+        .waypoint-tags.empty::after {
+            content: '暂未添加途经点';
+            color: #a0b3cc;
+            font-size: 12px;
+            pointer-events: none;
+        }
+        .waypoint-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #e3edff;
+            color: #2a5f9c;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: grab;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .waypoint-tag:hover {
+            background: #d0dff7;
+        }
+        .waypoint-tag.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+            cursor: grabbing;
+            background: #c4d8f5;
+        }
+        .waypoint-tag.drag-over {
+            background: #b8d4f0;
+            box-shadow: 0 0 0 2px #4f9cf7;
+            transform: scale(1.05);
+        }
+        .waypoint-tag .drag-handle {
+            cursor: grab;
+            font-size: 12px;
+            letter-spacing: -2px;
+            color: #8b9db5;
+            margin-right: 2px;
+            line-height: 1;
+        }
+        .waypoint-tag .remove-tag {
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.15s;
+            margin-left: 2px;
+        }
+        .waypoint-tag .remove-tag:hover {
+            opacity: 1;
+            color: #e65f5f;
+        }
+        .waypoint-order {
+            font-size: 10px;
+            color: #6b7f9a;
+            background: #fff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        @media (max-width: 1024px) {
+            .archive-layout {
+                flex-direction: column;
+            }
+            .archive-nav {
+                min-width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 4px;
+                position: static;
+                gap: 2px;
+            }
+            .archive-nav .nav-item {
+                padding: 8px 14px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                flex: 1;
+                justify-content: center;
+                min-width: 70px;
+                font-size: 13px;
+            }
+            .archive-nav .nav-item.active {
+                border-left: none;
+                border-bottom-color: #4f9cf7;
+            }
+            .archive-nav .nav-item .count {
+                display: none;
+            }
+            .modal .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal {
+                padding: 20px;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .filter-bar .search-input {
+                min-width: 120px;
+            }
+            .filter-bar input,
+            .filter-bar select {
+                min-width: 100px;
+            }
+        }
+    </style>
+    <!-- Leaflet CSS + JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* 站点地图选点 */
+        .station-map-wrapper {
+            position: relative;
+            margin-top: 6px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d5dee9;
+        }
+        #stationPickerMap {
+            width: 100%;
+            height: 240px;
+            cursor: crosshair;
+        }
+        .station-coord-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: #f4f8ff;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #3f5370;
+        }
+        .station-coord-display .coord-value {
+            font-weight: 700;
+            color: #1a2639;
+            font-family: 'Consolas', 'Menlo', monospace;
+            background: #fff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid #e3edff;
+        }
+        .station-coord-display .coord-label {
+            color: #6b7f9a;
+            font-size: 12px;
+        }
+        .station-map-hint {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            color: #8b9db5;
+            margin-top: 4px;
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item active"><span class="icon">📁</span> 档案中心 <span class="badge-dot">7</span></div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心</div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台</div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div class="menu-item"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title">
+                📁 档案中心
+                <span class="breadcrumb"><span id="breadcrumbCurrent">旅行社管理</span></span>
+            </div>
+            <div class="topbar-actions">
+                <span>👤 管理员 · 张明</span>
+                <span class="role-tag">超级管理员</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="archive-layout">
+
+                <!-- ===== 二级菜单 ===== -->
+                <div class="archive-nav" id="archiveNav">
+                    <div class="nav-item active" data-module="travel" onclick="switchModule('travel')">
+                        <span class="icon">🏢</span> 旅行社 <span class="count">12</span>
+                    </div>
+                    <div class="nav-item" data-module="fleet" onclick="switchModule('fleet')">
+                        <span class="icon">🚌</span> 车队公司 <span class="count">5</span>
+                    </div>
+                    <div class="nav-item" data-module="driver" onclick="switchModule('driver')">
+                        <span class="icon">🧑‍✈️</span> 司机管理 <span class="count">34</span>
+                    </div>
+                    <div class="nav-item" data-module="vehicle" onclick="switchModule('vehicle')">
+                        <span class="icon">🚗</span> 车辆管理 <span class="count">28</span>
+                    </div>
+                    <div class="nav-item" data-module="model" onclick="switchModule('model')">
+                        <span class="icon">📐</span> 车型配置 <span class="count">8</span>
+                    </div>
+                    <div class="nav-item" data-module="route" onclick="switchModule('route')">
+                        <span class="icon">🗺️</span> 线路管理 <span class="count">15</span>
+                    </div>
+                    <div class="nav-item" data-module="station" onclick="switchModule('station')">
+                        <span class="icon">📍</span> 站点管理 <span class="count">22</span>
+                    </div>
+                </div>
+
+                <!-- ===== 内容区域 ===== -->
+                <div class="archive-content">
+
+                    <!-- 模块1: 旅行社管理 -->
+                    <div class="module-panel active" id="module-travel">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🏢 旅行社管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('travel')">+ 新增旅行社</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索名称/联系人..." id="travelSearch" oninput="renderModule('travel')">
+                                <select id="travelStatusFilter" onchange="renderModule('travel')">
+                                    <option value="">全部状态</option>
+                                    <option value="合作中">合作中</option>
+                                    <option value="暂停合作">暂停合作</option>
+                                    <option value="已终止">已终止</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('travel')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="travelCount">共 12 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>名称</th><th>联系人</th><th>电话</th><th>资质</th><th>状态</th><th>操作</th></tr></thead>
+                                    <tbody id="travelTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块2: 车队公司管理 -->
+                    <div class="module-panel" id="module-fleet">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🚌 车队公司管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('fleet')">+ 新增车队</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索名称/法人..." id="fleetSearch" oninput="renderModule('fleet')">
+                                <select id="fleetStatusFilter" onchange="renderModule('fleet')">
+                                    <option value="">全部状态</option>
+                                    <option value="正常">正常</option>
+                                    <option value="暂停">暂停</option>
+                                    <option value="已注销">已注销</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('fleet')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="fleetCount">共 5 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>名称</th><th>法人</th><th>资质编号</th><th>入驻时间</th><th>状态</th><th>操作</th></tr></thead>
+                                    <tbody id="fleetTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块3: 司机管理 -->
+                    <div class="module-panel" id="module-driver">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🧑‍✈️ 司机管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('driver')">+ 新增司机</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索姓名/工号..." id="driverSearch" oninput="renderModule('driver')">
+                                <select id="driverFleetFilter" onchange="renderModule('driver')">
+                                    <option value="">全部车队</option>
+                                    <option value="雪山车队">雪山车队</option>
+                                    <option value="古城车队">古城车队</option>
+                                    <option value="玉龙车队">玉龙车队</option>
+                                </select>
+                                <select id="driverTypeFilter" onchange="renderModule('driver')">
+                                    <option value="">司导类型</option>
+                                    <option value="服务型">服务型</option>
+                                    <option value="购物型">购物型</option>
+                                    <option value="导游型">导游型</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('driver')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="driverCount">共 34 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>姓名</th><th>工号</th><th>所属车队</th><th>司导类型</th><th>从业资质</th><th>状态</th><th>操作</th></tr></thead>
+                                    <tbody id="driverTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块4: 车辆管理 -->
+                    <div class="module-panel" id="module-vehicle">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🚗 车辆管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('vehicle')">+ 新增车辆</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索车牌号..." id="vehicleSearch" oninput="renderModule('vehicle')">
+                                <select id="vehicleFleetFilter" onchange="renderModule('vehicle')">
+                                    <option value="">全部车队</option>
+                                    <option value="雪山车队">雪山车队</option>
+                                    <option value="古城车队">古城车队</option>
+                                    <option value="玉龙车队">玉龙车队</option>
+                                </select>
+                                <select id="vehicleStatusFilter" onchange="renderModule('vehicle')">
+                                    <option value="">全部状态</option>
+                                    <option value="空闲">空闲</option>
+                                    <option value="执行中">执行中</option>
+                                    <option value="维修">维修</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('vehicle')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="vehicleCount">共 28 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>车牌号</th><th>所属车队</th><th>车型</th><th>座位数</th><th>能源类型</th><th>状态</th><th>操作</th></tr></thead>
+                                    <tbody id="vehicleTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块5: 车型配置管理 -->
+                    <div class="module-panel" id="module-model">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📐 车型配置管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('model')">+ 新增车型</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索品牌/车型..." id="modelSearch" oninput="renderModule('model')">
+                                <select id="modelEnergyFilter" onchange="renderModule('model')">
+                                    <option value="">全部能源</option>
+                                    <option value="油车">油车</option>
+                                    <option value="电车">新能源电车</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('model')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="modelCount">共 8 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>品牌</th><th>车型</th><th>座位数</th><th>能源类型</th><th>档次</th><th>基础定价</th><th>操作</th></tr></thead>
+                                    <tbody id="modelTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- 模块6: 线路管理（⭐ 新增路线类型字段） -->
+                    <!-- ========================================================== -->
+                    <div class="module-panel" id="module-route">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🗺️ 线路管理</span>
+                                <div class="flex">
+                                    <span class="badge blue" style="font-size:10px;">起点/终点选自站点</span>
+                                    <button class="btn btn-sm btn-primary" onclick="openModal('route')">+ 新增线路</button>
+                                </div>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索线路名称..." id="routeSearch" oninput="renderModule('route')">
+                                <select id="routeDayFilter" onchange="renderModule('route')">
+                                    <option value="">全部天数</option>
+                                    <option value="1">1日游</option>
+                                    <option value="2">2日游</option>
+                                    <option value="3">3日游</option>
+                                </select>
+                                <!-- ⭐ 新增：路线类型筛选 -->
+                                <select id="routeTypeFilter" onchange="renderModule('route')">
+                                    <option value="">全部类型</option>
+                                    <option value="一日游">一日游</option>
+                                    <option value="两日游">两日游</option>
+                                    <option value="三日游">三日游</option>
+                                    <option value="景区专线">景区专线</option>
+                                    <option value="接送">接送</option>
+                                    <option value="包车">包车</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('route')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="routeCount">共 15 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>线路名称</th>
+                                            <th>起点</th>
+                                            <th>终点</th>
+                                            <th>途经点</th>
+                                            <th>行程天数</th>
+                                            <th>适配车型</th>
+                                            <th>路线类型</th> <!-- ⭐ 新增列 -->
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="routeTableBody"></tbody>
+                                </table>
+                            </div>
+                            <div class="mt-2 text-muted" style="font-size:12px;border-top:1px solid #edf2f9;padding-top:10px;">
+                                💡 起点和终点数据来自「<strong>站点管理</strong>」模块，新增/编辑站点后此处自动同步
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 模块7: 站点管理 -->
+                    <div class="module-panel" id="module-station">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📍 站点管理 <span class="badge blue" style="font-size:10px;">线路起点/终点数据源</span></span>
+                                <button class="btn btn-sm btn-primary" onclick="openModal('station')">+ 新增站点</button>
+                            </div>
+                            <div class="filter-bar">
+                                <input class="search-input" placeholder="🔍 搜索站点名称..." id="stationSearch" oninput="renderModule('station')">
+                                <select id="stationRegionFilter" onchange="renderModule('station')">
+                                    <option value="">全部区域</option>
+                                    <option value="古城区">古城区</option>
+                                    <option value="玉龙县">玉龙县</option>
+                                    <option value="宁蒗县">宁蒗县</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline" onclick="resetFilter('station')">重置</button>
+                                <span class="text-muted" style="font-size:12px;margin-left:auto;" id="stationCount">共 22 条</span>
+                            </div>
+                            <div class="table-wrap">
+                                <table>
+                                    <thead><tr><th>站点名称</th><th>区域</th><th>详细地址</th><th>GPS坐标</th><th>操作</th></tr></thead>
+                                    <tbody id="stationTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 通用模态框 ===== -->
+    <div class="modal-overlay" id="archiveModal">
+        <div class="modal">
+            <h3 id="modalTitle">新增旅行社</h3>
+            <div id="modalBody"></div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('archiveModal')">取消</button>
+                <button class="btn btn-primary" id="modalSaveBtn" onclick="saveRecord()">💾 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 删除确认模态框 ===== -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal" style="max-width:400px;">
+            <h3>🗑️ 确认删除</h3>
+            <p style="color:#3f5370;margin-bottom:8px;">确认删除 <strong id="deleteTargetName"></strong> 吗？</p>
+            <p style="font-size:13px;color:#6b7f9a;">此操作不可撤销，关联数据可能受影响。</p>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('deleteModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">🗑️ 确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 数据定义
+        // ================================================================
+
+        // 1.1 旅行社
+        let travelData = [
+            { id: 1, name: '悦途旅行', contact: '王经理', phone: '13988880001', license: 'L-YN-001', status: '合作中' },
+            { id: 2, name: '古城国旅', contact: '李总', phone: '13988880002', license: 'L-YN-002', status: '合作中' },
+            { id: 3, name: '阳光假期', contact: '张总', phone: '13988880003', license: 'L-YN-003', status: '合作中' },
+            { id: 4, name: '雪山旅行社', contact: '赵经理', phone: '13988880004', license: 'L-YN-004', status: '暂停合作' },
+            { id: 5, name: '泸沽湖旅游', contact: '刘总', phone: '13988880005', license: 'L-YN-005', status: '合作中' },
+            { id: 6, name: '茶马古道', contact: '陈经理', phone: '13988880006', license: 'L-YN-006', status: '已终止' },
+            { id: 7, name: '香格里拉假期', contact: '杨总', phone: '13988880007', license: 'L-YN-007', status: '合作中' },
+            { id: 8, name: '丽江风情', contact: '黄经理', phone: '13988880008', license: 'L-YN-008', status: '合作中' },
+            { id: 9, name: '四方街旅游', contact: '周总', phone: '13988880009', license: 'L-YN-009', status: '暂停合作' },
+            { id: 10, name: '玉龙国际', contact: '吴经理', phone: '13988880010', license: 'L-YN-010', status: '合作中' },
+            { id: 11, name: '泸沽湖风情', contact: '孙总', phone: '13988880011', license: 'L-YN-011', status: '合作中' },
+            { id: 12, name: '古城印象', contact: '郑经理', phone: '13988880012', license: 'L-YN-012', status: '合作中' },
+        ];
+
+        // 1.2 车队公司
+        let fleetData = [
+            { id: 1, name: '雪山车队', legal: '赵队', license: 'FLEET-001', joinDate: '2025-06-01', status: '正常' },
+            { id: 2, name: '古城车队', legal: '钱队', license: 'FLEET-002', joinDate: '2025-07-15', status: '正常' },
+            { id: 3, name: '玉龙车队', legal: '孙队', license: 'FLEET-003', joinDate: '2025-09-01', status: '正常' },
+            { id: 4, name: '拉市海车队', legal: '李队', license: 'FLEET-004', joinDate: '2026-01-10', status: '暂停' },
+            { id: 5, name: '泸沽湖车队', legal: '周队', license: 'FLEET-005', joinDate: '2026-03-20', status: '正常' },
+        ];
+
+        // 1.3 司机
+        let driverData = [
+            { id: 1, name: '李师傅', code: 'DRV-001', fleet: '雪山车队', type: '购物型', cert: 'D-2025-001',
+            status: '在岗' },
+            { id: 2, name: '王师傅', code: 'DRV-002', fleet: '古城车队', type: '服务型', cert: 'D-2025-002',
+            status: '在岗' },
+            { id: 3, name: '赵师傅', code: 'DRV-003', fleet: '玉龙车队', type: '导游型', cert: 'D-2025-003',
+            status: '在岗' },
+            { id: 4, name: '周师傅', code: 'DRV-004', fleet: '玉龙车队', type: '购物型', cert: 'D-2025-004',
+            status: '在岗' },
+            { id: 5, name: '吴师傅', code: 'DRV-005', fleet: '玉龙车队', type: '服务型', cert: 'D-2025-005',
+            status: '在岗' },
+            { id: 6, name: '刘师傅', code: 'DRV-006', fleet: '雪山车队', type: '服务型', cert: 'D-2025-006',
+            status: '在岗' },
+            { id: 7, name: '陈师傅', code: 'DRV-007', fleet: '雪山车队', type: '购物型', cert: 'D-2025-007',
+            status: '在岗' },
+            { id: 8, name: '钱师傅', code: 'DRV-008', fleet: '古城车队', type: '服务型', cert: 'D-2025-008',
+            status: '休假' },
+            { id: 9, name: '孙师傅', code: 'DRV-009', fleet: '古城车队', type: '导游型', cert: 'D-2025-009',
+            status: '在岗' },
+            { id: 10, name: '林师傅', code: 'DRV-010', fleet: '雪山车队', type: '购物型', cert: 'D-2025-010',
+                status: '在岗' },
+        ];
+
+        // 1.4 车辆
+        let vehicleData = [
+            { id: 1, plate: '云L·8888', fleet: '雪山车队', model: '丰田海狮', seats: 9, energy: '油车', status: '空闲' },
+            { id: 2, plate: '云L·9999', fleet: '玉龙车队', model: '宇通客车', seats: 19, energy: '油车', status: '执行中' },
+            { id: 3, plate: '云L·6666', fleet: '古城车队', model: '别克GL8', seats: 7, energy: '油车', status: '执行中' },
+            { id: 4, plate: '云L·5555', fleet: '雪山车队', model: '丰田海狮', seats: 9, energy: '油车', status: '空闲' },
+            { id: 5, plate: '云L·4444', fleet: '玉龙车队', model: '丰田海狮', seats: 9, energy: '电车', status: '执行中' },
+            { id: 6, plate: '云L·7777', fleet: '雪山车队', model: '比亚迪唐', seats: 7, energy: '电车', status: '空闲' },
+            { id: 7, plate: '云L·3333', fleet: '古城车队', model: '宇通客车', seats: 19, energy: '油车', status: '维修' },
+            { id: 8, plate: '云L·2222', fleet: '古城车队', model: '比亚迪E6', seats: 5, energy: '电车', status: '空闲' },
+            { id: 9, plate: '云L·1111', fleet: '古城车队', model: '丰田海狮', seats: 9, energy: '油车', status: '空闲' },
+            { id: 10, plate: '云L·1212', fleet: '玉龙车队', model: '别克GL8', seats: 7, energy: '油车', status: '空闲' },
+            { id: 11, plate: '云L·1313', fleet: '玉龙车队', model: '丰田海狮', seats: 9, energy: '油车', status: '执行中' },
+            { id: 12, plate: '云L·1414', fleet: '玉龙车队', model: '宇通客车', seats: 19, energy: '油车', status: '空闲' },
+        ];
+
+        // 1.5 车型配置
+        let modelData = [
+            { id: 1, brand: '丰田', model: '海狮', seats: 9, energy: '油车', grade: '舒适型', price: 800 },
+            { id: 2, brand: '丰田', model: '海狮', seats: 9, energy: '电车', grade: '舒适型', price: 900 },
+            { id: 3, brand: '别克', model: 'GL8', seats: 7, energy: '油车', grade: '豪华型', price: 1000 },
+            { id: 4, brand: '宇通', model: 'ZK6119', seats: 19, energy: '油车', grade: '舒适型', price: 1500 },
+            { id: 5, brand: '比亚迪', model: '唐', seats: 7, energy: '电车', grade: '豪华型', price: 1200 },
+            { id: 6, brand: '比亚迪', model: 'E6', seats: 5, energy: '电车', grade: '经济型', price: 400 },
+            { id: 7, brand: '丰田', model: '考斯特', seats: 19, energy: '油车', grade: '豪华型', price: 2000 },
+            { id: 8, brand: '金龙', model: 'XMQ6129', seats: 19, energy: '油车', grade: '舒适型', price: 1400 },
+        ];
+
+        // 1.6 站点数据
+        let stationData = [
+            { id: 1, name: '丽江古城', region: '古城区', address: '丽江古城景区', gps: '100.233,26.865' },
+            { id: 2, name: '玉龙雪山', region: '玉龙县', address: '玉龙雪山景区', gps: '100.189,27.098' },
+            { id: 3, name: '泸沽湖', region: '宁蒗县', address: '泸沽湖景区', gps: '100.821,27.702' },
+            { id: 4, name: '拉市海', region: '玉龙县', address: '拉市海湿地公园', gps: '100.132,26.836' },
+            { id: 5, name: '香格里拉', region: '玉龙县', address: '香格里拉景区', gps: '99.702,27.831' },
+            { id: 6, name: '大理古城', region: '其他', address: '大理古城景区', gps: '100.160,25.700' },
+            { id: 7, name: '三义机场', region: '古城区', address: '丽江三义国际机场', gps: '100.302,26.669' },
+            { id: 8, name: '束河古镇', region: '古城区', address: '束河古镇景区', gps: '100.207,26.921' },
+            { id: 9, name: '丽江古城南门', region: '古城区', address: '丽江古城南门停车场', gps: '100.233,26.862' },
+            { id: 10, name: '丽江古城北门', region: '古城区', address: '丽江古城北门停车场', gps: '100.241,26.875' },
+            { id: 11, name: '玉龙雪山游客中心', region: '玉龙县', address: '玉龙雪山景区游客中心', gps: '100.189,27.098' },
+            { id: 12, name: '甘海子', region: '玉龙县', address: '玉龙雪山甘海子停车场', gps: '100.175,27.112' },
+            { id: 13, name: '蓝月谷', region: '玉龙县', address: '玉龙雪山蓝月谷景区', gps: '100.162,27.105' },
+            { id: 14, name: '泸沽湖景区', region: '宁蒗县', address: '泸沽湖景区入口', gps: '100.821,27.702' },
+            { id: 15, name: '拉市海湿地', region: '玉龙县', address: '拉市海湿地公园', gps: '100.132,26.836' },
+            { id: 16, name: '香格里拉独克宗', region: '玉龙县', address: '香格里拉独克宗古城', gps: '99.702,27.831' },
+            { id: 17, name: '虎跳峡', region: '玉龙县', address: '虎跳峡景区', gps: '100.050,27.180' },
+            { id: 18, name: '普达措', region: '玉龙县', address: '普达措国家公园', gps: '99.900,27.800' },
+            { id: 19, name: '双廊古镇', region: '其他', address: '大理双廊古镇', gps: '100.270,25.950' },
+            { id: 20, name: '喜洲古镇', region: '其他', address: '大理喜洲古镇', gps: '100.190,25.820' },
+            { id: 21, name: '指云寺', region: '玉龙县', address: '指云寺景区', gps: '100.120,26.900' },
+            { id: 22, name: '宁蒗县城', region: '宁蒗县', address: '宁蒗县城区', gps: '100.850,27.300' },
+        ];
+
+        // ================================================================
+        // ⭐ 1.7 线路数据（新增 routeType 字段）
+        // ================================================================
+        let routeData = [
+            { id: 1, name: '玉龙雪山一日游', start: '丽江古城', end: '玉龙雪山', stops: '甘海子→蓝月谷', days: 1,
+                models: '9座·舒适型', routeType: '一日游' },
+            { id: 2, name: '泸沽湖两日游', start: '丽江古城', end: '泸沽湖', stops: '宁蒗县城→泸沽湖景区', days: 2,
+                models: '9座·舒适型', routeType: '两日游' },
+            { id: 3, name: '拉市海专线', start: '丽江古城', end: '拉市海', stops: '指云寺', days: 1, models: '9座·舒适型',
+                routeType: '景区专线' },
+            { id: 4, name: '香格里拉三日游', start: '丽江古城', end: '香格里拉', stops: '虎跳峡→普达措', days: 3,
+                models: '19座·舒适型', routeType: '三日游' },
+            { id: 5, name: '机场接送专线', start: '三义机场', end: '丽江古城', stops: '—', days: 1, models: '5座·经济型',
+                routeType: '接送' },
+            { id: 6, name: '大理两日游', start: '丽江古城', end: '大理古城', stops: '双廊古镇→喜洲古镇', days: 2,
+                models: '9座·舒适型', routeType: '两日游' },
+            { id: 7, name: '束河古镇专线', start: '丽江古城', end: '束河古镇', stops: '—', days: 1, models: '7座·豪华型',
+                routeType: '景区专线' },
+            { id: 8, name: '雪山直通车', start: '丽江古城', end: '玉龙雪山', stops: '甘海子', days: 1, models: '19座·舒适型',
+                routeType: '景区专线' },
+            // ⭐ 新增一条包车示例
+            { id: 9, name: '丽江古城包车游', start: '丽江古城', end: '丽江古城', stops: '束河→白沙', days: 1,
+                models: '7座·豪华型', routeType: '包车' },
+        ];
+
+        // 模块配置
+        const moduleConfig = {
+            travel: { data: travelData, idField: 'id', label: '旅行社' },
+            fleet: { data: fleetData, idField: 'id', label: '车队' },
+            driver: { data: driverData, idField: 'id', label: '司机' },
+            vehicle: { data: vehicleData, idField: 'id', label: '车辆' },
+            model: { data: modelData, idField: 'id', label: '车型' },
+            route: { data: routeData, idField: 'id', label: '线路' },
+            station: { data: stationData, idField: 'id', label: '站点' },
+        };
+
+        let currentModule = 'travel';
+        let editingId = null;
+        let selectedWaypoints = [];
+        let deleteTarget = null;
+
+        // ================================================================
+        // 2. 模块切换
+        // ================================================================
+        function switchModule(module) {
+            currentModule = module;
+            document.querySelectorAll('.archive-nav .nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.module === module);
+            });
+            document.querySelectorAll('.module-panel').forEach(el => {
+                el.classList.toggle('active', el.id === 'module-' + module);
+            });
+            const names = {
+                travel: '旅行社管理',
+                fleet: '车队公司管理',
+                driver: '司机管理',
+                vehicle: '车辆管理',
+                model: '车型配置管理',
+                route: '线路管理',
+                station: '站点管理'
+            };
+            document.getElementById('breadcrumbCurrent').innerText = names[module] || module;
+            renderModule(module);
+        }
+
+        // ================================================================
+        // 3. 渲染函数
+        // ================================================================
+        function renderModule(module) {
+            const config = moduleConfig[module];
+            if (!config) return;
+
+            let data = [...config.data];
+
+            const searchId = module + 'Search';
+            const searchVal = document.getElementById(searchId)?.value?.trim().toLowerCase() || '';
+            const filterMap = {
+                travel: { status: 'travelStatusFilter', fields: ['name', 'contact'] },
+                fleet: { status: 'fleetStatusFilter', fields: ['name', 'legal'] },
+                driver: { fleet: 'driverFleetFilter', type: 'driverTypeFilter', fields: ['name', 'code'] },
+                vehicle: { fleet: 'vehicleFleetFilter', status: 'vehicleStatusFilter', fields: ['plate'] },
+                model: { energy: 'modelEnergyFilter', fields: ['brand', 'model'] },
+                // ⭐ route 增加 routeType 筛选
+                route: { days: 'routeDayFilter', routeType: 'routeTypeFilter', fields: ['name'] },
+                station: { region: 'stationRegionFilter', fields: ['name'] },
+            };
+
+            const filters = filterMap[module];
+            if (filters) {
+                if (searchVal) {
+                    data = data.filter(item => {
+                        return filters.fields.some(f => {
+                            const val = item[f] || '';
+                            return val.toString().toLowerCase().includes(searchVal);
+                        });
+                    });
+                }
+                if (filters.status) {
+                    const el = document.getElementById(filters.status);
+                    if (el && el.value) data = data.filter(item => item.status === el.value);
+                }
+                if (filters.fleet) {
+                    const el = document.getElementById(filters.fleet);
+                    if (el && el.value) data = data.filter(item => item.fleet === el.value);
+                }
+                if (filters.type) {
+                    const el = document.getElementById(filters.type);
+                    if (el && el.value) data = data.filter(item => item.type === el.value);
+                }
+                if (filters.energy) {
+                    const el = document.getElementById(filters.energy);
+                    if (el && el.value) data = data.filter(item => item.energy === el.value);
+                }
+                if (filters.days) {
+                    const el = document.getElementById(filters.days);
+                    if (el && el.value) data = data.filter(item => item.days === parseInt(el.value));
+                }
+                // ⭐ 新增：路线类型筛选
+                if (filters.routeType) {
+                    const el = document.getElementById(filters.routeType);
+                    if (el && el.value) data = data.filter(item => item.routeType === el.value);
+                }
+                if (filters.region) {
+                    const el = document.getElementById(filters.region);
+                    if (el && el.value) data = data.filter(item => item.region === el.value);
+                }
+            }
+
+            const countEl = document.getElementById(module + 'Count');
+            if (countEl) countEl.innerText = `共 ${data.length} 条`;
+
+            const tbody = document.getElementById(module + 'TableBody');
+            if (!tbody) return;
+
+            if (data.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="10" style="text-align:center;padding:30px;color:#6b7f9a;">📭 暂无数据</td></tr>`;
+                return;
+            }
+
+            const renderers = {
+                travel: (item) =>
+                    `<tr><td><strong>${item.name}</strong></td><td>${item.contact}</td><td>${item.phone}</td><td>${item.license}</td><td>${getStatusBadge(item.status)}</td><td>${getActions(module, item.id)}</td></tr>`,
+                fleet: (item) =>
+                    `<tr><td><strong>${item.name}</strong></td><td>${item.legal}</td><td>${item.license}</td><td>${item.joinDate}</td><td>${getStatusBadge(item.status)}</td><td>${getActions(module, item.id)}</td></tr>`,
+                driver: (item) =>
+                    `<tr><td><strong>${item.name}</strong></td><td>${item.code}</td><td>${item.fleet}</td><td><span class="badge blue">${item.type}</span></td><td>${item.cert}</td><td>${getStatusBadge(item.status)}</td><td>${getActions(module, item.id)}</td></tr>`,
+                vehicle: (item) =>
+                    `<tr><td><strong>${item.plate}</strong></td><td>${item.fleet}</td><td>${item.model}</td><td>${item.seats}座</td><td><span class="badge ${item.energy === '电车' ? 'green' : 'gray'}">${item.energy}</span></td><td>${getStatusBadge(item.status)}</td><td>${getActions(module, item.id)}</td></tr>`,
+                model: (item) =>
+                    `<tr><td><strong>${item.brand}</strong></td><td>${item.model}</td><td>${item.seats}座</td><td><span class="badge ${item.energy === '电车' ? 'green' : 'gray'}">${item.energy}</span></td><td><span class="badge purple">${item.grade}</span></td><td>¥${item.price}</td><td>${getActions(module, item.id)}</td></tr>`,
+                // ⭐ 路线渲染：增加 routeType 列
+                route: (item) =>
+                    `<tr><td><strong>${item.name}</strong></td><td><span class="badge blue">${item.start}</span></td><td><span class="badge blue">${item.end}</span></td><td>${item.stops}</td><td><span class="badge">${item.days}日游</span></td><td>${item.models}</td><td>${getRouteTypeBadge(item.routeType)}</td><td>${getActions(module, item.id)}</td></tr>`,
+                station: (item) =>
+                    `<tr><td><strong>${item.name}</strong></td><td>${item.region}</td><td>${item.address}</td><td><span class="text-muted">${item.gps}</span></td><td>${getActions(module, item.id)}</td></tr>`,
+            };
+
+            const renderFn = renderers[module];
+            if (renderFn) tbody.innerHTML = data.map(renderFn).join('');
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                '合作中': '<span class="badge green"><span class="status-dot green"></span>合作中</span>',
+                '暂停合作': '<span class="badge orange"><span class="status-dot orange"></span>暂停合作</span>',
+                '已终止': '<span class="badge gray"><span class="status-dot gray"></span>已终止</span>',
+                '正常': '<span class="badge green"><span class="status-dot green"></span>正常</span>',
+                '暂停': '<span class="badge orange"><span class="status-dot orange"></span>暂停</span>',
+                '已注销': '<span class="badge gray"><span class="status-dot gray"></span>已注销</span>',
+                '在岗': '<span class="badge green"><span class="status-dot green"></span>在岗</span>',
+                '休假': '<span class="badge orange"><span class="status-dot orange"></span>休假</span>',
+                '离职': '<span class="badge gray"><span class="status-dot gray"></span>离职</span>',
+                '空闲': '<span class="badge green"><span class="status-dot green"></span>空闲</span>',
+                '执行中': '<span class="badge orange"><span class="status-dot orange"></span>执行中</span>',
+                '维修': '<span class="badge red"><span class="status-dot red"></span>维修</span>',
+            };
+            return map[status] || `<span class="badge">${status}</span>`;
+        }
+
+        // ⭐ 新增：路线类型徽章
+        function getRouteTypeBadge(type) {
+            if (!type) return '<span class="badge gray">未分类</span>';
+            const cls = 'route-' + type;
+            return `<span class="badge ${cls}">${type}</span>`;
+        }
+
+        function getActions(module, id) {
+            return `
+                <div class="actions-cell">
+                    <button class="btn btn-sm btn-outline" onclick="editRecord('${module}', ${id})">✏️</button>
+                    <button class="btn btn-sm btn-danger" onclick="openDeleteModal('${module}', ${id})">🗑️</button>
+                </div>
+            `;
+        }
+
+        // ================================================================
+        // 4. 筛选重置
+        // ================================================================
+        function resetFilter(module) {
+            const searchId = module + 'Search';
+            const el = document.getElementById(searchId);
+            if (el) el.value = '';
+            const filterMap = {
+                travel: ['travelStatusFilter'],
+                fleet: ['fleetStatusFilter'],
+                driver: ['driverFleetFilter', 'driverTypeFilter'],
+                vehicle: ['vehicleFleetFilter', 'vehicleStatusFilter'],
+                model: ['modelEnergyFilter'],
+                // ⭐ route 增加 routeTypeFilter
+                route: ['routeDayFilter', 'routeTypeFilter'],
+                station: ['stationRegionFilter'],
+            };
+            const ids = filterMap[module] || [];
+            ids.forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+            renderModule(module);
+        }
+
+        // ================================================================
+        // 5. 模态框：新增/编辑
+        // ================================================================
+        // ================================================================
+        // 途经点多选管理
+        // ================================================================
+        function addWaypoint() {
+            const sel = document.getElementById('f_waypointSelect');
+            if (!sel || !sel.value) return;
+            if (selectedWaypoints.includes(sel.value)) {
+                showToast('⚠️ 该站点已添加');
+                return;
+            }
+            selectedWaypoints.push(sel.value);
+            renderWaypointTags();
+            syncWaypointsToHidden();
+            sel.value = '';
+        }
+
+        function removeWaypoint(index) {
+            selectedWaypoints.splice(index, 1);
+            renderWaypointTags();
+            syncWaypointsToHidden();
+        }
+
+        function renderWaypointTags() {
+            const container = document.getElementById('waypointTags');
+            if (!container) return;
+            if (selectedWaypoints.length === 0) {
+                container.innerHTML = '';
+                container.classList.add('empty');
+            } else {
+                container.classList.remove('empty');
+                container.innerHTML = selectedWaypoints.map((wp, i) => `
+                    <span class="waypoint-tag"
+                          draggable="true"
+                          data-wp-index="${i}"
+                          ondragstart="waypointDragStart(event)"
+                          ondragend="waypointDragEnd(event)"
+                          ondragover="waypointDragOver(event)"
+                          ondragleave="waypointDragLeave(event)"
+                          ondrop="waypointDrop(event)">
+                        <span class="drag-handle" title="拖动排序">⋮⋮</span>
+                        <span class="waypoint-order">${i + 1}</span> ${wp}
+                        <span class="remove-tag" onclick="event.stopPropagation();removeWaypoint(${i})" title="移除">✕</span>
+                    </span>
+                `).join('');
+            }
+        }
+
+        // 拖拽排序处理
+        function waypointDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', e.target.dataset.wpIndex);
+        }
+
+        function waypointDragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.waypoint-tag.drag-over').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function waypointDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            const target = e.target.closest('.waypoint-tag');
+            if (target && !target.classList.contains('dragging')) {
+                target.classList.add('drag-over');
+            }
+        }
+
+        function waypointDragLeave(e) {
+            const target = e.target.closest('.waypoint-tag');
+            if (target) target.classList.remove('drag-over');
+        }
+
+        function waypointDrop(e) {
+            e.preventDefault();
+            const sourceEl = document.querySelector('.waypoint-tag.dragging');
+            const targetEl = e.target.closest('.waypoint-tag');
+            if (!sourceEl || !targetEl || sourceEl === targetEl) return;
+
+            const fromIdx = parseInt(sourceEl.dataset.wpIndex);
+            const toIdx = parseInt(targetEl.dataset.wpIndex);
+            if (isNaN(fromIdx) || isNaN(toIdx)) return;
+
+            // 移动数组元素
+            const [moved] = selectedWaypoints.splice(fromIdx, 1);
+            selectedWaypoints.splice(toIdx, 0, moved);
+
+            renderWaypointTags();
+            syncWaypointsToHidden();
+        }
+
+        function syncWaypointsToHidden() {
+            const hidden = document.getElementById('f_stops');
+            if (hidden) {
+                hidden.value = selectedWaypoints.join('→');
+            }
+        }
+
+        function initWaypointsFromRecord(record) {
+            selectedWaypoints = [];
+            if (record && record.stops && record.stops !== '—' && record.stops.trim() !== '') {
+                selectedWaypoints = record.stops.split('→').map(s => s.trim()).filter(s => s);
+            }
+            // 延迟渲染，等 DOM 构建完毕
+            setTimeout(() => {
+                renderWaypointTags();
+                syncWaypointsToHidden();
+            }, 50);
+        }
+
+        // ================================================================
+        // 站点地图点选 GPS
+        // ================================================================
+        let stationPickerMap = null;
+        let stationPickerMarker = null;
+
+        function initStationPickerMap(initialGps) {
+            // 先清理旧地图
+            if (stationPickerMap) {
+                stationPickerMap.remove();
+                stationPickerMap = null;
+                stationPickerMarker = null;
+            }
+
+            const mapEl = document.getElementById('stationPickerMap');
+            if (!mapEl || mapEl.offsetHeight === 0) {
+                setTimeout(() => initStationPickerMap(initialGps), 150);
+                return;
+            }
+
+            // 解析初始坐标：格式 "经度,纬度"
+            let initLat = 26.8720, initLng = 100.2298, initZoom = 12;
+            let hasExisting = false;
+            if (initialGps && initialGps.includes(',')) {
+                const parts = initialGps.split(',');
+                const lng = parseFloat(parts[0]);
+                const lat = parseFloat(parts[1]);
+                if (!isNaN(lng) && !isNaN(lat)) {
+                    initLng = lng;
+                    initLat = lat;
+                    initZoom = 15;
+                    hasExisting = true;
+                }
+            }
+
+            stationPickerMap = L.map('stationPickerMap', {
+                center: [initLat, initLng],
+                zoom: initZoom,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                opacity: 0.9
+            }).addTo(stationPickerMap);
+
+            // 如果已有坐标，放置标记
+            if (hasExisting) {
+                stationPickerMarker = L.marker([initLat, initLng], {
+                    draggable: false,
+                    icon: L.icon({
+                        iconUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44"><path d="M16 0C7.164 0 0 7.164 0 16c0 12 16 28 16 28s16-16 16-28C32 7.164 24.836 0 16 0z" fill="%234f9cf7" stroke="%23fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="%23fff"/></svg>',
+                        iconSize: [32, 44],
+                        iconAnchor: [16, 44],
+                        popupAnchor: [0, -44]
+                    })
+                }).addTo(stationPickerMap);
+                updateCoordDisplay(initLng, initLat);
+            }
+
+            // 点击地图放置/移动标记
+            let geocodeTimer = null;
+            stationPickerMap.on('click', function(e) {
+                const { lat, lng } = e.latlng;
+                const lngFixed = lng.toFixed(6);
+                const latFixed = lat.toFixed(6);
+
+                if (stationPickerMarker) {
+                    stationPickerMarker.setLatLng([lat, lng]);
+                } else {
+                    stationPickerMarker = L.marker([lat, lng], {
+                        icon: L.icon({
+                            iconUrl: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44"><path d="M16 0C7.164 0 0 7.164 0 16c0 12 16 28 16 28s16-16 16-28C32 7.164 24.836 0 16 0z" fill="%234f9cf7" stroke="%23fff" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="%23fff"/></svg>',
+                            iconSize: [32, 44],
+                            iconAnchor: [16, 44],
+                            popupAnchor: [0, -44]
+                        })
+                    }).addTo(stationPickerMap);
+                }
+
+                updateCoordDisplay(lngFixed, latFixed);
+                document.getElementById('f_gps').value = `${lngFixed},${latFixed}`;
+
+                // 逆地理编码：根据坐标自动回填地址（防抖 600ms）
+                const addrEl = document.getElementById('f_address');
+                if (addrEl) {
+                    addrEl.value = '📍 正在获取地址...';
+                    addrEl.style.color = '#6b7f9a';
+                    clearTimeout(geocodeTimer);
+                    geocodeTimer = setTimeout(() => {
+                        reverseGeocode(lat, lng).then(addr => {
+                            addrEl.value = addr;
+                            addrEl.style.color = '#1a2639';
+                        }).catch(() => {
+                            addrEl.value = '';
+                            addrEl.style.color = '#1a2639';
+                        });
+                    }, 600);
+                }
+            });
+
+            // 延迟触发一次 resize 确保瓦片正确加载
+            setTimeout(() => { if (stationPickerMap) stationPickerMap.invalidateSize(); }, 200);
+        }
+
+        function updateCoordDisplay(lng, lat) {
+            const lngEl = document.getElementById('coordLng');
+            const latEl = document.getElementById('coordLat');
+            if (lngEl) lngEl.innerText = lng;
+            if (latEl) latEl.innerText = lat;
+        }
+
+        async function reverseGeocode(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&accept-language=zh`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('geocode failed');
+            const data = await resp.json();
+            if (data && data.display_name) {
+                // 优先使用中文展示名称，截取前40字避免过长
+                const name = data.display_name;
+                return name.length > 40 ? name.slice(0, 40) + '…' : name;
+            }
+            // 后备：用 address 字段拼装
+            if (data && data.address) {
+                const a = data.address;
+                const parts = [a.country, a.state, a.city, a.town, a.village, a.road, a.house_number].filter(Boolean);
+                const fallback = parts.join('');
+                return fallback || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+            return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+        }
+
+        function destroyStationPickerMap() {
+            if (stationPickerMap) {
+                stationPickerMap.remove();
+                stationPickerMap = null;
+                stationPickerMarker = null;
+            }
+        }
+
+        function openModal(module, editId) {
+            const config = moduleConfig[module];
+            if (!config) return;
+
+            const isEdit = !!editId;
+            let record = null;
+            if (isEdit) {
+                record = config.data.find(item => item.id === editId);
+                if (!record) return;
+                editingId = editId;
+            } else {
+                editingId = null;
+            }
+
+            const names = {
+                travel: '旅行社',
+                fleet: '车队',
+                driver: '司机',
+                vehicle: '车辆',
+                model: '车型',
+                route: '线路',
+                station: '站点'
+            };
+
+            // 关闭旧模态时清理地图
+            destroyStationPickerMap();
+
+            document.getElementById('modalTitle').innerText = isEdit ? `✏️ 编辑${names[module]}` : `➕ 新增${names[module]}`;
+            document.getElementById('modalBody').innerHTML = buildForm(module, record);
+            document.getElementById('archiveModal').dataset.module = module;
+            document.getElementById('archiveModal').dataset.editId = editId || '';
+            document.getElementById('archiveModal').classList.add('show');
+
+            // 路线模块：初始化途经点多选
+            if (module === 'route') {
+                initWaypointsFromRecord(record);
+            }
+
+            // 站点模块：初始化地图点选
+            if (module === 'station') {
+                setTimeout(() => initStationPickerMap(record?.gps || ''), 200);
+            }
+        }
+
+        // ================================================================
+        // ⭐ buildForm：route 模块增加路线类型下拉
+        // ================================================================
+        function buildForm(module, record) {
+            function getStationOptions(selectedValue) {
+                const stationNames = stationData.map(s => s.name);
+                const uniqueNames = [...new Set(stationNames)];
+                let options = uniqueNames.map(name =>
+                    `<option value="${name}" ${selectedValue === name ? 'selected' : ''}>${name}</option>`
+                ).join('');
+                if (selectedValue && !uniqueNames.includes(selectedValue)) {
+                    options = `<option value="${selectedValue}" selected>${selectedValue} (保留)</option>` + options;
+                }
+                return options;
+            }
+
+            const forms = {
+                travel: `
+                    <div class="form-grid">
+                        <div class="field"><label>旅行社名称 <span class="required">*</span></label><input id="f_name" value="${record?.name || ''}" placeholder="请输入名称"></div>
+                        <div class="field"><label>联系人 <span class="required">*</span></label><input id="f_contact" value="${record?.contact || ''}" placeholder="请输入联系人"></div>
+                        <div class="field"><label>联系电话 <span class="required">*</span></label><input id="f_phone" value="${record?.phone || ''}" placeholder="请输入电话"></div>
+                        <div class="field"><label>资质编号</label><input id="f_license" value="${record?.license || ''}" placeholder="请输入资质编号"></div>
+                        <div class="field full-width"><label>合作状态</label><select id="f_status"><option value="合作中" ${record?.status === '合作中' ? 'selected' : ''}>合作中</option><option value="暂停合作" ${record?.status === '暂停合作' ? 'selected' : ''}>暂停合作</option><option value="已终止" ${record?.status === '已终止' ? 'selected' : ''}>已终止</option></select></div>
+                    </div>
+                `,
+                fleet: `
+                    <div class="form-grid">
+                        <div class="field"><label>车队名称 <span class="required">*</span></label><input id="f_name" value="${record?.name || ''}" placeholder="请输入名称"></div>
+                        <div class="field"><label>法人代表 <span class="required">*</span></label><input id="f_legal" value="${record?.legal || ''}" placeholder="请输入法人"></div>
+                        <div class="field"><label>资质编号</label><input id="f_license" value="${record?.license || ''}" placeholder="请输入资质编号"></div>
+                        <div class="field"><label>入驻时间</label><input id="f_joinDate" type="date" value="${record?.joinDate || ''}"></div>
+                        <div class="field full-width"><label>状态</label><select id="f_status"><option value="正常" ${record?.status === '正常' ? 'selected' : ''}>正常</option><option value="暂停" ${record?.status === '暂停' ? 'selected' : ''}>暂停</option><option value="已注销" ${record?.status === '已注销' ? 'selected' : ''}>已注销</option></select></div>
+                    </div>
+                `,
+                driver: `
+                    <div class="form-grid">
+                        <div class="field"><label>姓名 <span class="required">*</span></label><input id="f_name" value="${record?.name || ''}" placeholder="请输入姓名"></div>
+                        <div class="field"><label>工号</label><input id="f_code" value="${record?.code || ''}" placeholder="请输入工号"></div>
+                        <div class="field"><label>所属车队 <span class="required">*</span></label><select id="f_fleet"><option value="">请选择</option>${fleetData.map(f => `<option value="${f.name}" ${record?.fleet === f.name ? 'selected' : ''}>${f.name}</option>`).join('')}</select></div>
+                        <div class="field"><label>司导类型</label><select id="f_type"><option value="服务型" ${record?.type === '服务型' ? 'selected' : ''}>服务型</option><option value="购物型" ${record?.type === '购物型' ? 'selected' : ''}>购物型</option><option value="导游型" ${record?.type === '导游型' ? 'selected' : ''}>导游型</option></select></div>
+                        <div class="field"><label>从业资质</label><input id="f_cert" value="${record?.cert || ''}" placeholder="请输入资质编号"></div>
+                        <div class="field"><label>状态</label><select id="f_status"><option value="在岗" ${record?.status === '在岗' ? 'selected' : ''}>在岗</option><option value="休假" ${record?.status === '休假' ? 'selected' : ''}>休假</option><option value="离职" ${record?.status === '离职' ? 'selected' : ''}>离职</option></select></div>
+                    </div>
+                `,
+                vehicle: `
+                    <div class="form-grid">
+                        <div class="field"><label>车牌号 <span class="required">*</span></label><input id="f_plate" value="${record?.plate || ''}" placeholder="如：云L·8888"></div>
+                        <div class="field"><label>所属车队 <span class="required">*</span></label><select id="f_fleet"><option value="">请选择</option>${fleetData.map(f => `<option value="${f.name}" ${record?.fleet === f.name ? 'selected' : ''}>${f.name}</option>`).join('')}</select></div>
+                        <div class="field"><label>车型</label><input id="f_model" value="${record?.model || ''}" placeholder="请输入车型"></div>
+                        <div class="field"><label>座位数</label><input id="f_seats" type="number" value="${record?.seats || ''}" placeholder="座位数"></div>
+                        <div class="field"><label>能源类型</label><select id="f_energy"><option value="油车" ${record?.energy === '油车' ? 'selected' : ''}>油车</option><option value="电车" ${record?.energy === '电车' ? 'selected' : ''}>新能源电车</option></select></div>
+                        <div class="field"><label>状态</label><select id="f_status"><option value="空闲" ${record?.status === '空闲' ? 'selected' : ''}>空闲</option><option value="执行中" ${record?.status === '执行中' ? 'selected' : ''}>执行中</option><option value="维修" ${record?.status === '维修' ? 'selected' : ''}>维修</option></select></div>
+                    </div>
+                `,
+                model: `
+                    <div class="form-grid">
+                        <div class="field"><label>品牌 <span class="required">*</span></label><input id="f_brand" value="${record?.brand || ''}" placeholder="请输入品牌"></div>
+                        <div class="field"><label>车型 <span class="required">*</span></label><input id="f_model" value="${record?.model || ''}" placeholder="请输入车型"></div>
+                        <div class="field"><label>座位数 <span class="required">*</span></label><input id="f_seats" type="number" value="${record?.seats || ''}" placeholder="座位数"></div>
+                        <div class="field"><label>能源类型</label><select id="f_energy"><option value="油车" ${record?.energy === '油车' ? 'selected' : ''}>油车</option><option value="电车" ${record?.energy === '电车' ? 'selected' : ''}>新能源电车</option></select></div>
+                        <div class="field"><label>车辆档次</label><select id="f_grade"><option value="经济型" ${record?.grade === '经济型' ? 'selected' : ''}>经济型</option><option value="舒适型" ${record?.grade === '舒适型' ? 'selected' : ''}>舒适型</option><option value="豪华型" ${record?.grade === '豪华型' ? 'selected' : ''}>豪华型</option></select></div>
+                        <div class="field"><label>基础定价 <span class="required">*</span></label><input id="f_price" type="number" value="${record?.price || ''}" placeholder="请输入价格"></div>
+                    </div>
+                `,
+                // ⭐ 路线表单：新增 routeType 下拉
+                route: `
+                    <div class="form-grid">
+                        <div class="field full-width"><label>线路名称 <span class="required">*</span></label><input id="f_name" value="${record?.name || ''}" placeholder="请输入线路名称"></div>
+                        <div class="field"><label>起点 <span class="required">*</span> <span class="hint">⬇️ 来自站点管理</span></label>
+                            <select id="f_start">
+                                <option value="">请选择站点</option>
+                                ${getStationOptions(record?.start || '')}
+                            </select>
+                        </div>
+                        <div class="field"><label>终点 <span class="required">*</span> <span class="hint">⬇️ 来自站点管理</span></label>
+                            <select id="f_end">
+                                <option value="">请选择站点</option>
+                                ${getStationOptions(record?.end || '')}
+                            </select>
+                        </div>
+                        <div class="field full-width">
+                            <label>途经点 <span class="hint">⬇️ 从站点管理中选择，可添加多个</span></label>
+                            <div class="waypoint-select-row">
+                                <select id="f_waypointSelect">
+                                    <option value="">请选择站点</option>
+                                    ${getStationOptions('')}
+                                </select>
+                                <button class="btn btn-sm btn-primary" type="button" onclick="addWaypoint()">＋ 添加</button>
+                            </div>
+                            <div class="waypoint-tags empty" id="waypointTags"></div>
+                            <input type="hidden" id="f_stops" value="${record?.stops || ''}">
+                        </div>
+                        <div class="field"><label>行程天数</label><select id="f_days"><option value="1" ${record?.days === 1 ? 'selected' : ''}>1日游</option><option value="2" ${record?.days === 2 ? 'selected' : ''}>2日游</option><option value="3" ${record?.days === 3 ? 'selected' : ''}>3日游</option></select></div>
+                        <div class="field"><label>适配车型</label><input id="f_models" value="${record?.models || ''}" placeholder="如：9座·舒适型"></div>
+                        <!-- ⭐ 新增：路线类型 -->
+                        <div class="field"><label>路线类型 <span class="required">*</span></label>
+                            <select id="f_routeType">
+                                <option value="一日游" ${record?.routeType === '一日游' ? 'selected' : ''}>一日游</option>
+                                <option value="两日游" ${record?.routeType === '两日游' ? 'selected' : ''}>两日游</option>
+                                <option value="三日游" ${record?.routeType === '三日游' ? 'selected' : ''}>三日游</option>
+                                <option value="景区专线" ${record?.routeType === '景区专线' ? 'selected' : ''}>景区专线</option>
+                                <option value="接送" ${record?.routeType === '接送' ? 'selected' : ''}>接送</option>
+                                <option value="包车" ${record?.routeType === '包车' ? 'selected' : ''}>包车</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="hint-text" style="margin-top:8px;padding:8px 12px;background:#f4f8ff;border-radius:8px;border-left:3px solid #4f9cf7;">
+                        💡 起点、终点、途经点均从「<strong>站点管理</strong>」中选择；途经点可<strong>拖拽 ⋮⋮ 排序</strong>，点击 ✕ 移除。
+                    </div>
+                `,
+                station: `
+                    <div class="form-grid">
+                        <div class="field full-width"><label>站点名称 <span class="required">*</span></label><input id="f_name" value="${record?.name || ''}" placeholder="请输入站点名称"></div>
+                        <div class="field"><label>所属区域</label><select id="f_region"><option value="古城区" ${record?.region === '古城区' ? 'selected' : ''}>古城区</option><option value="玉龙县" ${record?.region === '玉龙县' ? 'selected' : ''}>玉龙县</option><option value="宁蒗县" ${record?.region === '宁蒗县' ? 'selected' : ''}>宁蒗县</option></select></div>
+                        <div class="field"><label>详细地址</label><input id="f_address" value="${record?.address || ''}" placeholder="请输入地址"></div>
+                        <div class="field full-width">
+                            <label>GPS坐标 <span class="hint">🗺️ 点击地图选点</span></label>
+                            <div class="station-coord-display">
+                                <span class="coord-label">经度</span><span class="coord-value" id="coordLng">${record?.gps ? record.gps.split(',')[0] : '—'}</span>
+                                <span class="coord-label">纬度</span><span class="coord-value" id="coordLat">${record?.gps ? record.gps.split(',')[1] : '—'}</span>
+                            </div>
+                            <div class="station-map-wrapper">
+                                <div id="stationPickerMap"></div>
+                            </div>
+                            <div class="station-map-hint">💡 在地图上点击以选择站点位置，可滚轮缩放、拖拽平移</div>
+                            <input type="hidden" id="f_gps" value="${record?.gps || ''}">
+                        </div>
+                    </div>
+                    <div class="hint-text" style="margin-top:8px;padding:8px 12px;background:#f4f8ff;border-radius:8px;border-left:3px solid #4f9cf7;">
+                        💡 新增/编辑站点后，线路管理中的起点/终点下拉将自动同步更新
+                    </div>
+                `
+            };
+            return forms[module] || '<div class="text-muted">暂无表单</div>';
+        }
+
+        function editRecord(module, id) {
+            openModal(module, id);
+        }
+
+        // ================================================================
+        // 6. 保存记录
+        // ================================================================
+        function saveRecord() {
+            const modal = document.getElementById('archiveModal');
+            const module = modal.dataset.module;
+            const editId = modal.dataset.editId;
+            const config = moduleConfig[module];
+            if (!config) return;
+
+            const isEdit = !!editId;
+
+            // ⭐ fieldMap 中 route 增加 'routeType'
+            const fieldMap = {
+                travel: ['name', 'contact', 'phone', 'license', 'status'],
+                fleet: ['name', 'legal', 'license', 'joinDate', 'status'],
+                driver: ['name', 'code', 'fleet', 'type', 'cert', 'status'],
+                vehicle: ['plate', 'fleet', 'model', 'seats', 'energy', 'status'],
+                model: ['brand', 'model', 'seats', 'energy', 'grade', 'price'],
+                route: ['name', 'start', 'end', 'stops', 'days', 'models', 'routeType'],
+                station: ['name', 'region', 'address', 'gps'],
+            };
+
+            const fields = fieldMap[module] || [];
+            const record = {};
+            fields.forEach(f => {
+                const el = document.getElementById('f_' + f);
+                if (el) {
+                    record[f] = el.type === 'number' ? parseFloat(el.value) || 0 : el.value;
+                }
+            });
+
+            // ⭐ requiredFields 中 route 增加 'routeType'
+            const requiredFields = {
+                travel: ['name', 'contact', 'phone'],
+                fleet: ['name', 'legal'],
+                driver: ['name', 'fleet'],
+                vehicle: ['plate', 'fleet'],
+                model: ['brand', 'model', 'seats', 'price'],
+                route: ['name', 'start', 'end', 'routeType'],
+                station: ['name'],
+            };
+            const reqs = requiredFields[module] || [];
+            for (let f of reqs) {
+                if (!record[f] || record[f].toString().trim() === '') {
+                    showToast('⚠️ 请填写所有必填项');
+                    return;
+                }
+            }
+
+            if (isEdit) {
+                const idx = config.data.findIndex(item => item.id === parseInt(editId));
+                if (idx !== -1) {
+                    const oldId = config.data[idx].id;
+                    config.data[idx] = { ...config.data[idx], ...record, id: oldId };
+                }
+                showToast(`✅ ${config.label} 已更新`);
+            } else {
+                const maxId = config.data.reduce((max, item) => Math.max(max, item.id || 0), 0);
+                record.id = maxId + 1;
+                config.data.push(record);
+                showToast(`✅ ${config.label} 已添加`);
+            }
+
+            closeModal('archiveModal');
+            renderModule(module);
+        }
+
+        // ================================================================
+        // 7. 删除
+        // ================================================================
+        function openDeleteModal(module, id) {
+            const config = moduleConfig[module];
+            if (!config) return;
+            const record = config.data.find(item => item.id === id);
+            if (!record) return;
+
+            deleteTarget = { module, id };
+            const name = record.name || record.plate || record.model || record.code || record.contact || '此记录';
+            document.getElementById('deleteTargetName').innerText = name;
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function confirmDelete() {
+            if (!deleteTarget) return;
+            const { module, id } = deleteTarget;
+            const config = moduleConfig[module];
+            if (!config) return;
+
+            if (module === 'station') {
+                const station = config.data.find(item => item.id === id);
+                if (station) {
+                    const referenced = routeData.some(r => r.start === station.name || r.end === station.name);
+                    if (referenced) {
+                        if (!confirm(`⚠️ 站点「${station.name}」正在被线路使用，删除后将影响线路数据。确认删除吗？`)) {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            config.data = config.data.filter(item => item.id !== id);
+            showToast(`🗑️ 已删除成功`);
+            closeModal('deleteModal');
+            renderModule(module);
+            deleteTarget = null;
+        }
+
+        // ================================================================
+        // 8. 通用工具
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            if (id === 'archiveModal') {
+                document.getElementById('archiveModal').dataset.editId = '';
+                destroyStationPickerMap();
+            }
+            if (id === 'deleteModal') {
+                deleteTarget = null;
+            }
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('show');
+                    destroyStationPickerMap();
+                }
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        // ================================================================
+        // 9. 初始化
+        // ================================================================
+        renderModule('travel');
+        console.log('📁 档案中心已加载（v2.3 - 站点新增地图点选GPS坐标）');
+        console.log('🗺️ 站点表单：点击地图选点，自动填入经纬度坐标');
+        console.log('💡 支持新增/编辑站点时在地图上精确定位');
+    </script>
+</body>
+</html>

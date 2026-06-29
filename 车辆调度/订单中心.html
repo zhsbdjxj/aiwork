@@ -1,0 +1,2730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订单中心 - 丽江车辆调度管理系统</title>
+    <style>
+        /* ================================================================
+           全局样式
+           ================================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.15s;
+        }
+        .menu-item:hover {
+            background: #2c3a52;
+            color: #fff;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 12px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+            min-height: 64px;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar .page-title .breadcrumb {
+            font-weight: 400;
+            font-size: 14px;
+            color: #6b7f9a;
+        }
+        .topbar .page-title .breadcrumb span {
+            margin: 0 6px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+        .topbar-actions .time-display {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px 28px;
+            position: relative;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+
+        .btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 2px 10px;
+            font-size: 11px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn-primary {
+            background: #4f9cf7;
+        }
+        .btn-primary:hover {
+            background: #3a7fcb;
+        }
+        .btn-lg {
+            padding: 8px 24px;
+            font-size: 14px;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .mt-3 {
+            margin-top: 18px;
+        }
+        .mb-2 {
+            margin-bottom: 12px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 12px;
+        }
+        .text-center {
+            text-align: center;
+        }
+
+        /* ===== 页面容器 ===== */
+        .page-container {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+        .page-container.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0.6;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 列表样式 ===== */
+        .status-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #edf2f9;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+        .status-tabs .tab {
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: #6b7f9a;
+            transition: all 0.15s;
+            border: none;
+        }
+        .status-tabs .tab:hover {
+            background: #f0f4fa;
+            color: #1a2639;
+        }
+        .status-tabs .tab.active {
+            background: #1a2639;
+            color: #fff;
+        }
+        .status-tabs .tab .count {
+            font-weight: 400;
+            font-size: 11px;
+            margin-left: 4px;
+            opacity: 0.7;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            min-width: 130px;
+        }
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .filter-bar .search-input {
+            min-width: 200px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            text-align: left;
+            padding: 10px 6px 8px 0;
+            color: #6b7f9a;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #edf2f9;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 6px 10px 0;
+            border-bottom: 1px solid #f2f6fc;
+            color: #1e2c41;
+            vertical-align: middle;
+        }
+        td .sub-text {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: block;
+        }
+        .actions-cell {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        /* 草稿箱行样式 */
+        .draft-row { background: #fffdf5; }
+        .draft-row:hover { background: #fff9e0; }
+        .draft-info { line-height: 1.5; }
+        .draft-info .draft-index { font-weight: 700; font-size: 13px; color: #1a2639; }
+        .draft-info .draft-summary { font-size: 12px; color: #3f5370; }
+        .draft-info .draft-meta { font-size: 11px; color: #8b9db5; margin-top: 2px; }
+        .draft-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 500; background: #fff9e0; color: #8b6914; }
+        .status-dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .status-dot.green {
+            background: #1fb873;
+        }
+        .status-dot.orange {
+            background: #f5a623;
+        }
+        .status-dot.red {
+            background: #e65f5f;
+        }
+        .status-dot.gray {
+            background: #b0bcca;
+        }
+        .checkbox-col {
+            width: 32px;
+            text-align: center;
+        }
+        .checkbox-col input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* ===== 详情页样式 ===== */
+        .back-link {
+            color: #4f9cf7;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px 28px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .info-item .label {
+            font-size: 11px;
+            color: #6b7f9a;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .info-item .value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a2639;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 26px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #d5dee9;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 16px;
+            padding-left: 10px;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-item .dot {
+            position: absolute;
+            left: -21px;
+            top: 3px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #d5dee9;
+            background: #fff;
+        }
+        .timeline-item .dot.green {
+            background: #1fb873;
+            box-shadow: 0 0 0 2px #1fb873;
+        }
+        .timeline-item .dot.blue {
+            background: #4f9cf7;
+            box-shadow: 0 0 0 2px #4f9cf7;
+        }
+        .timeline-item .dot.orange {
+            background: #f5a623;
+            box-shadow: 0 0 0 2px #f5a623;
+        }
+        .timeline-item .dot.red {
+            background: #e65f5f;
+            box-shadow: 0 0 0 2px #e65f5f;
+        }
+        .timeline-item .head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .timeline-item .head .title {
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+        }
+        .timeline-item .head .time {
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+        .timeline-item .desc {
+            font-size: 13px;
+            color: #3f5370;
+            margin-top: 2px;
+        }
+
+        .cost-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .cost-table tr {
+            border-bottom: 1px solid #f2f6fc;
+        }
+        .cost-table td {
+            padding: 6px 8px 6px 0;
+        }
+        .cost-table td:last-child {
+            text-align: right;
+            font-weight: 500;
+        }
+        .cost-table .total-row {
+            border-top: 2px solid #d5dee9;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .reject-box {
+            background: #fef6f6;
+            border: 1px solid #fad5d5;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-top: 10px;
+        }
+        .reject-box .reject-reason {
+            color: #b33a3a;
+            font-weight: 500;
+        }
+
+        /* ===== 新建订单表单 ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 32px;
+        }
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+        }
+        .form-group label .required {
+            color: #e65f5f;
+            margin-left: 2px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            width: 100%;
+            transition: all 0.15s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .form-group .hint {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 2px;
+        }
+        .form-group .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group .input-with-unit input {
+            flex: 1;
+        }
+        .form-group .input-with-unit .unit {
+            font-size: 13px;
+            color: #6b7f9a;
+            font-weight: 500;
+            min-width: 30px;
+        }
+
+        .price-preview {
+            background: #f4f8ff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            border: 1px solid #e3edff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .price-preview .amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .price-preview .sub {
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+
+        .adjust-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px dashed #d5dee9;
+        }
+        .adjust-row input {
+            width: 120px;
+            padding: 6px 10px;
+            border: 1px solid #d5dee9;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .adjust-row input:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+
+        /* ===== 模态框（派单、驳回） ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 580px;
+            width: 94%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field label .required {
+            color: #e65f5f;
+        }
+        .modal .field input,
+        .modal .field select,
+        .modal .field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .modal .field input:focus,
+        .modal .field select:focus,
+        .modal .field textarea:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .modal .field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .modal .field .driver-option {
+            padding: 8px 12px;
+            border: 1px solid #edf2f9;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal .field .driver-option:hover {
+            background: #f4f8ff;
+            border-color: #4f9cf7;
+        }
+        .modal .field .driver-option.selected {
+            background: #e3edff;
+            border-color: #4f9cf7;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            border-top: 1px solid #edf2f9;
+            padding-top: 18px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 4px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 追踪进度样式（用于追踪详情页） ===== */
+        /* 行程进度：纵向时间线 */
+        .track-progress {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+            padding-left: 28px;
+        }
+        .track-progress::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            bottom: 8px;
+            left: 13px;
+            width: 2px;
+            background: #edf2f9;
+            z-index: 0;
+        }
+        .track-progress .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            position: relative;
+            z-index: 1;
+        }
+        .track-progress .step .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            background: #edf2f9;
+            color: #6b7f9a;
+            border: 2px solid #edf2f9;
+            transition: all 0.3s;
+        }
+        .track-progress .step.done .icon {
+            background: #1fb873;
+            border-color: #1fb873;
+            color: #fff;
+        }
+        .track-progress .step.active .icon {
+            background: #4f9cf7;
+            border-color: #4f9cf7;
+            color: #fff;
+            box-shadow: 0 0 0 4px rgba(79, 156, 247, 0.2);
+        }
+        .track-progress .step .step-body {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.3;
+        }
+        .track-progress .step .label {
+            font-size: 11px;
+            color: #6b7f9a;
+        }
+        .track-progress .step.done .label { color: #1fb873; }
+        .track-progress .step.active .label { color: #4f9cf7; font-weight: 600; }
+        .track-progress .step .step-time {
+            font-size: 10px;
+        }
+        .track-progress .step .step-time.actual { color: #1fb873; }
+        .track-progress .step .step-time.estimate { color: #f5a623; }
+
+        /* ===== 追踪详情页：全屏地图 + 悬浮卡片 ===== */
+        #trackDetailView {
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+        }
+        #trackDetailView .track-topbar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+        #trackDetailView .track-topbar > * { pointer-events: auto; }
+        #trackDetailView .track-content {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+        }
+        #trackMapContainer {
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        /* 悬浮：订单信息卡片 */
+        .track-float-info {
+            position: absolute;
+            top: 56px;
+            left: 12px;
+            z-index: 10;
+            width: 260px;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .track-float-info .info-title {
+            font-weight: 700; font-size: 13px; color: #1a2639; margin-bottom: 8px;
+        }
+        .track-float-info .info-row {
+            display: flex; justify-content: space-between; margin-bottom: 3px;
+        }
+        .track-float-info .info-row .lbl { color: #6b7f9a; }
+        .track-float-info .info-row .val { font-weight: 600; color: #1a2639; }
+        /* 悬浮：行程进度卡片 */
+        .track-float-progress {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            z-index: 10;
+            width: 260px;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 12px 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+        .track-float-progress .progress-title {
+            font-weight: 700; font-size: 13px; color: #1a2639; margin-bottom: 8px;
+        }
+        .track-float-progress .step {
+            white-space: nowrap;
+        }
+        .track-float-progress .step .step-time {
+            display: block;
+            font-size: 10px;
+            margin-top: 1px;
+        }
+        .track-float-progress .step .step-time.actual { color: #1fb873; }
+        .track-float-progress .step .step-time.estimate { color: #f5a623; }
+        /* 速度标签 */
+        .track-speed-tag {
+            position: absolute;
+            bottom: 16px;
+            left: 12px;
+            z-index: 10;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a2639;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .info-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .track-float-info { width: 220px; font-size: 11px; }
+            .track-float-progress { width: 280px; }
+        }
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                padding: 10px 16px;
+            }
+            .content-wrapper {
+                padding: 12px 16px 20px;
+            }
+            .modal {
+                padding: 20px;
+            }
+            .track-progress .step .label {
+                font-size: 9px;
+            }
+            .track-progress .step .icon {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+            #trackDetailView .track-left {
+                flex-direction: column;
+            }
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item active"><span class="icon">🧾</span> 订单中心 <span class="badge-dot">3</span></div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台</div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div class="menu-item"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title" id="pageTitle">🧾 订单中心</div>
+            <div class="topbar-actions">
+                <span>👤 计调 · 张明</span>
+                <span class="role-tag">协会级</span>
+                <span class="time-display" id="timeDisplay">2026-06-23 周二 14:32</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+
+            <!-- ========================================================== -->
+            <!-- 列表视图 -->
+            <!-- ========================================================== -->
+            <div id="orderListView">
+                <div class="card" style="padding:12px 20px;">
+                    <div class="flex-between">
+                        <div class="filter-bar">
+                            <input class="search-input" placeholder="🔍 搜索订单号/团号" id="orderSearch" oninput="renderOrderList()">
+                            <select id="orderSourceFilter" onchange="renderOrderList()">
+                                <option value="">全部来源</option>
+                                <option value="旅行社">旅行社</option>
+                                <option value="公司">公司</option>
+                                <option value="网络">网络</option>
+                            </select>
+                            <button class="btn btn-sm btn-outline" onclick="resetOrderFilter()">重置</button>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="editingDraftId=null;openCreateOrder()">+ 新建订单</button>
+                    </div>
+                </div>
+
+                <div class="status-tabs" id="statusTabs">
+                    <button class="tab active" data-status="all" onclick="filterOrders('all')">全部 <span class="count">(7)</span></button>
+                    <button class="tab" data-status="待派单" onclick="filterOrders('待派单')">待派单 <span class="count">(2)</span></button>
+                    <button class="tab" data-status="执行中" onclick="filterOrders('执行中')">执行中 <span class="count">(1)</span></button>
+                    <button class="tab" data-status="待初审" onclick="filterOrders('待初审')">待初审 <span class="count">(1)</span></button>
+                    <button class="tab" data-status="待终审" onclick="filterOrders('待终审')">待终审 <span class="count">(1)</span></button>
+                    <button class="tab" data-status="已驳回" onclick="filterOrders('已驳回')">已驳回 <span class="count">(1)</span></button>
+                    <button class="tab" data-status="已结算" onclick="filterOrders('已结算')">已结算 <span class="count">(1)</span></button>
+                    <button class="tab" data-status="草稿箱" onclick="filterOrders('草稿箱')">📁 草稿箱 <span class="count" id="draftCount">0</span></button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>📋 订单列表 <span class="text-muted" style="font-weight:400;font-size:12px;" id="orderCount">共 7 条</span></span>
+                        <div class="flex">
+                            <button class="btn btn-sm btn-outline" onclick="showToast('📋 批量派单（模拟）')">📋 批量派单</button>
+                            <button class="btn btn-sm btn-outline" onclick="showToast('📥 批量导出（模拟）')">📥 批量导出</button>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th class="checkbox-col"><input type="checkbox" id="selectAll" onchange="toggleAllCheckboxes()"></th>
+                                    <th>订单号</th>
+                                    <th>来源/类型</th>
+                                    <th>客户</th>
+                                    <th>金额</th>
+                                    <th>司机/车牌</th>
+                                    <th>状态</th>
+                                    <th style="min-width:120px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- 新建订单视图 -->
+            <!-- ========================================================== -->
+            <div id="createOrderView" style="display:none;">
+                <div class="flex-between mb-2">
+                    <div>
+                        <span class="back-link" onclick="closeCreateOrder()">← 返回列表</span>
+                        <span style="margin:0 10px;color:#d5dee9;">|</span>
+                        <span style="font-weight:600;font-size:18px;color:#1a2639;">📝 新建订单</span>
+                        <span class="badge" style="font-size:11px;font-weight:400;margin-left:10px;">带 * 为必填</span>
+                    </div>
+                    <div class="flex">
+                        <button class="btn btn-outline btn-sm" onclick="saveFormAsDraft()">💾 保存草稿</button>
+                        <button class="btn btn-success" onclick="submitNewOrder()">✅ 提交订单</button>
+                    </div>
+                </div>
+
+                <form id="createOrderForm" onsubmit="return false;">
+                    <!-- 基本信息 -->
+                    <div class="card">
+                        <div class="card-header">📌 基本信息</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>订单来源 <span class="required">*</span></label>
+                                <select id="f_source">
+                                    <option value="">请选择</option>
+                                    <option value="旅行社" selected>旅行社订单</option>
+                                    <option value="公司">公司订单</option>
+                                    <option value="网络">网络订单</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>业务类型 <span class="required">*</span></label>
+                                <select id="f_type">
+                                    <option value="">请选择</option>
+                                    <option value="团队">团队订单</option>
+                                    <option value="固定线路" selected>固定线路订单</option>
+                                    <option value="包车">包车订单</option>
+                                    <option value="接机">接机订单</option>
+                                    <option value="租车">租车订单</option>
+                                    <option value="景区专线">景区专线</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>关联客户 <span class="required">*</span></label>
+                                <select id="f_client">
+                                    <option value="">请选择</option>
+                                    <option value="悦途旅行" selected>悦途旅行</option>
+                                    <option value="古城国旅">古城国旅</option>
+                                    <option value="阳光假期">阳光假期</option>
+                                    <option value="景区直通车">景区直通车</option>
+                                    <option value="商务VIP">商务VIP</option>
+                                    <option value="散客-刘先生">散客-刘先生</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>团号</label>
+                                <input id="f_group" placeholder="自动生成或手动输入" value="YT-20260623-">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>起止时间 <span class="required">*</span></label>
+                                <input id="f_time" placeholder="例：2026-06-23 08:00 ~ 18:00" value="2026-06-24 08:00 ~ 18:00">
+                            </div>
+                            <div class="form-group full-width">
+                                <label>途经点</label>
+                                <input id="f_stops" placeholder="用 → 分隔" value="古城南门 → 甘海子 → 蓝月谷">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 行程与车辆 -->
+                    <div class="card">
+                        <div class="card-header">🚗 行程与车辆配置</div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>选择线路 <span class="required">*</span></label>
+                                <select id="f_route" onchange="updatePricePreview()">
+                                    <option value="">请选择</option>
+                                    <option value="玉龙雪山一日游" selected>玉龙雪山一日游</option>
+                                    <option value="泸沽湖两日游">泸沽湖两日游</option>
+                                    <option value="拉市海专线">拉市海专线</option>
+                                    <option value="定制路线（手动配置）">定制路线（手动配置）</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>车型要求 <span class="required">*</span></label>
+                                <select id="f_carType" onchange="updatePricePreview()">
+                                    <option value="">请选择</option>
+                                    <option value="9座·舒适型·油车" selected>9座 · 舒适型 · 油车</option>
+                                    <option value="7座·豪华型·油车">7座 · 豪华型 · 油车</option>
+                                    <option value="19座·舒适型·油车">19座 · 舒适型 · 油车</option>
+                                    <option value="5座·经济型·电车">5座 · 经济型 · 电车</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>司导类型</label>
+                                <select id="f_guideType">
+                                    <option value="服务型">服务型</option>
+                                    <option value="购物型" selected>购物型</option>
+                                    <option value="导游型">导游型</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>座位数需求</label>
+                                <input id="f_seats" value="9座" disabled style="background:#f4f6fa;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 计费与调整 -->
+                    <div class="card">
+                        <div class="card-header">💰 计费与调整 <span class="text-muted" style="font-weight:400;font-size:11px;">系统自动计费，支持人工调价</span></div>
+                        <div class="price-preview">
+                            <div>
+                                <div class="sub">📊 系统自动计费（基准价）</div>
+                                <div class="sub" id="priceBaseDesc">基于「玉龙雪山一日游」+「9座·舒适型·油车」</div>
+                            </div>
+                            <div><span class="amount" id="priceBaseAmount">¥3,200.00</span></div>
+                        </div>
+                        <div class="mt-2 adjust-row">
+                            <span style="font-size:13px;color:#3f5370;font-weight:500;">✏️ 人工调整金额：</span>
+                            <input type="number" id="f_adjustAmount" placeholder="+200 或 -200" value="-200" step="1">
+                            <span style="font-size:13px;color:#3f5370;">调整后：</span>
+                            <span style="font-size:20px;font-weight:700;color:#1a2639;" id="finalPriceDisplay">¥3,000.00</span>
+                            <span style="font-size:11px;color:#6b7f9a;">（操作人：张计调，自动留痕）</span>
+                        </div>
+                        <div class="form-group mt-2" style="max-width:400px;">
+                            <label>调整原因</label>
+                            <input id="f_adjustReason" placeholder="例：合作优惠 / 临时议价" value="合作优惠">
+                        </div>
+                        <div class="text-muted" style="font-size:11px;margin-top:6px;">
+                            ⚠️ 所有金额修改操作将记录操作人、时间及修改前后金额，全程留痕可追溯。
+                        </div>
+                    </div>
+
+                    <!-- 备注 -->
+                    <div class="card">
+                        <div class="card-header">📎 备注与附件</div>
+                        <div class="form-grid">
+                            <div class="form-group full-width">
+                                <label>特殊要求 / 备注</label>
+                                <textarea id="f_special" placeholder="例：需配备导游座、车内提供矿泉水">需配备导游座，车内提供矿泉水</textarea>
+                            </div>
+                            <div class="form-group full-width">
+                                <label>上传附件（回单模板/合同等）</label>
+                                <input type="file" multiple style="padding:6px 0;border:none;">
+                                <div class="hint">支持 jpg, png, pdf 格式</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部操作栏 -->
+                    <div style="display:flex;gap:12px;justify-content:flex-end;padding:12px 0 30px;border-top:1px solid #edf2f9;margin-top:8px;">
+                        <button class="btn btn-outline" onclick="closeCreateOrder()">取消</button>
+                        <button class="btn btn-outline" onclick="saveFormAsDraft()">💾 保存草稿</button>
+                        <button class="btn btn-success" onclick="submitNewOrder()">✅ 提交订单（进入派单池）</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- 详情视图 -->
+            <!-- ========================================================== -->
+            <div id="orderDetailView" style="display:none;">
+                <!-- 面包屑 -->
+                <div class="flex-between mb-2">
+                    <div>
+                        <span class="back-link" onclick="closeOrderDetail()">← 返回列表</span>
+                        <span style="margin:0 10px;color:#d5dee9;">|</span>
+                        <span style="font-weight:600;font-size:18px;color:#1a2639;" id="detailOrderId">#OD1023</span>
+                        <span class="badge orange" style="margin-left:10px;" id="detailStatus">待初审</span>
+                        <span class="badge red" id="detailRejectBadge" style="display:none;margin-left:6px;">已驳回</span>
+                    </div>
+                    <div class="flex">
+                        <button class="btn btn-sm btn-outline" onclick="showToast('🖨️ 打印/导出（模拟）')">🖨️ 打印</button>
+                        <button class="btn btn-sm" id="detailActionBtn" onclick="handleDetailAction()">📋 去审核</button>
+                    </div>
+                </div>
+
+                <!-- 1. 信息流 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📌 订单信息流</span>
+                        <span class="text-muted" style="font-weight:400;font-size:11px;" id="editModeHint">🔒 当前状态：只读</span>
+                    </div>
+                    <div class="info-grid" id="detailInfoGrid">
+                        <div class="info-item"><span class="label">订单来源</span><span class="value" id="dSource">旅行社订单</span></div>
+                        <div class="info-item"><span class="label">业务类型</span><span class="value" id="dType">团队 · 固定线路</span></div>
+                        <div class="info-item"><span class="label">关联客户</span><span class="value" id="dClient">悦途旅行</span></div>
+                        <div class="info-item"><span class="label">团号</span><span class="value" id="dGroup">YT-20260623-A</span></div>
+                        <div class="info-item"><span class="label">线路</span><span class="value" id="dRoute">玉龙雪山一日游</span></div>
+                        <div class="info-item"><span class="label">起止时间</span><span class="value" id="dTime">2026-06-23 08:00~18:00</span></div>
+                        <div class="info-item"><span class="label">途经点</span><span class="value" id="dStops">古城南门→甘海子→蓝月谷</span></div>
+                        <div class="info-item"><span class="label">车型要求</span><span class="value" id="dCarType">9座·舒适型·油车</span></div>
+                        <div class="info-item"><span class="label">司导类型</span><span class="value" id="dGuideType">购物型</span></div>
+                        <div class="info-item" style="grid-column:span 2;"><span class="label">特殊要求</span><span class="value" id="dSpecial">需配备导游座，车内提供矿泉水</span></div>
+                    </div>
+                    <div id="detailRejectBox" style="display:none;" class="reject-box mt-2">
+                        <div class="reject-reason">⛔ 驳回原因</div>
+                        <div class="reject-detail" id="detailRejectReason">过路费发票金额（¥50）与回单照片（¥80）不符</div>
+                        <div style="margin-top:6px;font-size:12px;color:#6b7f9a;">驳回人：王财务 · 2026-06-23 16:30</div>
+                    </div>
+                </div>
+
+                <!-- 2. 计费与调整 -->
+                <div class="card">
+                    <div class="card-header">💰 计费与调整 <span class="text-muted" style="font-weight:400;font-size:11px;">所有调整操作全程留痕</span></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+                        <div>
+                            <div class="text-muted" style="margin-bottom:4px;">系统自动计费（基准价）</div>
+                            <div style="font-size:22px;font-weight:700;color:#1a2639;" id="dAutoPrice">¥3,200.00</div>
+                            <div style="font-size:12px;color:#6b7f9a;">基于「玉龙雪山」+「9座舒适型」</div>
+                        </div>
+                        <div>
+                            <div class="text-muted" style="margin-bottom:4px;">人工调整记录 <span class="badge" style="font-size:10px;">1次</span></div>
+                            <div style="background:#f8fafc;padding:10px 14px;border-radius:8px;border-left:4px solid #f5a623;">
+                                <div style="display:flex;justify-content:space-between;font-size:13px;">
+                                    <span style="color:#e65f5f;">-¥200.00</span>
+                                    <span class="text-muted">张计调 · 10:15</span>
+                                </div>
+                                <div style="font-size:12px;color:#6b7f9a;">调整前 ¥3,200 → 调整后 <strong style="color:#1a2639;" id="dFinalPrice">¥3,000.00</strong></div>
+                                <div style="font-size:11px;color:#6b7f9a;margin-top:2px;">原因：合作优惠</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 派单与执行信息 -->
+                <div class="card">
+                    <div class="card-header">🚗 派单与执行信息</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                        <div><span class="text-muted" style="font-size:11px;">派单方式</span><div style="font-weight:600;" id="dDispatchMode">指定派单</div></div>
+                        <div><span class="text-muted" style="font-size:11px;">派单人</span><div style="font-weight:600;" id="dDispatcher">张计调</div></div>
+                        <div><span class="text-muted" style="font-size:11px;">派单时间</span><div style="font-weight:600;" id="dDispatchTime">2026-06-23 09:20</div></div>
+                        <div><span class="text-muted" style="font-size:11px;">接单司机</span><div style="font-weight:600;" id="dDriver">李师傅</div></div>
+                        <div><span class="text-muted" style="font-size:11px;">车牌号</span><div style="font-weight:600;" id="dPlate">云L·8888</div></div>
+                        <div><span class="text-muted" style="font-size:11px;">所属车队</span><div style="font-weight:600;" id="dFleet">雪山车队</div></div>
+                    </div>
+                </div>
+
+                <!-- 4. 成本明细 -->
+                <div class="card">
+                    <div class="card-header">📊 行程成本与垫付明细</div>
+                    <table class="cost-table">
+                        <tr><td>油耗/电耗</td><td>100 L (油车)</td><td>¥680.00</td></tr>
+                        <tr><td>过路费</td><td>丽江-玉龙雪山往返</td><td>¥50.00</td></tr>
+                        <tr><td>事故/维修</td><td>无</td><td>¥0.00</td></tr>
+                        <tr><td>司机垫付</td><td>停车费+餐补</td><td>¥30.00</td></tr>
+                        <tr><td>返点</td><td>合作旅行社返点</td><td style="color:#e65f5f;">-¥100.00</td></tr>
+                        <tr><td>优惠抵扣</td><td>满减活动</td><td style="color:#e65f5f;">-¥50.00</td></tr>
+                        <tr class="total-row"><td colspan="2">📌 最终结算基数（应付车队）</td><td id="dFinalSettle">¥2,610.00</td></tr>
+                    </table>
+                    <div class="flex mt-2" style="gap:8px;">
+                        <span class="badge" style="background:#eef3fc;">📎 过路费发票.jpg</span>
+                        <span class="badge" style="background:#eef3fc;">📎 垫付凭证.png</span>
+                        <span class="badge" style="background:#eef3fc;">📎 现场回单.jpg</span>
+                    </div>
+                </div>
+
+                <!-- 5. 操作日志 -->
+                <div class="card">
+                    <div class="card-header">
+                        <span>📋 操作日志（全量流水）</span>
+                        <span class="text-muted" style="font-weight:400;font-size:11px;">所有状态扭转、金额修改、派单变更</span>
+                    </div>
+                    <div class="timeline" id="operationLogTimeline"></div>
+                </div>
+
+                <!-- 6. 审核日志 -->
+                <div class="card">
+                    <div class="card-header">✅ 审核日志 <span class="text-muted" style="font-weight:400;font-size:11px;">审核节点专属记录</span></div>
+                    <div class="timeline" id="auditLogTimeline"></div>
+                </div>
+
+                <!-- 底部操作区 -->
+                <div style="display:flex;gap:12px;justify-content:flex-end;padding:8px 0 20px;" id="detailFooterActions">
+                    <button class="btn btn-outline" onclick="closeOrderDetail()">返回列表</button>
+                    <button class="btn btn-success" id="detailPrimaryBtn" onclick="handleDetailPrimary()" style="display:none;">✅ 审核通过</button>
+                    <button class="btn btn-danger" id="detailRejectBtn" onclick="handleDetailReject()" style="display:none;">⛔ 驳回</button>
+                    <button class="btn btn-warning" id="detailResubmitBtn" onclick="handleDetailResubmit()" style="display:none;">🔄 修改重提</button>
+                </div>
+            </div>
+
+            <!-- ========================================================== -->
+            <!-- 追踪详情页（全屏二级页面） -->
+            <!-- ========================================================== -->
+            <div id="trackDetailView" style="display:none;">
+                <!-- 全屏地图 -->
+                <div class="track-content">
+                    <div id="trackMapContainer"></div>
+                </div>
+                <!-- 悬浮顶栏 -->
+                <div class="track-topbar">
+                    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.8);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:10px;padding:6px 14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);">
+                        <span class="back-link" onclick="closeTrackDetail()">← 返回</span>
+                        <span style="color:#d5dee9;">|</span>
+                        <span style="font-weight:600;font-size:15px;color:#1a2639;">📍 订单追踪</span>
+                        <span class="badge blue" id="trackDetailStatus">执行中</span>
+                    </div>
+                </div>
+                <!-- 悬浮：订单信息 -->
+                <div class="track-float-info">
+                    <div class="info-title">📋 订单信息</div>
+                    <div class="info-row"><span class="lbl">订单号</span><span class="val" id="trackDetailOrderId">#OD1025</span></div>
+                    <div class="info-row"><span class="lbl">线路</span><span class="val" id="trackDetailRoute">丽江→拉市海</span></div>
+                    <div class="info-row"><span class="lbl">车辆</span><span class="val" id="trackDetailVehicle">云L·6666</span></div>
+                    <div class="info-row"><span class="lbl">里程</span><span class="val" id="trackDetailDistance">32 km</span></div>
+                    <div class="info-row"><span class="lbl">预计到达</span><span class="val" style="color:#4f9cf7;" id="trackDetailEta">12:30</span></div>
+                    <div style="margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,0,0,0.06);font-size:11px;color:#6b7f9a;" id="trackDetailStops">丽江古城 → 拉市海</div>
+                </div>
+                <!-- 悬浮：行程进度 -->
+                <div class="track-float-progress">
+                    <div class="progress-title">🚚 行程进度</div>
+                    <div class="track-progress" id="trackDetailProgress">
+                        <div class="step done"><div class="icon">✓</div><div class="step-body"><span class="label">接收订单</span><span class="step-time actual">—</span></div></div>
+                        <div class="step done"><div class="icon">✓</div><div class="step-body"><span class="label">接到乘客</span><span class="step-time actual">—</span></div></div>
+                        <div class="step active"><div class="icon">●</div><div class="step-body"><span class="label">行程开始</span><span class="step-time estimate">—</span></div></div>
+                        <div class="step"><div class="icon">○</div><div class="step-body"><span class="label">行程结束</span><span class="step-time estimate">—</span></div></div>
+                    </div>
+                </div>
+                <!-- 悬浮：时速 -->
+                <div class="track-speed-tag" id="trackSpeedTag">🚀 时速 68 km/h</div>
+            </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 模态框1: 派单 -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay" id="dispatchModal">
+        <div class="modal">
+            <h3>📋 派单：<span id="dispatchOrderId">#OD1021</span></h3>
+            <div class="field">
+                <label>派单方式 <span class="required">*</span></label>
+                <select id="dispatchModeSelect" onchange="toggleDispatchMode()">
+                    <option value="指定">指定司机派单</option>
+                    <option value="抢单">发布抢单（司机自主接单）</option>
+                </select>
+            </div>
+            <div class="field" id="dispatchDriverField">
+                <label>选择司机 <span class="required">*</span></label>
+                <div id="driverList">
+                    <div class="driver-option" onclick="selectDriver(this, '李师傅', '9座')">
+                        <span><strong>李师傅</strong> <span class="badge" style="font-size:10px;">9座</span></span>
+                        <span class="text-muted" style="font-size:12px;">雪山车队 · 空闲</span>
+                    </div>
+                    <div class="driver-option" onclick="selectDriver(this, '王师傅', '7座')">
+                        <span><strong>王师傅</strong> <span class="badge" style="font-size:10px;">7座</span></span>
+                        <span class="text-muted" style="font-size:12px;">古城车队 · 空闲</span>
+                    </div>
+                    <div class="driver-option" onclick="selectDriver(this, '赵师傅', '19座')">
+                        <span><strong>赵师傅</strong> <span class="badge" style="font-size:10px;">19座</span></span>
+                        <span class="text-muted" style="font-size:12px;">玉龙车队 · 空闲</span>
+                    </div>
+                    <div class="driver-option" onclick="selectDriver(this, '周师傅', '9座')">
+                        <span><strong>周师傅</strong> <span class="badge" style="font-size:10px;">9座</span></span>
+                        <span class="text-muted" style="font-size:12px;">玉龙车队 · 空闲</span>
+                    </div>
+                </div>
+                <div class="hint-text">💡 仅显示持有对应车型资质的空闲司机</div>
+            </div>
+            <div class="field" id="dispatchGrabConfig" style="display:none;">
+                <label>抢单筛选条件</label>
+                <div style="font-size:13px;color:#3f5370;background:#f4f8ff;padding:8px 12px;border-radius:6px;">
+                    🚗 9座 · 油车 · 购物型司导（系统自动匹配）
+                </div>
+                <div class="hint-text">系统将自动匹配符合条件的司机，推送抢单通知</div>
+            </div>
+            <div class="field">
+                <label>派单备注</label>
+                <input placeholder="可选填" id="dispatchNote" value="优先安排熟悉玉龙雪山路线的司机">
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('dispatchModal')">取消</button>
+                <button class="btn btn-success" onclick="confirmDispatch()">✅ 确认派单</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- 模态框2: 驳回 -->
+    <!-- ============================================================== -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal">
+            <h3>⛔ 驳回订单</h3>
+            <div class="field">
+                <label>驳回原因 <span class="required">*</span></label>
+                <textarea id="rejectReasonInput" placeholder="请详细说明驳回原因"></textarea>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+                    <span style="font-size:11px;background:#f0f4fa;padding:2px 12px;border-radius:12px;cursor:pointer;" onclick="document.getElementById('rejectReasonInput').value='发票金额与回单不符'">📎 发票不符</span>
+                    <span style="font-size:11px;background:#f0f4fa;padding:2px 12px;border-radius:12px;cursor:pointer;" onclick="document.getElementById('rejectReasonInput').value='行程公里数与实际偏差过大'">📏 公里数异常</span>
+                    <span style="font-size:11px;background:#f0f4fa;padding:2px 12px;border-radius:12px;cursor:pointer;" onclick="document.getElementById('rejectReasonInput').value='垫付凭证不清晰或缺失'">📷 凭证缺失</span>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('rejectModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmReject()">⛔ 确认驳回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 订单数据
+        // ================================================================
+        const orderData = [{
+            id: '#OD1023',
+            group: 'YT-20260623-A',
+            source: '旅行社',
+            type: '团队 · 固定线路',
+            client: '悦途旅行',
+            amount: 3000,
+            autoPrice: 3200,
+            finalPrice: 3000,
+            finalSettle: 2610,
+            driver: '李师傅',
+            plate: '云L·8888',
+            mode: '指定',
+            status: '待初审',
+            route: '玉龙雪山一日游',
+            time: '2026-06-23 08:00~18:00',
+            stops: '古城南门→甘海子→蓝月谷',
+            carType: '9座·舒适型·油车',
+            guideType: '购物型',
+            special: '需配备导游座，车内提供矿泉水',
+            fleet: '雪山车队',
+            dispatcher: '张计调',
+            dispatchTime: '2026-06-23 09:20',
+            costs: { fuel: 680, toll: 50, advance: 30, rebate: -100, discount: -50 },
+            adjustHistory: [{ amount: -200, by: '张计调', time: '10:15', reason: '合作优惠', before: 3200, after: 3000 }],
+            operationLogs: [
+                { time: '2026-06-23 09:20', actor: '张计调', action: '创建订单', detail: '来源：旅行社，类型：团队' },
+                { time: '2026-06-23 09:25', actor: '张计调', action: '调整金额', detail: '合作优惠 -¥200' },
+                { time: '2026-06-23 09:30', actor: '张计调', action: '派单', detail: '指定派单 → 李师傅（云L·8888）' },
+                { time: '2026-06-23 09:35', actor: '李师傅', action: '确认接单', detail: '司机已确认' },
+                { time: '2026-06-23 17:35', actor: '李师傅', action: '提交回单', detail: '油耗100L，公里数80km，垫付¥30' },
+            ],
+            auditLogs: [
+                { time: '2026-06-23 17:35', actor: '李师傅', action: '提交行程回单',
+                detail: '油耗100L，公里数80km，垫付¥30', dot: 'green' },
+                { time: '2026-06-23 18:10', actor: '张计调', action: '计调初审',
+                detail: '核实行程数据真实，垫付发票清晰', dot: 'blue' },
+                { time: '2026-06-23 19:00', actor: '王财务', action: '财务终审中', detail: '正在核对金额与返点数据',
+                    dot: 'orange' },
+            ],
+            rejectReason: '',
+            images: ['过路费发票.jpg', '垫付凭证.png', '现场回单.jpg'],
+            track: { distance: '32 km', eta: '12:30', progress: 60, start: '丽江古城', end: '拉市海', client: '商务VIP',
+                steps: [
+                    { label: '接收订单', time: '2026-04-23 08:30' },
+                    { label: '接到乘客', time: '2026-04-23 09:15' },
+                    { label: '行程开始', time: '预计 2026-04-24 18:29' },
+                    { label: '行程结束', time: '预计 2026-04-24 19:30' }
+                ] }
+        }, {
+            id: '#OD1020',
+            group: 'GC-20260622-D',
+            source: '旅行社',
+            type: '固定线路',
+            client: '古城国旅',
+            amount: 4500,
+            autoPrice: 4500,
+            finalPrice: 4500,
+            finalSettle: 4050,
+            driver: '赵师傅',
+            plate: '云L·9999',
+            mode: '指定',
+            status: '待终审',
+            route: '泸沽湖两日游',
+            time: '2026-06-23 07:00~06-24 19:00',
+            stops: '宁蒗→泸沽湖',
+            carType: '19座·舒适型·油车',
+            guideType: '导游型',
+            special: '含住宿，司机协助搬运行李',
+            fleet: '玉龙车队',
+            dispatcher: '张计调',
+            dispatchTime: '2026-06-22 16:00',
+            costs: { fuel: 1200, toll: 180, advance: 120, rebate: -200, discount: -100 },
+            adjustHistory: [],
+            operationLogs: [
+                { time: '2026-06-22 16:00', actor: '张计调', action: '创建订单', detail: '来源：旅行社' },
+                { time: '2026-06-22 16:10', actor: '张计调', action: '派单', detail: '指定派单 → 赵师傅（云L·9999）' },
+                { time: '2026-06-23 19:30', actor: '赵师傅', action: '提交回单', detail: '油耗200L，公里数320km，垫付¥120' },
+            ],
+            auditLogs: [
+                { time: '2026-06-23 19:30', actor: '赵师傅', action: '提交行程回单',
+                detail: '油耗200L，公里数320km，垫付¥120', dot: 'green' },
+                { time: '2026-06-23 20:00', actor: '张计调', action: '计调初审通过', detail: '行程与公里数吻合',
+                dot: 'blue' },
+                { time: '2026-06-23 20:30', actor: '王财务', action: '财务终审中', detail: '待确认', dot: 'orange' },
+            ],
+            rejectReason: '',
+            images: ['过路费发票.jpg', '垫付凭证.png', '现场回单.jpg'],
+            track: { distance: '180 km', eta: '18:00', progress: 75, start: '丽江古城', end: '泸沽湖', client: '古城国旅',
+                steps: [
+                    { label: '接收订单', time: '2026-06-22 16:00' },
+                    { label: '接到乘客', time: '2026-06-23 07:00' },
+                    { label: '行程开始', time: '2026-06-23 07:30' },
+                    { label: '行程结束', time: '预计 2026-06-24 19:00' }
+                ] }
+        }, {
+            id: '#OD1025',
+            group: 'GC-20260623-C',
+            source: '公司',
+            type: '包车',
+            client: '商务VIP',
+            amount: 1500,
+            autoPrice: 1500,
+            finalPrice: 1500,
+            finalSettle: 1380,
+            driver: '王师傅',
+            plate: '云L·6666',
+            mode: '抢单',
+            status: '执行中',
+            route: '定制包车-机场往返',
+            time: '2026-06-23 10:00~16:00',
+            stops: '酒店→机场→酒店',
+            carType: '7座·豪华型·油车',
+            guideType: '服务型',
+            special: '需提前30分钟等候',
+            fleet: '古城车队',
+            dispatcher: '系统',
+            dispatchTime: '2026-06-23 08:50',
+            costs: { fuel: 180, toll: 40, advance: 20, rebate: 0, discount: -80 },
+            adjustHistory: [],
+            operationLogs: [
+                { time: '2026-06-23 08:50', actor: '系统', action: '发布抢单',
+                detail: '条件：7座·豪华型·服务型司导' },
+                { time: '2026-06-23 08:55', actor: '王师傅', action: '抢单成功', detail: '抢单时间 08:55' },
+                { time: '2026-06-23 10:00', actor: '王师傅', action: '行程开始', detail: '已出发' },
+            ],
+            auditLogs: [
+                { time: '2026-06-23 16:20', actor: '王师傅', action: '提交行程回单', detail: '油耗30L，公里数45km，垫付¥20',
+                    dot: 'green' },
+            ],
+            rejectReason: '',
+            images: ['垫付凭证.png', '现场回单.jpg'],
+            track: { distance: '32 km', eta: '12:30', progress: 60, start: '丽江古城', end: '拉市海', client: '商务VIP',
+                steps: [
+                    { label: '接收订单', time: '2026-06-23 08:50' },
+                    { label: '接到乘客', time: '2026-06-23 10:00' },
+                    { label: '行程开始', time: '2026-06-23 10:15' },
+                    { label: '行程结束', time: '预计 2026-06-23 16:00' }
+                ] }
+        }, {
+            id: '#OD1021',
+            group: 'SW-20260623-B',
+            source: '网络',
+            type: '接机',
+            client: '散客-刘先生',
+            amount: 280,
+            autoPrice: 280,
+            finalPrice: 280,
+            finalSettle: 280,
+            driver: '—',
+            plate: '—',
+            mode: '待派单',
+            status: '待派单',
+            route: '三义机场→古城',
+            time: '2026-06-23 14:00',
+            stops: '机场→古城南门',
+            carType: '5座·经济型·油车',
+            guideType: '—',
+            special: '航班号：MU5735',
+            fleet: '—',
+            dispatcher: '—',
+            dispatchTime: '—',
+            costs: { fuel: 30, toll: 15, advance: 0, rebate: 0, discount: -10 },
+            adjustHistory: [],
+            operationLogs: [
+                { time: '2026-06-23 13:00', actor: '系统', action: '订单创建', detail: '网络订单自动创建' },
+            ],
+            auditLogs: [],
+            rejectReason: '',
+            images: [],
+            track: null
+        }, {
+            id: '#OD1028',
+            group: 'REJ-20260622-F',
+            source: '旅行社',
+            type: '团队',
+            client: '阳光假期',
+            amount: 2200,
+            autoPrice: 2200,
+            finalPrice: 2200,
+            finalSettle: 1950,
+            driver: '周师傅',
+            plate: '云L·4444',
+            mode: '指定',
+            status: '已驳回',
+            route: '玉龙雪山一日游',
+            time: '2026-06-22 08:00~17:00',
+            stops: '古城南门→甘海子→蓝月谷',
+            carType: '9座·舒适型·油车',
+            guideType: '购物型',
+            special: '需导游座',
+            fleet: '玉龙车队',
+            dispatcher: '张计调',
+            dispatchTime: '2026-06-22 14:00',
+            costs: { fuel: 650, toll: 50, advance: 20, rebate: -100, discount: -50 },
+            adjustHistory: [],
+            operationLogs: [
+                { time: '2026-06-22 14:00', actor: '张计调', action: '创建订单', detail: '来源：旅行社' },
+                { time: '2026-06-22 14:15', actor: '张计调', action: '派单', detail: '指定派单 → 周师傅（云L·4444）' },
+                { time: '2026-06-22 18:00', actor: '周师傅', action: '提交回单', detail: '油耗95L，公里数75km，垫付¥20' },
+                { time: '2026-06-23 16:30', actor: '王财务', action: '终审驳回',
+                detail: '原因：过路费发票金额与回单照片不符' },
+            ],
+            auditLogs: [
+                { time: '2026-06-22 18:00', actor: '周师傅', action: '提交行程回单',
+                detail: '油耗95L，公里数75km，垫付¥20', dot: 'green' },
+                { time: '2026-06-22 18:30', actor: '张计调', action: '计调初审通过', detail: '行程数据真实',
+                dot: 'blue' },
+                { time: '2026-06-23 16:30', actor: '王财务', action: '财务终审驳回',
+                detail: '过路费发票金额（¥50）与回单照片（¥80）不符', dot: 'red' },
+            ],
+            rejectReason: '过路费发票金额（¥50）与回单照片（¥80）不符，请重新上传正确发票。',
+            images: ['过路费发票(旧).jpg', '垫付凭证.png', '现场回单.jpg'],
+            track: null
+        }, {
+            id: '#OD1029',
+            group: 'SET-20260621-G',
+            source: '公司',
+            type: '景区专线',
+            client: '景区直通车',
+            amount: 6800,
+            autoPrice: 6800,
+            finalPrice: 6800,
+            finalSettle: 6120,
+            driver: '钱师傅',
+            plate: '云L·9999',
+            mode: '指定',
+            status: '已结算',
+            route: '玉龙雪山直通车',
+            time: '2026-06-22 07:00~18:00',
+            stops: '古城→甘海子→蓝月谷→古城',
+            carType: '19座·舒适型·油车',
+            guideType: '服务型',
+            special: '每日固定班次',
+            fleet: '古城车队',
+            dispatcher: '李调度',
+            dispatchTime: '2026-06-21 08:00',
+            costs: { fuel: 1800, toll: 200, advance: 150, rebate: -300, discount: -120 },
+            adjustHistory: [{ amount: 0, by: '系统', time: '08:00', reason: '标准定价', before: 6800, after: 6800 }],
+            operationLogs: [
+                { time: '2026-06-21 08:00', actor: '李调度', action: '创建订单', detail: '固定班次' },
+                { time: '2026-06-21 08:30', actor: '李调度', action: '派单', detail: '指定派单 → 钱师傅' },
+                { time: '2026-06-22 18:30', actor: '钱师傅', action: '提交回单', detail: '油耗280L，公里数320km' },
+                { time: '2026-06-22 19:00', actor: '张计调', action: '初审通过', detail: '行程真实' },
+                { time: '2026-06-22 20:00', actor: '王财务', action: '终审通过', detail: '进入结算' },
+            ],
+            auditLogs: [
+                { time: '2026-06-22 18:30', actor: '钱师傅', action: '提交行程回单',
+                detail: '油耗280L，公里数320km，垫付¥150', dot: 'green' },
+                { time: '2026-06-22 19:00', actor: '张计调', action: '计调初审通过', detail: '行程真实', dot: 'blue' },
+                { time: '2026-06-22 20:00', actor: '王财务', action: '财务终审通过', detail: '金额准确，进入结算',
+                    dot: 'green' },
+            ],
+            rejectReason: '',
+            images: ['过路费发票.jpg', '垫付凭证.png', '现场回单.jpg', 'GPS轨迹.jpg'],
+            track: null
+        }];
+
+        // 司机列表（用于派单）
+        let availableDrivers = [
+            { name: '李师傅', type: '9座', fleet: '雪山车队', status: '空闲' },
+            { name: '王师傅', type: '7座', fleet: '古城车队', status: '空闲' },
+            { name: '赵师傅', type: '19座', fleet: '玉龙车队', status: '空闲' },
+            { name: '周师傅', type: '9座', fleet: '玉龙车队', status: '空闲' },
+            { name: '刘师傅', type: '5座', fleet: '雪山车队', status: '空闲' },
+        ];
+
+        let currentStatusFilter = 'all';
+        let currentDetailOrderId = null;
+        let currentRejectOrderId = null;
+        let selectedDriverName = null;
+        let selectedDriverType = null;
+        // 追踪页面返回目标
+        let trackReturnTarget = 'list'; // 'list' 或 'detail'
+
+        // 草稿箱
+        let draftOrders = JSON.parse(localStorage.getItem('orderDrafts') || '[]');
+        let editingDraftId = null; // 正在编辑的草稿ID
+
+        function saveDrafts() {
+            localStorage.setItem('orderDrafts', JSON.stringify(draftOrders));
+            updateDraftBadge();
+        }
+
+        function updateDraftBadge() {
+            const el = document.getElementById('draftCount');
+            if (el) el.innerText = draftOrders.length;
+        }
+
+        function saveFormAsDraft() {
+            const formFields = ['f_source','f_type','f_client','f_group','f_time','f_stops','f_route','f_carType','f_guideType','f_seats','f_adjustAmount','f_adjustReason','f_special'];
+            const draft = {};
+            formFields.forEach(fid => {
+                const el = document.getElementById(fid);
+                if (el) draft[fid.replace('f_','')] = el.value;
+            });
+            draft.savedAt = new Date().toLocaleString('zh-CN');
+            draft.summary = `${draft.route || '未选线路'} · ${draft.carType || '未选车型'} · ${draft.client || '未选客户'}`;
+
+            if (editingDraftId !== null) {
+                // 更新已有草稿
+                const idx = draftOrders.findIndex(d => d.id === editingDraftId);
+                if (idx !== -1) {
+                    draft.id = editingDraftId;
+                    draftOrders[idx] = draft;
+                    showToast('💾 草稿已更新');
+                }
+                editingDraftId = null;
+            } else {
+                draft.id = 'draft_' + Date.now();
+                draftOrders.unshift(draft);
+                showToast('💾 草稿已保存（草稿箱共 ' + draftOrders.length + ' 条）');
+            }
+            saveDrafts();
+        }
+
+        function continueDraft(draftId) {
+            const draft = draftOrders.find(d => d.id === draftId);
+            if (!draft) return;
+            editingDraftId = draftId;
+            openCreateOrder();
+            // 回填表单
+            const fieldMap = { source:'f_source', type:'f_type', client:'f_client', group:'f_group', time:'f_time', stops:'f_stops', route:'f_route', carType:'f_carType', guideType:'f_guideType', seats:'f_seats', adjustAmount:'f_adjustAmount', adjustReason:'f_adjustReason', special:'f_special' };
+            Object.entries(fieldMap).forEach(([key, fid]) => {
+                const el = document.getElementById(fid);
+                if (el && draft[key] !== undefined) el.value = draft[key];
+            });
+            updatePricePreview();
+            document.getElementById('pageTitle').innerHTML = '📝 编辑草稿';
+            showToast('📝 正在编辑草稿：' + (draft.summary || draft.id));
+        }
+
+        function deleteDraft(draftId) {
+            if (!confirm('确定删除该草稿吗？此操作不可撤销。')) return;
+            draftOrders = draftOrders.filter(d => d.id !== draftId);
+            if (editingDraftId === draftId) editingDraftId = null;
+            saveDrafts();
+            if (currentStatusFilter === '草稿箱') renderDraftList();
+            showToast('🗑️ 草稿已删除');
+        }
+
+        // ================================================================
+        // 2. 列表渲染
+        // ================================================================
+        function renderOrderList() {
+            const tbody = document.getElementById('orderTableBody');
+            const searchVal = document.getElementById('orderSearch').value.trim().toLowerCase();
+            const sourceFilter = document.getElementById('orderSourceFilter').value;
+
+            let filtered = orderData;
+            if (currentStatusFilter !== 'all') {
+                filtered = filtered.filter(o => o.status === currentStatusFilter);
+            }
+            if (searchVal) {
+                filtered = filtered.filter(o =>
+                    o.id.toLowerCase().includes(searchVal) ||
+                    o.group.toLowerCase().includes(searchVal) ||
+                    o.client.toLowerCase().includes(searchVal)
+                );
+            }
+            if (sourceFilter) {
+                filtered = filtered.filter(o => o.source === sourceFilter);
+            }
+
+            document.getElementById('orderCount').innerText = `共 ${filtered.length} 条`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="8" style="text-align:center;padding:30px;color:#6b7f9a;">📭 暂无匹配的订单</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(o => {
+                const statusBadge = getStatusBadge(o.status);
+                const isPending = o.status === '待派单';
+                const isExecuting = o.status === '执行中';
+                const isRejected = o.status === '已驳回';
+                const driverDisplay = o.driver !== '—' ? `${o.driver} / ${o.plate}` : '—';
+
+                html += `
+                    <tr>
+                        <td class="checkbox-col"><input type="checkbox" class="row-checkbox" data-id="${o.id}"></td>
+                        <td><span style="font-weight:600;">${o.id}</span><span class="sub-text">${o.group}</span></td>
+                        <td>${o.source}<span class="sub-text">${o.type}</span></td>
+                        <td>${o.client}</td>
+                        <td>¥${o.amount}</td>
+                        <td>${driverDisplay}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-sm btn-outline" onclick="openOrderDetail('${o.id}')">📄 详情</button>
+                                ${isPending ? `<button class="btn btn-sm btn-success" onclick="openDispatchModal('${o.id}')">📋 派单</button>` : ''}
+                                ${isExecuting ? `<button class="btn btn-sm btn-primary" onclick="openTrackDetail('${o.id}')">📍 追踪</button>` : ''}
+                                ${isRejected ? `<button class="btn btn-sm btn-warning" onclick="showToast('🔄 重提：${o.id}（模拟）')">🔄 重提</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                '待派单': '<span class="badge gray"><span class="status-dot gray"></span>待派单</span>',
+                '执行中': '<span class="badge blue"><span class="status-dot blue"></span>执行中</span>',
+                '待初审': '<span class="badge orange"><span class="status-dot orange"></span>待初审</span>',
+                '待终审': '<span class="badge purple"><span class="status-dot blue"></span>待终审</span>',
+                '已驳回': '<span class="badge red"><span class="status-dot red"></span>已驳回</span>',
+                '已结算': '<span class="badge green"><span class="status-dot green"></span>已结算</span>',
+            };
+            return map[status] || `<span class="badge">${status}</span>`;
+        }
+
+        function filterOrders(status) {
+            currentStatusFilter = status;
+            document.querySelectorAll('#statusTabs .tab').forEach(el => {
+                el.classList.toggle('active', el.dataset.status === status);
+            });
+            if (status === '草稿箱') {
+                renderDraftList();
+            } else {
+                renderOrderList();
+            }
+        }
+
+        function renderDraftList() {
+            // 确保在列表视图
+            document.getElementById('orderListView').style.display = 'block';
+            document.getElementById('createOrderView').style.display = 'none';
+            document.getElementById('orderDetailView').style.display = 'none';
+            document.getElementById('trackDetailView').style.display = 'none';
+
+            const tbody = document.getElementById('orderTableBody');
+            document.getElementById('orderCount').innerText = `共 ${draftOrders.length} 条草稿`;
+
+            if (draftOrders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:40px;color:#6b7f9a;">
+                    📁 草稿箱为空<br><span style="font-size:12px;">新建订单时点击「💾 保存草稿」即可将订单存入草稿箱</span>
+                </td></tr>`;
+                return;
+            }
+
+            let html = '';
+            draftOrders.forEach((d, i) => {
+                html += `
+                <tr class="draft-row">
+                    <td class="checkbox-col">📁</td>
+                    <td colspan="2">
+                        <div class="draft-info">
+                            <div class="draft-index">草稿 #${i + 1}</div>
+                            <div class="draft-summary">${d.summary || '未命名草稿'}</div>
+                            <div class="draft-meta">💾 保存于 ${d.savedAt || '—'} ｜ ${d.group || '—'} ｜ ${d.time || '—'}</div>
+                        </div>
+                    </td>
+                    <td>${d.client || '—'}</td>
+                    <td>¥${d.adjustAmount ? (parseInt(d.adjustAmount) || 0) : '—'}</td>
+                    <td>${d.route || '—'}</td>
+                    <td><span class="badge gray">📁 草稿</span></td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="btn btn-sm btn-primary" onclick="continueDraft('${d.id}')">✏️ 继续编辑</button>
+                            <button class="btn btn-sm btn-outline" onclick="deleteDraft('${d.id}')">🗑️ 删除</button>
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function resetOrderFilter() {
+            document.getElementById('orderSearch').value = '';
+            document.getElementById('orderSourceFilter').value = '';
+            renderOrderList();
+        }
+
+        function toggleAllCheckboxes() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        // ================================================================
+        // 3. 新建订单
+        // ================================================================
+        function openCreateOrder() {
+            document.getElementById('orderListView').style.display = 'none';
+            document.getElementById('createOrderView').style.display = 'block';
+            document.getElementById('orderDetailView').style.display = 'none';
+            document.getElementById('trackDetailView').style.display = 'none';
+            document.getElementById('pageTitle').innerHTML = editingDraftId ? '📝 编辑草稿' : '📝 新建订单';
+
+            // 新建（非草稿编辑）时重置表单
+            if (!editingDraftId) {
+                const defaults = { f_source:'旅行社', f_type:'固定线路', f_client:'悦途旅行', f_group:'YT-20260623-', f_time:'2026-06-24 08:00 ~ 18:00', f_stops:'古城南门 → 甘海子 → 蓝月谷', f_route:'玉龙雪山一日游', f_carType:'9座·舒适型·油车', f_guideType:'购物型', f_seats:'9座', f_adjustAmount:'-200', f_adjustReason:'合作优惠', f_special:'需配备导游座，车内提供矿泉水' };
+                Object.entries(defaults).forEach(([id, val]) => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = val;
+                });
+            }
+            updatePricePreview();
+        }
+
+        function closeCreateOrder() {
+            document.getElementById('createOrderView').style.display = 'none';
+            document.getElementById('orderListView').style.display = 'block';
+            document.getElementById('pageTitle').innerHTML = '🧾 订单中心';
+            editingDraftId = null;
+            if (currentStatusFilter === '草稿箱') {
+                renderDraftList();
+            } else {
+                renderOrderList();
+            }
+        }
+
+        function getBasePrice(route, carType) {
+            const map = {
+                '玉龙雪山一日游': { '9座·舒适型·油车': 3200, '7座·豪华型·油车': 3800, '19座·舒适型·油车': 4800,
+                    '5座·经济型·电车': 2200 },
+                '泸沽湖两日游': { '9座·舒适型·油车': 4200, '7座·豪华型·油车': 5000, '19座·舒适型·油车': 6500,
+                    '5座·经济型·电车': 3000 },
+                '拉市海专线': { '9座·舒适型·油车': 2800, '7座·豪华型·油车': 3400, '19座·舒适型·油车': 4200,
+                    '5座·经济型·电车': 1900 },
+            };
+            const routeMap = map[route];
+            if (!routeMap) return 2000;
+            return routeMap[carType] || 2000;
+        }
+
+        function getCarSeats(carType) {
+            const map = { '9座·舒适型·油车': '9座', '7座·豪华型·油车': '7座', '19座·舒适型·油车': '19座', '5座·经济型·电车': '5座' };
+            return map[carType] || '—';
+        }
+
+        function updatePricePreview() {
+            const route = document.getElementById('f_route').value;
+            const carType = document.getElementById('f_carType').value;
+            const basePrice = getBasePrice(route, carType);
+            const seats = getCarSeats(carType);
+            document.getElementById('f_seats').value = seats;
+            document.getElementById('priceBaseAmount').innerText = `¥${basePrice.toFixed(2)}`;
+            document.getElementById('priceBaseDesc').innerText = `基于「${route || '未选线路'}」+「${carType || '未选车型'}」`;
+            applyAdjustment(basePrice);
+        }
+
+        function applyAdjustment(basePrice) {
+            const adjust = parseFloat(document.getElementById('f_adjustAmount').value) || 0;
+            const finalPrice = basePrice + adjust;
+            document.getElementById('finalPriceDisplay').innerText = `¥${finalPrice.toFixed(2)}`;
+            return finalPrice;
+        }
+
+        document.getElementById('f_adjustAmount').addEventListener('input', function() {
+            const baseText = document.getElementById('priceBaseAmount').innerText;
+            const base = parseFloat(baseText.replace('¥', '')) || 0;
+            applyAdjustment(base);
+        });
+
+        function submitNewOrder() {
+            const source = document.getElementById('f_source').value;
+            const type = document.getElementById('f_type').value;
+            const client = document.getElementById('f_client').value;
+            const route = document.getElementById('f_route').value;
+            const carType = document.getElementById('f_carType').value;
+            if (!source || !type || !client || !route || !carType) {
+                showToast('⚠️ 请填写所有必填项（带 * 号）');
+                return;
+            }
+
+            const basePrice = getBasePrice(route, carType);
+            const adjust = parseFloat(document.getElementById('f_adjustAmount').value) || 0;
+            const finalAmount = basePrice + adjust;
+            const group = document.getElementById('f_group').value || `AUTO-${Date.now().toString().slice(-6)}`;
+            const time = document.getElementById('f_time').value || '待定';
+            const stops = document.getElementById('f_stops').value || '—';
+            const guideType = document.getElementById('f_guideType').value;
+            const special = document.getElementById('f_special').value || '—';
+
+            const newOrder = {
+                id: `#OD${String(orderData.length + 1000).padStart(4, '0')}`,
+                group: group,
+                source: source,
+                type: type,
+                client: client,
+                amount: finalAmount,
+                autoPrice: basePrice,
+                finalPrice: finalAmount,
+                finalSettle: finalAmount,
+                driver: '—',
+                plate: '—',
+                mode: '待派单',
+                status: '待派单',
+                route: route,
+                time: time,
+                stops: stops,
+                carType: carType,
+                guideType: guideType,
+                special: special,
+                fleet: '—',
+                dispatcher: '—',
+                dispatchTime: '—',
+                costs: { fuel: 0, toll: 0, advance: 0, rebate: 0, discount: 0 },
+                adjustHistory: [],
+                operationLogs: [
+                    { time: new Date().toLocaleString(), actor: '张计调', action: '创建订单',
+                    detail: `来源：${source}，类型：${type}` }
+                ],
+                auditLogs: [],
+                rejectReason: '',
+                images: [],
+                track: null
+            };
+
+            // 如果是从草稿提交的，删除对应草稿
+            if (editingDraftId !== null) {
+                draftOrders = draftOrders.filter(d => d.id !== editingDraftId);
+                saveDrafts();
+                editingDraftId = null;
+                showToast(`✅ 订单 ${newOrder.id} 创建成功！原草稿已自动清理。`);
+            } else {
+                showToast(`✅ 订单 ${newOrder.id} 创建成功！已进入「待派单」池。`);
+            }
+
+            orderData.unshift(newOrder);
+            closeCreateOrder();
+            filterOrders('待派单');
+            renderOrderList();
+        }
+
+        // ================================================================
+        // 4. 派单
+        // ================================================================
+        function openDispatchModal(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (!order) { showToast('⚠️ 订单不存在'); return; }
+            document.getElementById('dispatchOrderId').innerText = orderId;
+            const carType = order.carType || '9座';
+            const carTypeKey = carType.split('·')[0].trim();
+            const matchedDrivers = availableDrivers.filter(d => d.type === carTypeKey && d.status === '空闲');
+            const driverList = document.getElementById('driverList');
+            if (matchedDrivers.length === 0) {
+                driverList.innerHTML =
+                    `<div class="text-muted" style="padding:12px 0;">⚠️ 当前没有匹配 ${carTypeKey} 车型的空闲司机</div>`;
+            } else {
+                let html = '';
+                matchedDrivers.forEach(d => {
+                    html += `
+                        <div class="driver-option" onclick="selectDriver(this, '${d.name}', '${d.type}')">
+                            <span><strong>${d.name}</strong> <span class="badge" style="font-size:10px;">${d.type}</span></span>
+                            <span class="text-muted" style="font-size:12px;">${d.fleet} · 空闲</span>
+                        </div>
+                    `;
+                });
+                driverList.innerHTML = html;
+            }
+            document.getElementById('dispatchModeSelect').value = '指定';
+            document.getElementById('dispatchDriverField').style.display = 'block';
+            document.getElementById('dispatchGrabConfig').style.display = 'none';
+            selectedDriverName = null;
+            document.getElementById('dispatchModal').classList.add('show');
+        }
+
+        function toggleDispatchMode() {
+            const mode = document.getElementById('dispatchModeSelect').value;
+            if (mode === '指定') {
+                document.getElementById('dispatchDriverField').style.display = 'block';
+                document.getElementById('dispatchGrabConfig').style.display = 'none';
+            } else {
+                document.getElementById('dispatchDriverField').style.display = 'none';
+                document.getElementById('dispatchGrabConfig').style.display = 'block';
+                selectedDriverName = null;
+            }
+        }
+
+        function selectDriver(el, name, type) {
+            document.querySelectorAll('.driver-option').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedDriverName = name;
+            selectedDriverType = type;
+        }
+
+        function confirmDispatch() {
+            const mode = document.getElementById('dispatchModeSelect').value;
+            const orderId = document.getElementById('dispatchOrderId').innerText;
+            const order = orderData.find(o => o.id === orderId);
+            if (!order) { showToast('⚠️ 订单不存在'); return; }
+
+            if (mode === '指定') {
+                if (!selectedDriverName) {
+                    showToast('⚠️ 请选择一个司机');
+                    return;
+                }
+                order.driver = selectedDriverName;
+                order.plate = `云L·${String(Math.floor(Math.random() * 9000) + 1000)}`;
+                order.mode = '指定';
+                order.status = '执行中';
+                order.dispatcher = '张计调';
+                order.dispatchTime = new Date().toLocaleString();
+                order.fleet = availableDrivers.find(d => d.name === selectedDriverName)?.fleet || '—';
+                order.operationLogs.push({
+                    time: new Date().toLocaleString(),
+                    actor: '张计调',
+                    action: '派单（指定）',
+                    detail: `${selectedDriverName} → ${order.plate}`
+                });
+                const driver = availableDrivers.find(d => d.name === selectedDriverName);
+                if (driver) driver.status = '忙碌';
+                showToast(`📋 派单成功！${order.id} 已分配给 ${selectedDriverName}`);
+            } else {
+                order.mode = '抢单';
+                order.status = '执行中';
+                order.dispatcher = '系统';
+                order.dispatchTime = new Date().toLocaleString();
+                order.operationLogs.push({
+                    time: new Date().toLocaleString(),
+                    actor: '系统',
+                    action: '发布抢单',
+                    detail: '已推送至符合条件的司机'
+                });
+                const matched = availableDrivers.filter(d => d.status === '空闲');
+                if (matched.length > 0) {
+                    const randomDriver = matched[Math.floor(Math.random() * matched.length)];
+                    order.driver = randomDriver.name;
+                    order.plate = `云L·${String(Math.floor(Math.random() * 9000) + 1000)}`;
+                    order.fleet = randomDriver.fleet;
+                    randomDriver.status = '忙碌';
+                    order.operationLogs.push({
+                        time: new Date().toLocaleString(),
+                        actor: randomDriver.name,
+                        action: '抢单成功',
+                        detail: `自动匹配：${randomDriver.name}`
+                    });
+                    showToast(`🏃 抢单发布成功！${randomDriver.name} 已接单`);
+                } else {
+                    order.driver = '待分配';
+                    order.plate = '—';
+                    showToast(`📋 抢单已发布，等待司机接单`);
+                }
+            }
+
+            closeModal('dispatchModal');
+            renderOrderList();
+            openOrderDetail(orderId);
+        }
+
+        // ================================================================
+        // 5. 追踪（全屏二级页面）
+        // ================================================================
+        function openTrackDetail(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (!order) { showToast('⚠️ 订单不存在'); return; }
+            if (!order.track) {
+                showToast('⚠️ 该订单暂无追踪数据');
+                return;
+            }
+
+            // 记录返回目标
+            const detailView = document.getElementById('orderDetailView');
+            trackReturnTarget = (detailView.style.display === 'block') ? 'detail' : 'list';
+
+            // 隐藏其他视图
+            document.getElementById('orderListView').style.display = 'none';
+            document.getElementById('createOrderView').style.display = 'none';
+            document.getElementById('orderDetailView').style.display = 'none';
+            document.getElementById('trackDetailView').style.display = 'block';
+            document.getElementById('pageTitle').innerHTML = '📍 订单追踪';
+
+            const track = order.track;
+            // 填充订单信息（使用安全赋值，避免旧ID不存在时报错）
+            const safeSet = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            safeSet('trackDetailOrderId', order.id);
+            safeSet('trackDetailRoute', order.route || '—');
+            safeSet('trackDetailDistance', track.distance || '—');
+            safeSet('trackDetailEta', track.eta || '—');
+            const vehicleText = order.plate && order.plate !== '—' ? `${order.plate}（${order.driver}）` : '未分配';
+            safeSet('trackDetailVehicle', vehicleText);
+            safeSet('trackDetailStops', order.stops || '—');
+
+            // 状态
+            const statusEl = document.getElementById('trackDetailStatus');
+            statusEl.innerText = order.status;
+            statusEl.className = `badge ${getStatusClass(order.status)}`;
+
+            // 进度条步骤
+            const steps = track.steps || [
+                { label: '接收订单', time: '—' },
+                { label: '接到乘客', time: '—' },
+                { label: '行程开始', time: '—' },
+                { label: '行程结束', time: '—' }
+            ];
+            const stepElements = document.querySelectorAll('#trackDetailProgress .step');
+            stepElements.forEach((el, idx) => {
+                if (idx < steps.length) {
+                    const stepData = steps[idx];
+                    const labelEl = el.querySelector('.label');
+                    if (labelEl) labelEl.innerText = stepData.label;
+                    const timeEl = el.querySelector('.step-time');
+                    if (timeEl) {
+                        const t = stepData.time || '—';
+                        timeEl.innerText = t;
+                        timeEl.classList.remove('actual', 'estimate');
+                        timeEl.classList.add(t.includes('预计') ? 'estimate' : 'actual');
+                    }
+                    el.classList.remove('done', 'active');
+                    if (idx < 2) el.classList.add('done');
+                    if (idx === 2) el.classList.add('active');
+                }
+            });
+
+            // 初始化 Leaflet 地图
+            setTimeout(() => {
+                const mapEl = document.getElementById('trackMapContainer');
+                if (!mapEl || mapEl.offsetHeight === 0) return;
+                // 清除旧地图
+                if (mapEl._leaflet_id) {
+                    const oldMap = window._trackMap;
+                    if (oldMap) { oldMap.remove(); window._trackMap = null; }
+                }
+                const trackMap = L.map('trackMapContainer', {
+                    center: [26.86, 100.23],
+                    zoom: 12,
+                    zoomControl: false,
+                    attributionControl: false
+                });
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(trackMap);
+                // 模拟轨迹线
+                const routeLine = L.polyline([[26.87,100.23],[26.88,100.21],[26.89,100.18]], { color: '#4f9cf7', weight: 4, opacity: 0.8 }).addTo(trackMap);
+                // 起点/终点标记
+                L.circleMarker([26.87,100.23], { radius: 6, color: '#1fb873', fillOpacity: 1 }).addTo(trackMap).bindPopup('起点');
+                L.circleMarker([26.89,100.18], { radius: 6, color: '#e65f5f', fillOpacity: 1 }).addTo(trackMap).bindPopup('终点');
+                // 车辆位置标记
+                L.divIcon({ className: '', html: '<div style="font-size:28px;">🚐</div>', iconSize: [28,28], iconAnchor: [14,14] });
+                L.marker([26.88,100.20], { icon: L.divIcon({ className: '', html: '<div style="font-size:30px;">🚐</div>', iconSize: [30,30], iconAnchor: [15,15] }) }).addTo(trackMap);
+                trackMap.fitBounds([[26.87,100.23],[26.89,100.18]], { padding: [40,40] });
+                window._trackMap = trackMap;
+            }, 200);
+
+            // 车速
+            const speed = Math.floor(Math.random() * 30 + 50);
+            const speedEl = document.getElementById('trackSpeedTag');
+            if (speedEl) speedEl.innerText = `🚀 时速 ${speed} km/h`;
+        }
+
+        function getStatusClass(status) {
+            const map = {
+                '待派单': 'gray',
+                '执行中': 'blue',
+                '待初审': 'orange',
+                '待终审': 'purple',
+                '已驳回': 'red',
+                '已结算': 'green'
+            };
+            return map[status] || 'gray';
+        }
+
+        function closeTrackDetail() {
+            if (window._trackMap) { window._trackMap.remove(); window._trackMap = null; }
+            document.getElementById('trackDetailView').style.display = 'none';
+            document.getElementById('pageTitle').innerHTML = '🧾 订单中心';
+            if (trackReturnTarget === 'detail' && currentDetailOrderId) {
+                openOrderDetail(currentDetailOrderId);
+            } else {
+                document.getElementById('orderListView').style.display = 'block';
+                renderOrderList();
+            }
+        }
+
+        // ================================================================
+        // 6. 订单详情
+        // ================================================================
+        function openOrderDetail(orderId) {
+            const order = orderData.find(o => o.id === orderId);
+            if (!order) { showToast('⚠️ 订单不存在'); return; }
+            currentDetailOrderId = orderId;
+
+            document.getElementById('orderListView').style.display = 'none';
+            document.getElementById('createOrderView').style.display = 'none';
+            document.getElementById('trackDetailView').style.display = 'none';
+            document.getElementById('orderDetailView').style.display = 'block';
+            document.getElementById('pageTitle').innerHTML = `🧾 订单详情 · ${orderId}`;
+
+            document.getElementById('detailOrderId').innerText = orderId;
+
+            const statusMap = {
+                '待派单': { text: '待派单', cls: 'gray' },
+                '执行中': { text: '执行中', cls: 'blue' },
+                '待初审': { text: '待初审', cls: 'orange' },
+                '待终审': { text: '待终审', cls: 'purple' },
+                '已驳回': { text: '已驳回', cls: 'red' },
+                '已结算': { text: '已结算', cls: 'green' },
+            };
+            const st = statusMap[order.status] || { text: order.status, cls: 'gray' };
+            const statusEl = document.getElementById('detailStatus');
+            statusEl.innerText = st.text;
+            statusEl.className = `badge ${st.cls}`;
+
+            const rejectBadge = document.getElementById('detailRejectBadge');
+            const rejectBox = document.getElementById('detailRejectBox');
+            if (order.status === '已驳回') {
+                rejectBadge.style.display = 'inline-block';
+                rejectBox.style.display = 'block';
+                document.getElementById('detailRejectReason').innerText = order.rejectReason || '暂无驳回原因';
+            } else {
+                rejectBadge.style.display = 'none';
+                rejectBox.style.display = 'none';
+            }
+
+            document.getElementById('dSource').innerText = order.source;
+            document.getElementById('dType').innerText = order.type;
+            document.getElementById('dClient').innerText = order.client;
+            document.getElementById('dGroup').innerText = order.group;
+            document.getElementById('dRoute').innerText = order.route;
+            document.getElementById('dTime').innerText = order.time;
+            document.getElementById('dStops').innerText = order.stops || '—';
+            document.getElementById('dCarType').innerText = order.carType;
+            document.getElementById('dGuideType').innerText = order.guideType || '—';
+            document.getElementById('dSpecial').innerText = order.special || '—';
+
+            document.getElementById('dAutoPrice').innerText = `¥${order.autoPrice.toFixed(2)}`;
+            document.getElementById('dFinalPrice').innerText = `¥${order.finalPrice.toFixed(2)}`;
+            document.getElementById('dFinalSettle').innerText = `¥${order.finalSettle.toFixed(2)}`;
+
+            document.getElementById('dDispatchMode').innerText = order.mode === '待派单' ? '待派单' : order.mode;
+            document.getElementById('dDispatcher').innerText = order.dispatcher || '—';
+            document.getElementById('dDispatchTime').innerText = order.dispatchTime || '—';
+            document.getElementById('dDriver').innerText = order.driver && order.driver !== '—' ? order.driver : '未分配';
+            document.getElementById('dPlate').innerText = order.plate && order.plate !== '—' ? order.plate : '—';
+            document.getElementById('dFleet').innerText = order.fleet || '—';
+
+            const costs = order.costs || { fuel: 0, toll: 0, advance: 0, rebate: 0, discount: 0 };
+            const costRows = document.querySelectorAll('.cost-table tr:not(.total-row)');
+            if (costRows.length >= 6) {
+                costRows[0].querySelectorAll('td')[2].textContent = `¥${(costs.fuel || 0).toFixed(2)}`;
+                costRows[1].querySelectorAll('td')[2].textContent = `¥${(costs.toll || 0).toFixed(2)}`;
+                costRows[3].querySelectorAll('td')[2].textContent = `¥${(costs.advance || 0).toFixed(2)}`;
+                costRows[4].querySelectorAll('td')[2].textContent = `¥${(costs.rebate || 0).toFixed(2)}`;
+                costRows[5].querySelectorAll('td')[2].textContent = `¥${(costs.discount || 0).toFixed(2)}`;
+            }
+
+            const opLogs = order.operationLogs || [];
+            const opContainer = document.getElementById('operationLogTimeline');
+            if (opLogs.length === 0) {
+                opContainer.innerHTML = '<div class="text-muted" style="padding:8px 0;">暂无操作记录</div>';
+            } else {
+                let html = '';
+                opLogs.forEach(log => {
+                    const dotColor = log.action.includes('驳回') ? 'red' :
+                        log.action.includes('通过') ? 'green' :
+                        log.action.includes('创建') ? 'blue' : 'gray';
+                    html += `
+                        <div class="timeline-item">
+                            <div class="dot ${dotColor}"></div>
+                            <div class="head">
+                                <span class="title">${log.action}</span>
+                                <span class="time">${log.time}</span>
+                            </div>
+                            <div class="desc">${log.actor} · ${log.detail}</div>
+                        </div>
+                    `;
+                });
+                opContainer.innerHTML = html;
+            }
+
+            const auditLogs = order.auditLogs || [];
+            const auditContainer = document.getElementById('auditLogTimeline');
+            if (auditLogs.length === 0) {
+                auditContainer.innerHTML = '<div class="text-muted" style="padding:8px 0;">暂无审核记录</div>';
+            } else {
+                let html = '';
+                auditLogs.forEach(log => {
+                    const dotColor = log.dot || 'gray';
+                    html += `
+                        <div class="timeline-item">
+                            <div class="dot ${dotColor}"></div>
+                            <div class="head">
+                                <span class="title">${log.action}</span>
+                                <span class="time">${log.time}</span>
+                            </div>
+                            <div class="desc">${log.actor} · ${log.detail}</div>
+                        </div>
+                    `;
+                });
+                auditContainer.innerHTML = html;
+            }
+
+            // 动态按钮控制
+            const isRejected = order.status === '已驳回';
+            const isPending = order.status === '待派单';
+            const isExecuting = order.status === '执行中';
+            const isFirstAudit = order.status === '待初审';
+            const isFinalAudit = order.status === '待终审';
+            const isSettled = order.status === '已结算';
+
+            const primaryBtn = document.getElementById('detailPrimaryBtn');
+            const rejectBtn = document.getElementById('detailRejectBtn');
+            const resubmitBtn = document.getElementById('detailResubmitBtn');
+            const actionBtn = document.getElementById('detailActionBtn');
+
+            primaryBtn.style.display = 'none';
+            rejectBtn.style.display = 'none';
+            resubmitBtn.style.display = 'none';
+
+            if (isRejected) {
+                resubmitBtn.style.display = 'inline-flex';
+                actionBtn.innerText = '🔄 修改重提';
+                actionBtn.onclick = handleDetailResubmit;
+            } else if (isPending) {
+                primaryBtn.style.display = 'inline-flex';
+                primaryBtn.innerText = '📋 派单';
+                primaryBtn.className = 'btn btn-success';
+                primaryBtn.onclick = () => { closeOrderDetail();
+                    openDispatchModal(orderId); };
+                actionBtn.innerText = '📋 去派单';
+                actionBtn.onclick = () => { closeOrderDetail();
+                    openDispatchModal(orderId); };
+            } else if (isExecuting) {
+                primaryBtn.style.display = 'inline-flex';
+                primaryBtn.innerText = '📍 追踪';
+                primaryBtn.className = 'btn btn-primary';
+                primaryBtn.onclick = () => openTrackDetail(orderId);
+                actionBtn.innerText = '📍 追踪';
+                actionBtn.onclick = () => openTrackDetail(orderId);
+            } else if (isFirstAudit) {
+                primaryBtn.style.display = 'inline-flex';
+                primaryBtn.innerText = '✅ 初审通过';
+                primaryBtn.className = 'btn btn-success';
+                primaryBtn.onclick = () => handleAuditPass('初审', orderId);
+                rejectBtn.style.display = 'inline-flex';
+                rejectBtn.onclick = () => openRejectModal(orderId);
+                actionBtn.innerText = '🔍 去初审';
+                actionBtn.onclick = () => showToast('跳转至审核工作台（模拟）');
+            } else if (isFinalAudit) {
+                primaryBtn.style.display = 'inline-flex';
+                primaryBtn.innerText = '✅ 终审通过';
+                primaryBtn.className = 'btn btn-success';
+                primaryBtn.onclick = () => handleAuditPass('终审', orderId);
+                rejectBtn.style.display = 'inline-flex';
+                rejectBtn.onclick = () => openRejectModal(orderId);
+                actionBtn.innerText = '📋 去终审';
+                actionBtn.onclick = () => showToast('跳转至审核工作台（模拟）');
+            } else if (isSettled) {
+                actionBtn.innerText = '📄 查看结算单';
+                actionBtn.onclick = () => showToast('📄 模拟：跳转至结算单详情');
+                primaryBtn.style.display = 'none';
+            }
+
+            const hint = document.getElementById('editModeHint');
+            if (isPending || isRejected) {
+                hint.innerHTML = '✏️ 当前状态可编辑（点击字段可修改）';
+                hint.style.color = '#4f9cf7';
+            } else {
+                hint.innerHTML = '🔒 当前状态：只读';
+                hint.style.color = '#6b7f9a';
+            }
+
+            document.querySelector('.content-wrapper').scrollTop = 0;
+        }
+
+        function closeOrderDetail() {
+            document.getElementById('orderDetailView').style.display = 'none';
+            document.getElementById('orderListView').style.display = 'block';
+            document.getElementById('pageTitle').innerHTML = '🧾 订单中心';
+            renderOrderList();
+        }
+
+        // ================================================================
+        // 7. 审核操作
+        // ================================================================
+        function handleAuditPass(type, orderId) {
+            if (!confirm(`确认${type}通过订单 ${orderId} 吗？`)) return;
+            const order = orderData.find(o => o.id === orderId);
+            if (order) {
+                if (type === '初审') {
+                    order.status = '待终审';
+                    order.auditLogs.push({
+                        time: new Date().toLocaleString(),
+                        actor: '张计调',
+                        action: '计调初审通过',
+                        detail: '核实行程数据真实',
+                        dot: 'blue'
+                    });
+                    showToast(`✅ 初审通过：${orderId}，已进入终审队列`);
+                } else if (type === '终审') {
+                    order.status = '已结算';
+                    order.auditLogs.push({
+                        time: new Date().toLocaleString(),
+                        actor: '王财务',
+                        action: '财务终审通过',
+                        detail: '金额与成本核对无误，进入结算',
+                        dot: 'green'
+                    });
+                    showToast(`✅ 终审通过：${orderId}，已进入结算池`);
+                }
+                renderOrderList();
+                openOrderDetail(orderId);
+            }
+        }
+
+        function handleDetailPrimary() { showToast('操作已触发（模拟）'); }
+
+        function handleDetailReject() {
+            if (currentDetailOrderId) openRejectModal(currentDetailOrderId);
+        }
+
+        function handleDetailResubmit() {
+            if (currentDetailOrderId) {
+                const order = orderData.find(o => o.id === currentDetailOrderId);
+                if (order && order.status === '已驳回') {
+                    order.status = '待初审';
+                    order.rejectReason = '';
+                    order.auditLogs.push({
+                        time: new Date().toLocaleString(),
+                        actor: '系统',
+                        action: '重新提交',
+                        detail: '司机已修改，重新进入初审队列',
+                        dot: 'orange'
+                    });
+                    showToast(`🔄 ${currentDetailOrderId} 已重新提交至初审队列`);
+                    renderOrderList();
+                    openOrderDetail(currentDetailOrderId);
+                }
+            }
+        }
+
+        function handleDetailAction() { showToast('操作已触发（模拟）'); }
+
+        // ================================================================
+        // 8. 驳回
+        // ================================================================
+        function openRejectModal(orderId) {
+            currentRejectOrderId = orderId;
+            document.getElementById('rejectReasonInput').value = '';
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function confirmReject() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason) { showToast('⚠️ 请填写驳回原因'); return; }
+            const order = orderData.find(o => o.id === currentRejectOrderId);
+            if (order) {
+                order.status = '已驳回';
+                order.rejectReason = reason;
+                order.auditLogs.push({
+                    time: new Date().toLocaleString(),
+                    actor: '审核人',
+                    action: '审核驳回',
+                    detail: reason,
+                    dot: 'red'
+                });
+                showToast(`⛔ ${order.id} 已驳回`);
+                closeModal('rejectModal');
+                renderOrderList();
+                if (document.getElementById('orderDetailView').style.display !== 'none') {
+                    openOrderDetail(order.id);
+                }
+            }
+        }
+
+        // ================================================================
+        // 9. 模态框 & Toast
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ================================================================
+        // 10. 时钟
+        // ================================================================
+        function updateClock() {
+            const now = new Date();
+            const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('timeDisplay').innerText = `${y}-${m}-${d} ${days[now.getDay()]} ${h}:${min}`;
+        }
+        setInterval(updateClock, 30000);
+        updateClock();
+
+        // ================================================================
+        // 11. 初始化
+        // ================================================================
+        renderOrderList();
+        updateDraftBadge();
+        console.log('🧾 订单中心已加载（含草稿箱、新建订单、派单、追踪）');
+        console.log('📁 草稿箱：新建订单时可保存草稿，草稿自动持久化到本地存储');
+        console.log('💡 点击「草稿箱」Tab → 查看/继续编辑/删除已保存的草稿');
+    </script>
+
+</body>
+</html>

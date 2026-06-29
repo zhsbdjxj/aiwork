@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>财务结算中心（跨日结算版）- 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 16px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 32px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eef3fc;
+            color: #2a5f9c;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-lg {
+            padding: 10px 28px;
+            font-size: 15px;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .mb-2 {
+            margin-bottom: 14px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+        .fw-bold {
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .text-right {
+            text-align: right;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #edf2f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #6b7f9a;
+            margin-bottom: 4px;
+        }
+        .stat-card .value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .stat-card .sub {
+            font-size: 12px;
+            color: #4f9cf7;
+            margin-top: 4px;
+        }
+        .stat-card .value.green {
+            color: #1fb873;
+        }
+        .stat-card .value.orange {
+            color: #f5a623;
+        }
+        .stat-card .value.blue {
+            color: #4f9cf7;
+        }
+        .stat-card .value.red {
+            color: #e65f5f;
+        }
+
+        /* ===== 日期范围选择 ===== */
+        .date-range-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .date-range-selector input[type="date"] {
+            padding: 7px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            min-width: 150px;
+        }
+        .date-range-selector input[type="date"]:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .date-range-selector .range-label {
+            color: #6b7f9a;
+            font-size: 14px;
+        }
+        .date-range-selector .range-hint {
+            font-size: 12px;
+            color: #6b7f9a;
+            background: #f0f4fa;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+
+        /* ===== 车队结算卡片 ===== */
+        .fleet-settle-card {
+            border: 1px solid #edf2f9;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: #fafcff;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        .fleet-settle-card:hover {
+            border-color: #d0d8e6;
+        }
+        .fleet-settle-card .fleet-summary {
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .fleet-settle-card .fleet-summary:hover {
+            background: #f4f8ff;
+        }
+        .fleet-settle-card .fleet-summary .left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .fleet-settle-card .fleet-summary .left .fleet-name {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a2639;
+        }
+        .fleet-settle-card .fleet-summary .left .fleet-sub {
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+        .fleet-settle-card .fleet-summary .stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .fleet-settle-card .fleet-summary .stats .item {
+            text-align: center;
+        }
+        .fleet-settle-card .fleet-summary .stats .item .num {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a2639;
+        }
+        .fleet-settle-card .fleet-summary .stats .item .label {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: block;
+        }
+        .fleet-settle-card .fleet-summary .stats .item .num.green {
+            color: #1fb873;
+        }
+        .fleet-settle-card .fleet-summary .stats .item .num.orange {
+            color: #f5a623;
+        }
+        .fleet-settle-card .fleet-summary .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .fleet-settle-card .fleet-detail {
+            display: none;
+            padding: 0 20px 20px;
+            border-top: 1px solid #edf2f9;
+        }
+        .fleet-settle-card .fleet-detail.open {
+            display: block;
+        }
+        .fleet-settle-card .fleet-detail .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .fleet-settle-card .fleet-detail .detail-table th {
+            text-align: left;
+            padding: 8px 6px 6px 0;
+            color: #6b7f9a;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #edf2f9;
+        }
+        .fleet-settle-card .fleet-detail .detail-table td {
+            padding: 8px 6px 8px 0;
+            border-bottom: 1px solid #f2f6fc;
+            color: #1e2c41;
+        }
+        .fleet-settle-card .fleet-detail .detail-table .total-row {
+            font-weight: 700;
+            border-top: 2px solid #d5dee9;
+        }
+        .fleet-settle-card .fleet-detail .detail-table .total-row td {
+            padding-top: 12px;
+        }
+
+        /* ===== 资金流水 ===== */
+        .fund-flow {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-top: 10px;
+        }
+        .fund-flow .flow-node {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            border: 1px solid #edf2f9;
+            position: relative;
+        }
+        .fund-flow .flow-node .node-title {
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .fund-flow .flow-node .node-title .icon {
+            font-size: 18px;
+        }
+        .fund-flow .flow-node .node-amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .fund-flow .flow-node .node-amount.green {
+            color: #1fb873;
+        }
+        .fund-flow .flow-node .node-amount.orange {
+            color: #f5a623;
+        }
+        .fund-flow .flow-node .node-status {
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .fund-flow .flow-node .node-detail {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 4px;
+        }
+        .fund-flow .flow-arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #b0bcca;
+            padding: 0 4px;
+        }
+
+        .fund-flow .flow-node .sub-list {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #edf2f9;
+        }
+        .fund-flow .flow-node .sub-list .sub-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 4px 0;
+        }
+        .fund-flow .flow-node .sub-list .sub-item .sub-label {
+            color: #6b7f9a;
+        }
+        .fund-flow .flow-node .sub-list .sub-item .sub-value {
+            font-weight: 500;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field select,
+        .modal .field textarea,
+        .modal .field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .modal .field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 6px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .fund-flow {
+                grid-template-columns: 1fr;
+            }
+            .fund-flow .flow-arrow {
+                transform: rotate(90deg);
+                padding: 4px 0;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+            .fleet-settle-card .fleet-summary {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .fleet-settle-card .fleet-summary .stats {
+                justify-content: space-around;
+            }
+            .fleet-settle-card .fleet-summary .actions {
+                justify-content: center;
+            }
+            .date-range-selector {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .date-range-selector input[type="date"] {
+                width: 100%;
+            }
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心</div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台</div>
+        <div class="menu-item active"><span class="icon">💰</span> 结算中心</div>
+        <div style="flex:1;"></div>
+        <div class="menu-item" style="color:#6b7f9a;"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title">
+                💰 财务结算中心
+                <span class="badge" style="font-size:11px;font-weight:400;">跨日结算版</span>
+            </div>
+            <div class="topbar-actions">
+                <span>👤 财务 · 王芳</span>
+                <span class="role-tag">结算员</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- ===== 统计卡片 ===== -->
+            <div class="stat-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="label">💰 结算总额</div>
+                    <div class="value green" id="statTotalAmount">¥45,680</div>
+                    <div class="sub" id="statSubAmount">含 12 笔订单</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">📋 待结算订单</div>
+                    <div class="value orange" id="statPending">3</div>
+                    <div class="sub" id="statPendingSub">已完成终审待结算</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">🏢 已结算车队</div>
+                    <div class="value blue" id="statSettledFleets">2 / 3</div>
+                    <div class="sub" id="statFleetSub">雪山车队 · 古城车队</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">📅 结算周期</div>
+                    <div class="value" id="statPeriod" style="font-size:20px;">7天</div>
+                    <div class="sub" id="statPeriodSub">2026-06-17 ~ 2026-06-23</div>
+                </div>
+            </div>
+
+            <!-- ===== 日期范围选择 ===== -->
+            <div class="card" style="padding:12px 20px;">
+                <div class="flex-between">
+                    <div class="date-range-selector">
+                        <label style="font-weight:600;font-size:14px;color:#1a2639;">📅 结算周期</label>
+                        <input type="date" id="dateStart" value="2026-06-17" onchange="updateDateRange()">
+                        <span class="range-label">至</span>
+                        <input type="date" id="dateEnd" value="2026-06-23" onchange="updateDateRange()">
+                        <button class="btn btn-sm btn-outline" onclick="setQuickRange('today')">今日</button>
+                        <button class="btn btn-sm btn-outline" onclick="setQuickRange('week')">本周</button>
+                        <button class="btn btn-sm btn-outline" onclick="setQuickRange('month')">本月</button>
+                        <button class="btn btn-sm btn-outline" onclick="setQuickRange('custom')">自定义</button>
+                        <span class="range-hint" id="rangeHint">共 7 天 · 3 个车队 · 12 笔订单</span>
+                    </div>
+                    <div class="flex">
+                        <button class="btn btn-sm btn-outline" onclick="exportReport()">📥 导出报表</button>
+                        <button class="btn btn-sm btn-success" onclick="batchSettle()">💰 批量结算</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 车队日结账单列表 ===== -->
+            <div id="fleetSettleContainer">
+                <!-- JS 动态渲染 -->
+            </div>
+
+            <!-- ===== 资金流水总览 ===== -->
+            <div class="card">
+                <div class="card-header">
+                    <span>💳 资金流水总览</span>
+                    <span class="text-muted" style="font-weight:400;font-size:12px;">平台统一结算 · 分层流转</span>
+                </div>
+                <div class="fund-flow" id="fundFlowContainer">
+                    <!-- JS 动态渲染 -->
+                </div>
+                <div class="mt-2 text-muted" style="font-size:12px;border-top:1px solid #edf2f9;padding-top:12px;">
+                    💡 资金规则：用户费用支付至平台公户 → 平台统一结算至车队公户（工商银行）→ 车队确认后司机可自主提现
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 结算确认模态框 ===== -->
+    <div class="modal-overlay" id="settleModal">
+        <div class="modal">
+            <h3 id="settleModalTitle">💰 确认结算</h3>
+            <div id="settleModalBody">
+                <p style="color:#3f5370;margin-bottom:12px;">
+                    即将对 <strong id="settleFleetName">雪山车队</strong> 进行结算，
+                    实付金额 <strong id="settleAmount">¥12,800</strong>。
+                </p>
+                <div style="background:#f8fafc;padding:12px;border-radius:10px;font-size:13px;color:#6b7f9a;margin-bottom:12px;">
+                    <div>🏦 结算账户：工商银行 · <span id="settleBank">雪山车队对公账户</span></div>
+                    <div>📋 包含订单：<span id="settleOrderCount">3</span> 笔</div>
+                    <div>📅 结算周期：<span id="settlePeriod">2026-06-17 ~ 2026-06-23</span></div>
+                </div>
+                <div class="field">
+                    <label>结算备注（可选）</label>
+                    <input placeholder="例：2026-06-17 ~ 2026-06-23 周结" value="2026-06-17 ~ 2026-06-23 周结">
+                </div>
+                <div class="hint-text">⚠️ 确认后将通过工商银行线上划转至车队公户，不可撤回</div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('settleModal')">取消</button>
+                <button class="btn btn-success" onclick="confirmSettle()">✅ 确认结算</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 数据（扩展版：支持跨日订单）
+        // ================================================================
+        // 基础订单数据（包含日期维度）
+        const baseOrders = [
+            { id: '#OD1023', driver: '李师傅', plate: '云L·8888', fleet: '雪山车队', amount: 3200, cost: 2610,
+                rebate: 100, discount: 50, date: '2026-06-23', settled: true },
+            { id: '#OD1031', driver: '陈师傅', plate: '云L·7777', fleet: '雪山车队', amount: 3800, cost: 3500,
+                rebate: 150, discount: 60, date: '2026-06-23', settled: true },
+            { id: '#OD1025', driver: '王师傅', plate: '云L·6666', fleet: '雪山车队', amount: 1500, cost: 1380,
+                rebate: 0, discount: 80, date: '2026-06-22', settled: false },
+            { id: '#OD1032', driver: '钱师傅', plate: '云L·1212', fleet: '古城车队', amount: 4200, cost: 3800,
+                rebate: 120, discount: 60, date: '2026-06-22', settled: true },
+            { id: '#OD1029', driver: '吴师傅', plate: '云L·1313', fleet: '古城车队', amount: 6800, cost: 6120,
+                rebate: 300, discount: 120, date: '2026-06-21', settled: true },
+            { id: '#OD1020', driver: '赵师傅', plate: '云L·9999', fleet: '玉龙车队', amount: 4500, cost: 4050,
+                rebate: 200, discount: 100, date: '2026-06-20', settled: false },
+            { id: '#OD1028', driver: '周师傅', plate: '云L·4444', fleet: '玉龙车队', amount: 2200, cost: 1950,
+                rebate: 100, discount: 50, date: '2026-06-19', settled: false },
+            { id: '#OD1033', driver: '孙师傅', plate: '云L·1414', fleet: '玉龙车队', amount: 5500, cost: 4950,
+                rebate: 250, discount: 80, date: '2026-06-18', settled: false },
+            { id: '#OD1034', driver: '林师傅', plate: '云L·1515', fleet: '雪山车队', amount: 2800, cost: 2520,
+                rebate: 80, discount: 40, date: '2026-06-17', settled: true },
+            { id: '#OD1035', driver: '黄师傅', plate: '云L·1616', fleet: '古城车队', amount: 3600, cost: 3240,
+                rebate: 100, discount: 60, date: '2026-06-17', settled: true },
+            { id: '#OD1036', driver: '杨师傅', plate: '云L·1717', fleet: '玉龙车队', amount: 1800, cost: 1620,
+                rebate: 50, discount: 30, date: '2026-06-16', settled: true },
+            { id: '#OD1037', driver: '朱师傅', plate: '云L·1818', fleet: '雪山车队', amount: 4200, cost: 3780,
+                rebate: 120, discount: 60, date: '2026-06-16', settled: true },
+        ];
+
+        // 车队信息
+        const fleetInfo = {
+            '雪山车队': { bankAccount: '工商银行 · 6222 **** 8888', status: '已结算', settleTime: '2026-06-23 09:30' },
+            '古城车队': { bankAccount: '工商银行 · 6222 **** 9999', status: '已结算', settleTime: '2026-06-23 10:15' },
+            '玉龙车队': { bankAccount: '工商银行 · 6222 **** 7777', status: '待结算', settleTime: null, exception: '账户信息待确认' }
+        };
+
+        // 当前日期范围
+        let dateStart = '2026-06-17';
+        let dateEnd = '2026-06-23';
+
+        // ================================================================
+        // 2. 工具函数
+        // ================================================================
+        function parseDate(str) {
+            const parts = str.split('-');
+            return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        }
+
+        function formatDate(d) {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${y}-${m}-${day}`;
+        }
+
+        function getDayOfWeek(d) {
+            const map = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            return map[d.getDay()];
+        }
+
+        function isDateInRange(dateStr, startStr, endStr) {
+            return dateStr >= startStr && dateStr <= endStr;
+        }
+
+        function calcFleetTotal(orders) {
+            let totalAmount = 0,
+                totalCost = 0,
+                totalRebate = 0,
+                totalDiscount = 0,
+                settledCount = 0;
+            orders.forEach(o => {
+                totalAmount += o.amount;
+                totalCost += o.cost;
+                totalRebate += o.rebate || 0;
+                totalDiscount += o.discount || 0;
+                if (o.settled) settledCount++;
+            });
+            const finalAmount = totalAmount - totalRebate - totalDiscount;
+            return { totalAmount, totalCost, totalRebate, totalDiscount, finalAmount, settledCount, totalOrders: orders
+                    .length };
+        }
+
+        function getStatusBadge(status) {
+            const map = {
+                '已结算': '<span class="badge green">✅ 已结算</span>',
+                '待结算': '<span class="badge orange">⏳ 待结算</span>',
+                '异常': '<span class="badge red">⚠️ 异常</span>'
+            };
+            return map[status] || status;
+        }
+
+        // ================================================================
+        // 3. 核心渲染
+        // ================================================================
+        function getFilteredData() {
+            // 按日期范围筛选订单
+            const filtered = baseOrders.filter(o => isDateInRange(o.date, dateStart, dateEnd));
+
+            // 按车队分组
+            const groups = {};
+            filtered.forEach(o => {
+                if (!groups[o.fleet]) groups[o.fleet] = [];
+                groups[o.fleet].push(o);
+            });
+
+            // 补充车队信息
+            const result = [];
+            Object.keys(groups).forEach(fleetName => {
+                const info = fleetInfo[fleetName] || { bankAccount: '—', status: '待结算', settleTime: null };
+                result.push({
+                    name: fleetName,
+                    bankAccount: info.bankAccount,
+                    status: info.status,
+                    settleTime: info.settleTime,
+                    exception: info.exception || null,
+                    orders: groups[fleetName]
+                });
+            });
+
+            return result;
+        }
+
+        function renderDashboard() {
+            const fleetData = getFilteredData();
+
+            // 更新统计卡片
+            let totalAmount = 0,
+                totalOrders = 0,
+                pendingCount = 0,
+                settledFleets = 0,
+                exceptionCount = 0;
+            fleetData.forEach(f => {
+                const calc = calcFleetTotal(f.orders);
+                totalAmount += calc.finalAmount;
+                totalOrders += calc.totalOrders;
+                pendingCount += calc.totalOrders - calc.settledCount;
+                if (f.status === '已结算') settledFleets++;
+                if (f.status === '异常') exceptionCount++;
+            });
+
+            document.getElementById('statTotalAmount').innerText = `¥${totalAmount.toLocaleString()}`;
+            document.getElementById('statSubAmount').innerText = `含 ${totalOrders} 笔订单`;
+            document.getElementById('statPending').innerText = pendingCount;
+            document.getElementById('statPendingSub').innerText = `${pendingCount} 单待结算`;
+            document.getElementById('statSettledFleets').innerText = `${settledFleets} / ${fleetData.length}`;
+            const fleetNames = fleetData.filter(f => f.status === '已结算').map(f => f.name).join(' · ');
+            document.getElementById('statFleetSub').innerText = fleetNames || '暂无已结算车队';
+
+            // 结算周期
+            const start = parseDate(dateStart);
+            const end = parseDate(dateEnd);
+            const days = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+            document.getElementById('statPeriod').innerText = `${days}天`;
+            document.getElementById('statPeriodSub').innerText = `${dateStart} ~ ${dateEnd}`;
+
+            // 范围提示
+            document.getElementById('rangeHint').innerText = `共 ${days} 天 · ${fleetData.length} 个车队 · ${totalOrders} 笔订单`;
+
+            // 渲染车队卡片
+            renderFleetCards(fleetData);
+
+            // 渲染资金流水
+            renderFundFlow(fleetData);
+        }
+
+        function renderFleetCards(fleetData) {
+            const container = document.getElementById('fleetSettleContainer');
+
+            if (fleetData.length === 0) {
+                container.innerHTML =
+                `<div class="card" style="text-align:center;padding:40px;color:#6b7f9a;">📭 所选日期范围内无结算数据</div>`;
+                return;
+            }
+
+            let html = '';
+            fleetData.forEach((fleet) => {
+                const calc = calcFleetTotal(fleet.orders);
+                const statusBadge = getStatusBadge(fleet.status);
+                const isSettled = fleet.status === '已结算';
+                const isException = fleet.status === '异常';
+                const canSettle = fleet.status === '待结算' || fleet.status === '异常';
+
+                // 检查是否有待结算订单
+                const hasPending = fleet.orders.some(o => !o.settled);
+
+                html += `
+                    <div class="fleet-settle-card" data-fleet="${fleet.name}">
+                        <div class="fleet-summary" onclick="toggleFleetDetail('${fleet.name}')">
+                            <div class="left">
+                                <span style="font-size:20px;">🚌</span>
+                                <div>
+                                    <span class="fleet-name">${fleet.name}</span>
+                                    <span style="margin-left:10px;">${statusBadge}</span>
+                                    <div class="fleet-sub">🏦 ${fleet.bankAccount}</div>
+                                    ${fleet.settleTime ? `<div class="fleet-sub">⏱️ 结算时间：${fleet.settleTime}</div>` : ''}
+                                    ${fleet.exception ? `<div class="fleet-sub" style="color:#e65f5f;">⚠️ ${fleet.exception}</div>` : ''}
+                                    <div class="fleet-sub">📅 周期：${dateStart} ~ ${dateEnd}</div>
+                                </div>
+                            </div>
+                            <div class="stats">
+                                <div class="item">
+                                    <span class="num">${calc.totalOrders}</span>
+                                    <span class="label">订单数</span>
+                                </div>
+                                <div class="item">
+                                    <span class="num">¥${calc.totalAmount.toLocaleString()}</span>
+                                    <span class="label">总金额</span>
+                                </div>
+                                <div class="item">
+                                    <span class="num">¥${calc.totalCost.toLocaleString()}</span>
+                                    <span class="label">总成本</span>
+                                </div>
+                                <div class="item">
+                                    <span class="num green">¥${calc.finalAmount.toLocaleString()}</span>
+                                    <span class="label">实付金额</span>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                ${canSettle && hasPending ? `<button class="btn btn-sm btn-success" onclick="event.stopPropagation();openSettleModal('${fleet.name}')">💰 结算</button>` : ''}
+                                <button class="btn btn-sm btn-outline" onclick="event.stopPropagation();toggleFleetDetail('${fleet.name}')">
+                                    📋 明细
+                                </button>
+                            </div>
+                        </div>
+                        <div class="fleet-detail" id="detail_${fleet.name}">
+                            <table class="detail-table">
+                                <thead>
+                                    <tr>
+                                        <th>订单号</th>
+                                        <th>司机</th>
+                                        <th>车牌</th>
+                                        <th>订单日期</th>
+                                        <th>订单金额</th>
+                                        <th>成本</th>
+                                        <th>返点</th>
+                                        <th>优惠</th>
+                                        <th>实付</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${fleet.orders.map(o => `
+                                        <tr>
+                                            <td><span style="font-weight:600;">${o.id}</span></td>
+                                            <td>${o.driver}</td>
+                                            <td>${o.plate}</td>
+                                            <td>${o.date}</td>
+                                            <td>¥${o.amount.toLocaleString()}</td>
+                                            <td>¥${o.cost.toLocaleString()}</td>
+                                            <td style="color:#e65f5f;">-¥${(o.rebate || 0).toLocaleString()}</td>
+                                            <td style="color:#e65f5f;">-¥${(o.discount || 0).toLocaleString()}</td>
+                                            <td><strong>¥${(o.amount - (o.rebate || 0) - (o.discount || 0)).toLocaleString()}</strong></td>
+                                            <td>${o.settled ? '<span class="badge green">已结算</span>' : '<span class="badge orange">待结算</span>'}</td>
+                                        </tr>
+                                    `).join('')}
+                                    <tr class="total-row">
+                                        <td colspan="4" style="font-weight:700;">合计</td>
+                                        <td>¥${calc.totalAmount.toLocaleString()}</td>
+                                        <td>¥${calc.totalCost.toLocaleString()}</td>
+                                        <td style="color:#e65f5f;">-¥${calc.totalRebate.toLocaleString()}</td>
+                                        <td style="color:#e65f5f;">-¥${calc.totalDiscount.toLocaleString()}</td>
+                                        <td style="font-size:16px;color:#1fb873;">¥${calc.finalAmount.toLocaleString()}</td>
+                                        <td>${calc.settledCount}/${calc.totalOrders}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleFleetDetail(fleetName) {
+            const detail = document.getElementById(`detail_${fleetName}`);
+            if (detail) {
+                detail.classList.toggle('open');
+            }
+        }
+
+        // ================================================================
+        // 4. 资金流水渲染
+        // ================================================================
+        function renderFundFlow(fleetData) {
+            const container = document.getElementById('fundFlowContainer');
+
+            let totalAmount = 0,
+                totalCost = 0,
+                totalRebate = 0,
+                totalDiscount = 0,
+                totalOrders = 0;
+            fleetData.forEach(f => {
+                const calc = calcFleetTotal(f.orders);
+                totalAmount += calc.totalAmount;
+                totalCost += calc.totalCost;
+                totalRebate += calc.totalRebate;
+                totalDiscount += calc.totalDiscount;
+                totalOrders += calc.totalOrders;
+            });
+            const finalTotal = totalAmount - totalRebate - totalDiscount;
+
+            const platformReceived = totalAmount;
+
+            let settledToFleet = 0;
+            fleetData.filter(f => f.status === '已结算').forEach(f => {
+                const calc = calcFleetTotal(f.orders);
+                settledToFleet += calc.finalAmount;
+            });
+
+            const driverWithdrawn = Math.round(settledToFleet * 0.75);
+            const driverPending = settledToFleet - driverWithdrawn;
+
+            const html = `
+                <div class="flow-node">
+                    <div class="node-title"><span class="icon">🏦</span> 平台公户</div>
+                    <div class="node-amount green">¥${platformReceived.toLocaleString()}</div>
+                    <div class="node-status">✅ 已收用户款项</div>
+                    <div class="node-detail">${totalOrders} 笔订单 · 工商银行 6222 **** 0001</div>
+                    <div class="sub-list">
+                        <div class="sub-item"><span class="sub-label">已结算至车队</span><span class="sub-value">¥${settledToFleet.toLocaleString()}</span></div>
+                        <div class="sub-item"><span class="sub-label">待结算至车队</span><span class="sub-value" style="color:#f5a623;">¥${(finalTotal - settledToFleet).toLocaleString()}</span></div>
+                        <div class="sub-item" style="border-top:1px solid #edf2f9;padding-top:6px;margin-top:4px;">
+                            <span class="sub-label">📅 结算周期</span>
+                            <span class="sub-value" style="font-size:12px;color:#6b7f9a;">${dateStart} ~ ${dateEnd}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="node-title"><span class="icon">🚌</span> 车队公户</div>
+                    <div class="node-amount orange">¥${settledToFleet.toLocaleString()}</div>
+                    <div class="node-status">${settledToFleet > 0 ? '✅ 已结算' : '⏳ 待结算'}</div>
+                    <div class="node-detail">${fleetData.filter(f => f.status === '已结算').length} 个车队已收款</div>
+                    <div class="sub-list">
+                        ${fleetData.map(f => {
+                            const calc = calcFleetTotal(f.orders);
+                            return `<div class="sub-item"><span class="sub-label">${f.name}</span><span class="sub-value">¥${calc.finalAmount.toLocaleString()} ${f.status === '已结算' ? '✅' : '⏳'}</span></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="flow-arrow">→</div>
+                <div class="flow-node">
+                    <div class="node-title"><span class="icon">🧑‍✈️</span> 司机提现</div>
+                    <div class="node-amount green">¥${driverWithdrawn.toLocaleString()}</div>
+                    <div class="node-status">✅ 已提现</div>
+                    <div class="node-detail">司机自主申请 · 车队审核后发放</div>
+                    <div class="sub-list">
+                        <div class="sub-item"><span class="sub-label">已提现</span><span class="sub-value" style="color:#1fb873;">¥${driverWithdrawn.toLocaleString()}</span></div>
+                        <div class="sub-item"><span class="sub-label">待提现</span><span class="sub-value" style="color:#f5a623;">¥${driverPending.toLocaleString()}</span></div>
+                        <div class="sub-item" style="border-top:1px solid #edf2f9;padding-top:6px;margin-top:4px;">
+                            <span class="sub-label">📌 资金闭环</span>
+                            <span class="sub-value" style="font-size:11px;color:#6b7f9a;">用户 → 平台 → 车队 → 司机 ✓</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // ================================================================
+        // 5. 日期范围控制
+        // ================================================================
+        function updateDateRange() {
+            const start = document.getElementById('dateStart').value;
+            const end = document.getElementById('dateEnd').value;
+            if (start && end && start <= end) {
+                dateStart = start;
+                dateEnd = end;
+                renderDashboard();
+                showToast(`📅 结算周期：${dateStart} ~ ${dateEnd}`);
+            } else if (start && end && start > end) {
+                showToast('⚠️ 开始日期不能晚于结束日期');
+            }
+        }
+
+        function setQuickRange(type) {
+            const today = new Date(2026, 5, 23);
+            let start = new Date(today);
+            let end = new Date(today);
+
+            switch (type) {
+                case 'today':
+                    // 今天
+                    break;
+                case 'week':
+                    // 本周（周一到周日）
+                    const day = today.getDay();
+                    const diff = day === 0 ? 6 : day - 1;
+                    start = new Date(today);
+                    start.setDate(today.getDate() - diff);
+                    end = new Date(start);
+                    end.setDate(start.getDate() + 6);
+                    break;
+                case 'month':
+                    // 本月（1号到今天）
+                    start = new Date(today.getFullYear(), today.getMonth(), 1);
+                    end = new Date(today);
+                    break;
+                case 'custom':
+                    // 自定义：保持当前值不变
+                    return;
+            }
+
+            document.getElementById('dateStart').value = formatDate(start);
+            document.getElementById('dateEnd').value = formatDate(end);
+            dateStart = formatDate(start);
+            dateEnd = formatDate(end);
+            renderDashboard();
+            showToast(`📅 切换到 ${dateStart} ~ ${dateEnd}`);
+        }
+
+        // ================================================================
+        // 6. 结算操作
+        // ================================================================
+        function openSettleModal(fleetName) {
+            const fleetData = getFilteredData();
+            const fleet = fleetData.find(f => f.name === fleetName);
+            if (!fleet) return;
+            const calc = calcFleetTotal(fleet.orders);
+            const pendingOrders = fleet.orders.filter(o => !o.settled);
+
+            document.getElementById('settleModalTitle').innerHTML = `💰 确认结算 - ${fleet.name}`;
+            document.getElementById('settleFleetName').innerText = fleet.name;
+            document.getElementById('settleAmount').innerText = `¥${calc.finalAmount.toLocaleString()}`;
+            document.getElementById('settleBank').innerText = fleet.bankAccount;
+            document.getElementById('settleOrderCount').innerText = pendingOrders.length;
+            document.getElementById('settlePeriod').innerText = `${dateStart} ~ ${dateEnd}`;
+            document.getElementById('settleModal').classList.add('show');
+            document.getElementById('settleModal').dataset.fleetName = fleetName;
+        }
+
+        function confirmSettle() {
+            const fleetName = document.getElementById('settleModal').dataset.fleetName;
+            // 更新全局数据
+            baseOrders.forEach(o => {
+                if (o.fleet === fleetName && isDateInRange(o.date, dateStart, dateEnd)) {
+                    o.settled = true;
+                }
+            });
+            // 更新车队状态
+            if (fleetInfo[fleetName]) {
+                fleetInfo[fleetName].status = '已结算';
+                fleetInfo[fleetName].settleTime = new Date().toISOString().slice(0, 16).replace('T', ' ');
+            }
+            closeModal('settleModal');
+            showToast(`✅ ${fleetName} 结算完成！实付金额已划转至车队公户`);
+            renderDashboard();
+        }
+
+        function batchSettle() {
+            const fleetData = getFilteredData();
+            const pendingFleets = fleetData.filter(f => {
+                const hasPending = f.orders.some(o => !o.settled);
+                return hasPending;
+            });
+
+            if (pendingFleets.length === 0) {
+                showToast('✅ 所有车队均已结算');
+                return;
+            }
+
+            const totalPendingOrders = pendingFleets.reduce((sum, f) => {
+                return sum + f.orders.filter(o => !o.settled).length;
+            }, 0);
+
+            if (!confirm(`确认对 ${pendingFleets.length} 个车队进行批量结算吗？\n包含 ${totalPendingOrders} 笔待结算订单，周期：${dateStart} ~ ${dateEnd}`))
+                return;
+
+            pendingFleets.forEach(f => {
+                baseOrders.forEach(o => {
+                    if (o.fleet === f.name && isDateInRange(o.date, dateStart, dateEnd)) {
+                        o.settled = true;
+                    }
+                });
+                if (fleetInfo[f.name]) {
+                    fleetInfo[f.name].status = '已结算';
+                    fleetInfo[f.name].settleTime = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                }
+            });
+
+            showToast(`💰 批量结算完成：${pendingFleets.length} 个车队，${totalPendingOrders} 笔订单`);
+            renderDashboard();
+        }
+
+        // ================================================================
+        // 7. 导出
+        // ================================================================
+        function exportReport() {
+            showToast(`📥 日结报表导出中（${dateStart} ~ ${dateEnd}）`);
+        }
+
+        // ================================================================
+        // 8. 通用
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ================================================================
+        // 9. 初始化
+        // ================================================================
+        // 设置默认日期范围
+        document.getElementById('dateStart').value = '2026-06-17';
+        document.getElementById('dateEnd').value = '2026-06-23';
+        renderDashboard();
+        console.log('💰 财务结算中心 v2.0 跨日结算版已加载');
+        console.log('📋 新增功能：日期范围选择 · 跨日汇总 · 批量结算 · 周期统计');
+        console.log('💡 试试切换「本周/本月」快速筛选，或自定义日期范围');
+    </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Claude 内部工作文件
+.claude/
+
+# 二进制演示文稿/文档
+*.pptx
+*.ppt
+*.doc
+*.docx
+
+# 压缩包
+*.zip
+*.rar
+*.7z
+
+# 备份文件
+*.bak
+*.bak2
+*~
+
+# 系统文件
+Thumbs.db
+Desktop.ini

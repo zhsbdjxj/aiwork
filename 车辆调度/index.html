@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>丽江车辆调度管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f4f7fb; display: flex; height: 100vh; overflow: hidden; }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px; background: #1a2639; color: #a0b3cc;
+            display: flex; flex-direction: column; padding: 24px 14px;
+            flex-shrink: 0; height: 100vh; overflow-y: auto; z-index: 100;
+        }
+        .logo { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 28px; padding-left: 10px; }
+        .logo span { color: #4f9cf7; }
+        .menu-item {
+            padding: 10px 14px; border-radius: 8px; margin-bottom: 2px;
+            cursor: pointer; font-size: 14px; font-weight: 500; color: #9aaec9;
+            display: flex; align-items: center; gap: 10px; transition: all 0.15s;
+        }
+        .menu-item:hover { background: #2c3a52; color: #c8d6e5; }
+        .menu-item.active { background: #2c3a52; color: #fff; box-shadow: inset 4px 0 0 #4f9cf7; }
+        .menu-item .icon { font-size: 16px; width: 22px; text-align: center; }
+        .menu-item .badge-dot {
+            margin-left: auto; background: #e65f5f; color: #fff;
+            border-radius: 50%; padding: 0 6px; font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #f4f7fb; }
+        .topbar {
+            padding: 16px 28px; background: #fff; border-bottom: 1px solid #e9edf4;
+            display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+        }
+        .topbar .page-title { font-size: 20px; font-weight: 700; color: #1a2639; display: flex; align-items: center; gap: 12px; }
+        .topbar-actions { display: flex; gap: 14px; align-items: center; color: #5a6e8a; font-size: 13px; }
+        .topbar-actions .role-tag { background: #eef3fc; padding: 4px 14px; border-radius: 30px; font-size: 12px; }
+        .badge {
+            display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 12px;
+            font-weight: 500; background: #eef3fc; color: #2a5f9c;
+        }
+
+        /* ===== iframe 内容区 ===== */
+        .iframe-wrapper { flex: 1; overflow: hidden; position: relative; }
+        .iframe-wrapper iframe {
+            width: 100%; height: 100%; border: none; display: block;
+        }
+        .iframe-loading {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            color: #6b7f9a; font-size: 16px; pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .menu-item span:not(.icon) { display: none; }
+            .logo { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item active" data-module="workbench" onclick="navigateTo('工作台')">
+            <span class="icon">📊</span> 工作台 <span class="badge-dot">5</span>
+        </div>
+        <div class="menu-item" data-module="archive" onclick="navigateTo('档案中心')">
+            <span class="icon">📁</span> 档案中心 <span class="badge-dot">7</span>
+        </div>
+        <div class="menu-item" data-module="dispatch" onclick="navigateTo('调度中心')">
+            <span class="icon">📅</span> 调度排班
+        </div>
+        <div class="menu-item" data-module="order" onclick="navigateTo('订单中心')">
+            <span class="icon">🧾</span> 订单中心 <span class="badge-dot">3</span>
+        </div>
+        <div class="menu-item" data-module="audit" onclick="navigateTo('审核管理')">
+            <span class="icon">✅</span> 审核工作台 <span class="badge-dot">4</span>
+        </div>
+        <div class="menu-item" data-module="billing" onclick="navigateTo('结算中心')">
+            <span class="icon">💰</span> 结算中心
+        </div>
+        <div style="flex:1;"></div>
+        <div class="menu-item" data-module="settings" onclick="navigateTo('系统设置')" style="color:#6b7f9a;">
+            <span class="icon">⚙️</span> 系统设置
+        </div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title" id="currentPageTitle">📊 工作台</div>
+            <div class="topbar-actions">
+                <span>👤 总调员 · 张明</span>
+                <span class="role-tag">协会级</span>
+            </div>
+        </div>
+        <div class="iframe-wrapper">
+            <iframe id="mainFrame" src="工作台.html"></iframe>
+            <div class="iframe-loading" id="loadingHint" style="display:none;">⏳ 正在加载...</div>
+        </div>
+    </div>
+
+    <script>
+        // 菜单到文件映射
+        const moduleMap = {
+            '工作台': '工作台.html',
+            '档案中心': '档案中心.html',
+            '调度中心': '调度中心.html',
+            '订单中心': '订单中心.html',
+            '审核管理': '审核管理.html',
+            '结算中心': '结算中心.html',
+            '系统设置': '系统设置.html',
+        };
+
+        const iconMap = {
+            '工作台': '📊', '档案中心': '📁', '调度中心': '📅',
+            '订单中心': '🧾', '审核管理': '✅', '结算中心': '💰', '系统设置': '⚙️',
+        };
+
+        let currentModule = '工作台';
+
+        function navigateTo(moduleName) {
+            if (currentModule === moduleName) return;
+
+            // 更新菜单 active
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            const targetItem = document.querySelector(`.menu-item[data-module="${getModuleKey(moduleName)}"]`);
+            if (targetItem) targetItem.classList.add('active');
+
+            // 更新标题
+            document.getElementById('currentPageTitle').innerHTML = `${iconMap[moduleName] || ''} ${moduleName}`;
+
+            // 显示加载
+            const hint = document.getElementById('loadingHint');
+            hint.style.display = 'block';
+            hint.innerText = '⏳ 正在加载...';
+
+            // 切换 iframe
+            const frame = document.getElementById('mainFrame');
+            frame.src = moduleMap[moduleName];
+            currentModule = moduleName;
+
+            // 加载完成后隐藏提示
+            frame.onload = function() {
+                hint.style.display = 'none';
+            };
+        }
+
+        function getModuleKey(name) {
+            const keyMap = {
+                '工作台': 'workbench', '档案中心': 'archive', '调度中心': 'dispatch',
+                '订单中心': 'order', '审核管理': 'audit', '结算中心': 'billing', '系统设置': 'settings',
+            };
+            return keyMap[name] || '';
+        }
+    </script>
+
+</body>
+</html>

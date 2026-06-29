@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 - 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 12px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar .page-title .welcome {
+            font-weight: 400;
+            font-size: 14px;
+            color: #6b7f9a;
+        }
+        .topbar .page-title .welcome .highlight {
+            color: #4f9cf7;
+            font-weight: 500;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+        .topbar-actions .role-selector {
+            padding: 5px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            cursor: pointer;
+            outline: none;
+        }
+        .topbar-actions .role-selector:focus {
+            outline: 2px solid #4f9cf7;
+        }
+        .topbar-actions .time-display {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+        .topbar-actions .notif-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+            color: #6b7f9a;
+        }
+        .topbar-actions .notif-btn .dot {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #e65f5f;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px 28px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 16px 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-header .more {
+            font-weight: 400;
+            font-size: 12px;
+            color: #4f9cf7;
+            cursor: pointer;
+        }
+        .card-header .more:hover {
+            text-decoration: underline;
+        }
+        .card-header .badge-count {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+            background: #f0f4fa;
+            padding: 0 10px;
+            border-radius: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+
+        .btn {
+            padding: 5px 14px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 2px 10px;
+            font-size: 11px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .mb-2 {
+            margin-bottom: 12px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 12px;
+        }
+        .text-ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #edf2f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .stat-card:hover {
+            border-color: #4f9cf7;
+            box-shadow: 0 4px 12px rgba(79, 156, 247, 0.08);
+            transform: translateY(-1px);
+        }
+        .stat-card .label {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a2639;
+            line-height: 1.2;
+        }
+        .stat-card .sub {
+            font-size: 11px;
+            color: #6b7f9a;
+            margin-top: 2px;
+        }
+        .stat-card .value.green {
+            color: #1fb873;
+        }
+        .stat-card .value.orange {
+            color: #f5a623;
+        }
+        .stat-card .value.red {
+            color: #e65f5f;
+        }
+        .stat-card .value.blue {
+            color: #4f9cf7;
+        }
+        .stat-card .value.purple {
+            color: #8b5cf6;
+        }
+
+        /* ===== 布局 ===== */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 16px;
+        }
+        .dashboard-grid .col-left {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .dashboard-grid .col-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* ===== 待办事项 ===== */
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f2f6fc;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        .todo-item:hover {
+            background: #f8faff;
+            margin: 0 -8px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .todo-item .todo-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .todo-item .todo-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .todo-item .todo-content .title {
+            font-size: 13px;
+            color: #1a2639;
+            font-weight: 500;
+        }
+        .todo-item .todo-content .desc {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 1px;
+        }
+        .todo-item .todo-meta {
+            font-size: 11px;
+            color: #b0bcca;
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .todo-item .todo-meta .urgent-tag {
+            color: #e65f5f;
+            font-weight: 600;
+        }
+
+        .todo-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7f9a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 6px 0 4px;
+            border-bottom: 1px solid #edf2f9;
+            margin-bottom: 4px;
+        }
+
+        /* ===== 通知列表 ===== */
+        .notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f2f6fc;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .notif-item:last-child {
+            border-bottom: none;
+        }
+        .notif-item:hover {
+            background: #f8faff;
+            margin: 0 -8px;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .notif-item .notif-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+        .notif-item .notif-dot.unread {
+            background: #4f9cf7;
+        }
+        .notif-item .notif-dot.read {
+            background: #d5dee9;
+        }
+        .notif-item .notif-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notif-item .notif-content .title {
+            font-size: 13px;
+            color: #1a2639;
+        }
+        .notif-item .notif-content .title .highlight {
+            color: #4f9cf7;
+            font-weight: 500;
+        }
+        .notif-item .notif-content .desc {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 1px;
+        }
+        .notif-item .notif-time {
+            font-size: 11px;
+            color: #b0bcca;
+            flex-shrink: 0;
+        }
+
+        /* ===== 预警列表 ===== */
+        .alert-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #f2f6fc;
+        }
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        .alert-item .alert-level {
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+        .alert-item .alert-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .alert-item .alert-content .title {
+            font-size: 13px;
+            color: #1a2639;
+        }
+        .alert-item .alert-content .desc {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 1px;
+        }
+        .alert-item .alert-action {
+            flex-shrink: 0;
+        }
+
+        /* ===== 图表占位 ===== */
+        .chart-placeholder {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .chart-placeholder .chart-bars {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 80px;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .chart-placeholder .chart-bars .bar {
+            flex: 1;
+            border-radius: 4px 4px 0 0;
+            min-height: 10px;
+            transition: height 0.5s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .chart-placeholder .chart-bars .bar .bar-label {
+            font-size: 10px;
+            color: #6b7f9a;
+            margin-top: 4px;
+        }
+        .chart-placeholder .chart-bars .bar .bar-value {
+            font-size: 10px;
+            font-weight: 600;
+            color: #1a2639;
+            margin-bottom: 2px;
+        }
+        .chart-placeholder .chart-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .chart-placeholder .chart-legend .legend-item {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chart-placeholder .chart-legend .legend-item .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* ===== 快捷操作 ===== */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .quick-actions .qa-item {
+            background: #f8fafc;
+            border: 1px solid #edf2f9;
+            border-radius: 10px;
+            padding: 12px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .quick-actions .qa-item:hover {
+            background: #f0f6ff;
+            border-color: #4f9cf7;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 156, 247, 0.1);
+        }
+        .quick-actions .qa-item .icon {
+            font-size: 22px;
+            display: block;
+        }
+        .quick-actions .qa-item .label {
+            font-size: 11px;
+            color: #3f5370;
+            margin-top: 4px;
+            display: block;
+        }
+        .quick-actions .qa-item .badge-count {
+            font-size: 10px;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 5px;
+            margin-left: 2px;
+        }
+
+        /* ===== 今日动态 ===== */
+        .activity-item {
+            display: flex;
+            gap: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f5f7fa;
+            font-size: 12px;
+            color: #3f5370;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-item .time {
+            color: #b0bcca;
+            flex-shrink: 0;
+            font-size: 11px;
+        }
+        .activity-item .action {
+            flex: 1;
+        }
+        .activity-item .action .highlight {
+            color: #4f9cf7;
+            font-weight: 500;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1200px) {
+            .stat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 1024px) {
+            .stat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .quick-actions {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .topbar {
+                padding: 10px 16px;
+            }
+            .content-wrapper {
+                padding: 12px 16px 20px;
+            }
+            .topbar .page-title .welcome {
+                display: none;
+            }
+        }
+        @media (max-width: 480px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item active"><span class="icon">📊</span> 工作台 <span class="badge-dot">5</span></div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心 <span class="badge-dot">3</span></div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台 <span class="badge-dot">4</span></div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div class="menu-item"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <!-- ===== 顶部栏 ===== -->
+        <div class="topbar">
+            <div class="page-title">
+                📊 工作台
+                <span class="welcome">👋 欢迎回来，<span class="highlight" id="userName">张明</span></span>
+            </div>
+            <div class="topbar-actions">
+                <select class="role-selector" id="roleSelector" onchange="switchRole(this.value)">
+                    <option value="admin">👤 协会管理员</option>
+                    <option value="fleet">🚌 车队负责人</option>
+                    <option value="dispatcher">📋 计调人员</option>
+                    <option value="finance">💰 财务人员</option>
+                </select>
+                <span class="time-display" id="timeDisplay">2026-06-23 周二 14:32</span>
+                <button class="notif-btn" onclick="showToast('📬 您有 5 条未读通知')">
+                    🔔
+                    <span class="dot"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- ===== 统计卡片 ===== -->
+            <div class="stat-grid" id="statsGrid">
+                <div class="stat-card" onclick="showToast('跳转至待审核列表')">
+                    <div class="label">⏳ 待处理</div>
+                    <div class="value orange" id="statPending">8</div>
+                    <div class="sub">初审 3 · 终审 2 · 待派单 3</div>
+                </div>
+                <div class="stat-card" onclick="showToast('跳转至今日订单')">
+                    <div class="label">📋 今日订单</div>
+                    <div class="value blue" id="statTodayOrders">24</div>
+                    <div class="sub">↑ 12% 较昨日</div>
+                </div>
+                <div class="stat-card" onclick="showToast('跳转至结算中心')">
+                    <div class="label">💰 待结算金额</div>
+                    <div class="value green" id="statSettleAmount">¥45,680</div>
+                    <div class="sub">5 笔订单待结算</div>
+                </div>
+                <div class="stat-card" onclick="showToast('跳转至调度排班')">
+                    <div class="label">🚐 车辆利用率</div>
+                    <div class="value purple" id="statUtilization">68%</div>
+                    <div class="sub">空闲 4 · 执行中 8</div>
+                </div>
+                <div class="stat-card" onclick="showToast('跳转至营收报表')">
+                    <div class="label">📈 本月营收</div>
+                    <div class="value" id="statRevenue">¥318,200</div>
+                    <div class="sub">↑ 8.3% 较上月</div>
+                </div>
+                <div class="stat-card" onclick="showToast('跳转至预警监控')" style="border-color:#ffe5e5;">
+                    <div class="label">⚠️ 预警</div>
+                    <div class="value red" id="statAlert">3</div>
+                    <div class="sub">超时订单 2 · 车辆异常 1</div>
+                </div>
+            </div>
+
+            <!-- ===== 主网格 ===== -->
+            <div class="dashboard-grid">
+
+                <!-- ===== 左侧列 ===== -->
+                <div class="col-left">
+
+                    <!-- ===== 待办事项 ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📋 待办事项</span>
+                            <span class="badge-count" id="todoTotal">8项待处理</span>
+                            <span class="more" onclick="showToast('跳转至全部待办')">查看全部 →</span>
+                        </div>
+                        <div id="todoList">
+                            <!-- JS 动态渲染 -->
+                        </div>
+                    </div>
+
+                    <!-- ===== 通知公告 ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📬 通知公告</span>
+                            <span class="badge-count" id="notifTotal">5条未读</span>
+                            <span class="more" onclick="showToast('跳转至全部通知')">查看全部 →</span>
+                        </div>
+                        <div id="notifList">
+                            <!-- JS 动态渲染 -->
+                        </div>
+                    </div>
+
+                    <!-- ===== 快捷操作 ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>⚡ 快捷操作</span>
+                        </div>
+                        <div class="quick-actions">
+                            <div class="qa-item" onclick="showToast('跳转至新建订单')">
+                                <span class="icon">🧾</span>
+                                <span class="label">新建订单</span>
+                            </div>
+                            <div class="qa-item" onclick="showToast('跳转至调度排班')">
+                                <span class="icon">📅</span>
+                                <span class="label">排班调度</span>
+                            </div>
+                            <div class="qa-item" onclick="showToast('跳转至审核工作台')">
+                                <span class="icon">✅</span>
+                                <span class="label">待审核 <span class="badge-count">5</span></span>
+                            </div>
+                            <div class="qa-item" onclick="showToast('跳转至结算中心')">
+                                <span class="icon">💰</span>
+                                <span class="label">结算处理</span>
+                            </div>
+                            <div class="qa-item" onclick="showToast('跳转至档案中心')">
+                                <span class="icon">📁</span>
+                                <span class="label">档案管理</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- ===== 右侧列 ===== -->
+                <div class="col-right">
+
+                    <!-- ===== 预警监控 ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>🚨 预警监控</span>
+                            <span class="badge-count" id="alertTotal">3项预警</span>
+                            <span class="more" onclick="showToast('跳转至全部预警')">查看全部 →</span>
+                        </div>
+                        <div id="alertList">
+                            <!-- JS 动态渲染 -->
+                        </div>
+                    </div>
+
+                    <!-- ===== 数据图表（近7日订单趋势 + 车队分布） ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📊 数据看板</span>
+                            <span class="text-muted">近7日订单趋势 · 车队分布</span>
+                        </div>
+                        <div class="chart-placeholder">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                                <span style="font-size:13px;font-weight:500;color:#1a2639;">📈 订单趋势</span>
+                                <span class="text-muted" style="font-size:11px;">较上周 ↑ 15.2%</span>
+                            </div>
+                            <div class="chart-bars" id="trendChart">
+                                <!-- JS 动态渲染 -->
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="dot" style="background:#4f9cf7;"></span> 订单量</span>
+                                <span class="legend-item"><span class="dot" style="background:#1fb873;"></span> 环比增长</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 chart-placeholder" style="min-height:60px;padding:8px 12px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                                <span style="font-size:12px;font-weight:500;color:#1a2639;">🚌 车队订单分布</span>
+                            </div>
+                            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px;" id="fleetDistribution">
+                                <span><span class="badge blue">雪山车队</span> 8单 · ¥24,600</span>
+                                <span><span class="badge green">古城车队</span> 6单 · ¥18,200</span>
+                                <span><span class="badge orange">玉龙车队</span> 5单 · ¥15,800</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===== 今日动态 ===== -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span>🔄 今日动态</span>
+                            <span class="text-muted" style="font-weight:400;font-size:11px;">实时更新</span>
+                        </div>
+                        <div id="activityList">
+                            <!-- JS 动态渲染 -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 数据
+        // ================================================================
+
+        // 待办事项数据（按角色分组）
+        const todoData = {
+            admin: [
+                { id: 't1', icon: '✅', title: '初审订单 #OD1023', desc: '李师傅 · 玉龙雪山一日游 · 提交于17:35', type: '审核',
+                    priority: '高', time: '17:35', link: '审核工作台' },
+                { id: 't2', icon: '✅', title: '初审订单 #OD1025', desc: '王师傅 · 机场往返 · 提交于16:20', type: '审核',
+                    priority: '中', time: '16:20', link: '审核工作台' },
+                { id: 't3', icon: '📋', title: '终审订单 #OD1020', desc: '赵师傅 · 泸沽湖两日游 · 待财务确认', type: '审核',
+                    priority: '高', time: '19:30', link: '审核工作台' },
+                { id: 't4', icon: '📅', title: '排班待确认', desc: '明日车辆排班计划待确认 (3辆)', type: '调度', priority: '中',
+                    time: '今日', link: '调度排班' },
+                { id: 't5', icon: '💰', title: '今日结算待处理', desc: '玉龙车队 ¥15,800 待结算', type: '结算', priority: '高',
+                    time: '今日', link: '结算中心' },
+                { id: 't6', icon: '⚠️', title: '车辆异常提醒', desc: '云L·3333 维修进度跟进', type: '预警', priority: '中',
+                    time: '14:00', link: '档案中心' },
+            ],
+            fleet: [
+                { id: 'f1', icon: '📋', title: '订单 #OD1025 待派单', desc: '商务VIP · 7座豪华型 · 10:00出发', type: '调度',
+                    priority: '高', time: '09:20', link: '订单中心' },
+                { id: 'f2', icon: '💰', title: '车队账单待确认', desc: '本周结算账单 ¥42,800 待确认', type: '结算', priority: '高',
+                    time: '今日', link: '结算中心' },
+                { id: 'f3', icon: '👤', title: '司机入职审核', desc: '新司机 黄师傅 资质待审核', type: '人事', priority: '中',
+                    time: '10:00', link: '档案中心' },
+            ],
+            dispatcher: [
+                { id: 'd1', icon: '✅', title: '初审订单 #OD1023', desc: '李师傅 · 玉龙雪山一日游 · 需核实行程', type: '审核',
+                    priority: '高', time: '17:35', link: '审核工作台' },
+                { id: 'd2', icon: '✅', title: '初审订单 #OD1025', desc: '王师傅 · 机场往返 · 需核对公里数', type: '审核',
+                    priority: '中', time: '16:20', link: '审核工作台' },
+                { id: 'd3', icon: '📅', title: '今日排班调整', desc: '云L·8888 临时换车请求', type: '调度', priority: '高',
+                    time: '13:00', link: '调度排班' },
+                { id: 'd4', icon: '🧾', title: '新建订单待处理', desc: '旅行社 悦途旅行 3笔待创建', type: '订单', priority: '中',
+                    time: '11:00', link: '订单中心' },
+            ],
+            finance: [
+                { id: 'fi1', icon: '📋', title: '终审订单 #OD1020', desc: '赵师傅 · 泸沽湖两日游 · ¥4,500', type: '审核',
+                    priority: '高', time: '19:30', link: '审核工作台' },
+                { id: 'fi2', icon: '💰', title: '日结对账待处理', desc: '2026-06-23 日结数据待核对', type: '结算', priority: '高',
+                    time: '今日', link: '结算中心' },
+                { id: 'fi3', icon: '💰', title: '玉龙车队结算异常', desc: '银行账户信息待确认，结算暂缓', type: '预警', priority: '高',
+                    time: '昨日', link: '结算中心' },
+            ]
+        };
+
+        // 通知数据
+        const notifData = [
+            { id: 'n1', title: '📌 系统通知：结算规则更新', desc: '平台服务费率调整至3.5%，自2026-07-01起执行', time: '10分钟前',
+            unread: true },
+            { id: 'n2', title: '✅ 审核通过通知', desc: '订单 #OD1023 已通过初审，进入终审队列', time: '30分钟前', unread: true },
+            { id: 'n3', title: '💰 结算完成通知', desc: '雪山车队 2026-06-22 日结已到账 ¥12,800', time: '1小时前', unread: true },
+            { id: 'n4', title: '⚠️ 系统预警：车辆异常', desc: '云L·3333 已维修超过48小时，请跟进', time: '2小时前', unread: true },
+            { id: 'n5', title: '📅 排班提醒', desc: '明日（2026-06-24）排班计划待确认', time: '3小时前', unread: false },
+            { id: 'n6', title: '👤 司机入职提醒', desc: '新司机 黄师傅 资料已提交，待审核', time: '5小时前', unread: false },
+        ];
+
+        // 预警数据
+        const alertData = [
+            { id: 'a1', level: '🔴', title: '订单超时未处理', desc: '订单 #OD1027 待派单已超过2小时', time: '14:30', link: '订单中心' },
+            { id: 'a2', level: '🟡', title: '车辆维修超48小时', desc: '云L·3333 维修中，影响明日排班', time: '13:00', link: '档案中心' },
+            { id: 'a3', level: '🟡', title: '对账差异预警', desc: '玉龙车队 6/22 日结差异 ¥120.00', time: '11:00', link: '结算中心' },
+            { id: 'a4', level: '🟢', title: '司机请假申请', desc: '司机 钱师傅 申请休假 (已审批)', time: '09:00', link: '档案中心' },
+        ];
+
+        // 今日动态数据
+        const activityData = [
+            { time: '14:32', action: '财务 <span class="highlight">王芳</span> 完成了日结对账' },
+            { time: '14:20', action: '计调 <span class="highlight">张计调</span> 创建了新订单 #OD1034' },
+            { time: '14:00', action: '司机 <span class="highlight">李师傅</span> 提交了行程回单 #OD1023' },
+            { time: '13:45', action: '系统 <span class="highlight">自动提醒</span> 发送了3条审核待办通知' },
+            { time: '13:20', action: '管理员 <span class="highlight">张明</span> 更新了车型配置' },
+            { time: '12:50', action: '车队 <span class="highlight">雪山车队</span> 完成了日结确认' },
+        ];
+
+        // 趋势数据
+        const trendData = [
+            { day: '6/17', value: 18, growth: 2 },
+            { day: '6/18', value: 22, growth: 4 },
+            { day: '6/19', value: 15, growth: -7 },
+            { day: '6/20', value: 20, growth: 5 },
+            { day: '6/21', value: 25, growth: 5 },
+            { day: '6/22', value: 28, growth: 3 },
+            { day: '6/23', value: 24, growth: -4 },
+        ];
+
+        let currentRole = 'admin';
+
+        // ================================================================
+        // 2. 渲染函数
+        // ================================================================
+
+        function renderTodo(role) {
+            const list = document.getElementById('todoList');
+            const todos = todoData[role] || todoData.admin;
+            document.getElementById('todoTotal').innerText = `${todos.length}项待处理`;
+
+            const typeColors = {
+                '审核': 'orange',
+                '调度': 'blue',
+                '结算': 'green',
+                '预警': 'red',
+                '订单': 'purple',
+                '人事': 'gray'
+            };
+
+            // 按优先级排序：高 > 中 > 低
+            const sorted = [...todos].sort((a, b) => {
+                const order = { '高': 0, '中': 1, '低': 2 };
+                return (order[a.priority] || 1) - (order[b.priority] || 1);
+            });
+
+            let html = '';
+            let currentType = '';
+            sorted.forEach((todo, idx) => {
+                if (todo.type !== currentType) {
+                    currentType = todo.type;
+                    html += `<div class="todo-section-title">${currentType}</div>`;
+                }
+                const isUrgent = todo.priority === '高';
+                html += `
+                    <div class="todo-item" onclick="showToast('跳转至${todo.link}')">
+                        <span class="todo-icon">${todo.icon}</span>
+                        <div class="todo-content">
+                            <div class="title">${todo.title}</div>
+                            <div class="desc">${todo.desc}</div>
+                        </div>
+                        <div class="todo-meta">
+                            ${isUrgent ? '<div class="urgent-tag">🔥 紧急</div>' : ''}
+                            <div>${todo.time}</div>
+                            <span class="badge ${typeColors[todo.type] || 'gray'}">${todo.type}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (todos.length === 0) {
+                html = '<div class="text-muted" style="padding:16px 0;text-align:center;">🎉 暂无待办事项，继续保持！</div>';
+            }
+            list.innerHTML = html;
+        }
+
+        function renderNotif() {
+            const list = document.getElementById('notifList');
+            const unread = notifData.filter(n => n.unread).length;
+            document.getElementById('notifTotal').innerText = `${unread}条未读`;
+
+            const display = notifData.slice(0, 6);
+            let html = '';
+            display.forEach(n => {
+                html += `
+                    <div class="notif-item" onclick="showToast('查看通知详情')">
+                        <span class="notif-dot ${n.unread ? 'unread' : 'read'}"></span>
+                        <div class="notif-content">
+                            <div class="title">${n.title}</div>
+                            <div class="desc">${n.desc}</div>
+                        </div>
+                        <span class="notif-time">${n.time}</span>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderAlert() {
+            const list = document.getElementById('alertList');
+            const active = alertData.filter(a => a.level !== '🟢');
+            document.getElementById('alertTotal').innerText = `${active.length}项预警`;
+
+            const display = alertData.slice(0, 4);
+            let html = '';
+            display.forEach(a => {
+                const isHigh = a.level === '🔴';
+                html += `
+                    <div class="alert-item" onclick="showToast('跳转至${a.link}')">
+                        <span class="alert-level">${a.level}</span>
+                        <div class="alert-content">
+                            <div class="title">${a.title}</div>
+                            <div class="desc">${a.desc}</div>
+                        </div>
+                        <div class="alert-action">
+                            <span class="text-muted">${a.time}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderActivity() {
+            const list = document.getElementById('activityList');
+            const display = activityData.slice(0, 6);
+            let html = '';
+            display.forEach(a => {
+                html += `
+                    <div class="activity-item">
+                        <span class="time">${a.time}</span>
+                        <span class="action">${a.action}</span>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function renderChart() {
+            const container = document.getElementById('trendChart');
+            const maxVal = Math.max(...trendData.map(d => d.value)) + 5;
+            let html = '';
+            trendData.forEach(d => {
+                const height = Math.max(15, (d.value / maxVal) * 70);
+                const color = d.growth >= 0 ? '#4f9cf7' : '#e65f5f';
+                html += `
+                    <div class="bar" style="height:${height + 15}px;">
+                        <div class="bar-value">${d.value}</div>
+                        <div style="width:100%;height:${height}px;background:${color};border-radius:4px 4px 0 0;min-height:10px;"></div>
+                        <div class="bar-label">${d.day}</div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function updateStats(role) {
+            // 不同角色显示不同统计数据
+            const stats = {
+                admin: { pending: 8, todayOrders: 24, settleAmount: '¥45,680', utilization: '68%', revenue: '¥318,200',
+                    alert: 3 },
+                fleet: { pending: 4, todayOrders: 8, settleAmount: '¥18,200', utilization: '72%', revenue: '¥142,800',
+                    alert: 1 },
+                dispatcher: { pending: 6, todayOrders: 16, settleAmount: '¥22,400', utilization: '65%', revenue: '¥186,500',
+                    alert: 2 },
+                finance: { pending: 3, todayOrders: 24, settleAmount: '¥45,680', utilization: '68%', revenue: '¥318,200',
+                    alert: 2 },
+            };
+            const s = stats[role] || stats.admin;
+            document.getElementById('statPending').innerText = s.pending;
+            document.getElementById('statTodayOrders').innerText = s.todayOrders;
+            document.getElementById('statSettleAmount').innerText = s.settleAmount;
+            document.getElementById('statUtilization').innerText = s.utilization;
+            document.getElementById('statRevenue').innerText = s.revenue;
+            document.getElementById('statAlert').innerText = s.alert;
+        }
+
+        // ================================================================
+        // 3. 角色切换
+        // ================================================================
+        function switchRole(role) {
+            currentRole = role;
+            const names = {
+                admin: '张明',
+                fleet: '赵队',
+                dispatcher: '张计调',
+                finance: '王芳'
+            };
+            document.getElementById('userName').innerText = names[role] || '张明';
+            renderTodo(role);
+            updateStats(role);
+            showToast(`👤 已切换至 ${document.getElementById('roleSelector').selectedOptions[0].text}`);
+        }
+
+        // ================================================================
+        // 4. 时钟更新
+        // ================================================================
+        function updateClock() {
+            const now = new Date();
+            const days = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const h = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('timeDisplay').innerText = `${y}-${m}-${d} ${days[now.getDay()]} ${h}:${min}`;
+        }
+
+        // ================================================================
+        // 5. Toast
+        // ================================================================
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
+        // ================================================================
+        // 6. 初始化
+        // ================================================================
+        renderTodo('admin');
+        renderNotif();
+        renderAlert();
+        renderActivity();
+        renderChart();
+        updateStats('admin');
+        updateClock();
+        setInterval(updateClock, 30000);
+
+        console.log('📊 工作台已加载');
+        console.log('💡 顶部下拉可切换角色（协会/车队/计调/财务）');
+        console.log('💡 点击统计卡片、待办、通知、预警均可模拟跳转');
+    </script>
+</body>
+</html>

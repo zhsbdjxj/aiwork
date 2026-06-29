@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>用户端 · 丽江旅游用车</title>
+    <style>
+        /* ================================================================
+           全局样式
+           ================================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+        }
+
+        .phone-frame {
+            width: 390px;
+            max-width: 100%;
+            height: 780px;
+            max-height: 92vh;
+            background: #f0f2f5;
+            border-radius: 36px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 2px #1a1a2e, 0 0 0 6px #2d2d44;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            padding: 10px 20px 6px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #1a2639;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .app-header {
+            background: #fff;
+            padding: 8px 20px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            border-bottom: 1px solid #f0f2f5;
+        }
+        .app-header .title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .app-header .title .sub {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+        .app-header .header-actions {
+            display: flex;
+            gap: 14px;
+            font-size: 18px;
+            color: #6b7f9a;
+        }
+
+        .app-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 16px 80px;
+        }
+        .app-body::-webkit-scrollbar {
+            width: 0;
+        }
+
+        .bottom-tab {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border-top: 1px solid #edf2f9;
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0 10px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .bottom-tab .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            padding: 4px 12px;
+            border: none;
+            background: none;
+            font-size: 10px;
+            color: #9aaec9;
+            transition: all 0.15s;
+            position: relative;
+            min-width: 56px;
+        }
+        .bottom-tab .tab-item .icon {
+            font-size: 22px;
+            line-height: 1.2;
+        }
+        .bottom-tab .tab-item .label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .bottom-tab .tab-item.active {
+            color: #4f9cf7;
+        }
+        .bottom-tab .tab-item .badge-num {
+            position: absolute;
+            top: 0;
+            right: 4px;
+            background: #e65f5f;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #fff;
+        }
+
+        .page-container {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .page-container.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0.6;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== 通用组件 ===== */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+        .badge.gold {
+            background: #fef3e0;
+            color: #b8860b;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: #4f9cf7;
+            color: #fff;
+        }
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        .btn-success {
+            background: #1fb873;
+            color: #fff;
+        }
+        .btn-success:active {
+            transform: scale(0.97);
+        }
+        .btn-danger {
+            background: #e65f5f;
+            color: #fff;
+        }
+        .btn-warning {
+            background: #f5a623;
+            color: #fff;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d5dee9;
+            color: #3f5370;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 13px;
+            border-radius: 8px;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            border: 1px solid #edf2f9;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+        }
+        .card-header .more {
+            font-weight: 400;
+            font-size: 12px;
+            color: #4f9cf7;
+            cursor: pointer;
+        }
+
+        .flex {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mt-1 {
+            margin-top: 6px;
+        }
+        .mt-2 {
+            margin-top: 12px;
+        }
+        .mt-3 {
+            margin-top: 18px;
+        }
+        .mb-1 {
+            margin-bottom: 6px;
+        }
+        .mb-2 {
+            margin-bottom: 12px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 12px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-sm {
+            font-size: 12px;
+        }
+        .text-lg {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .text-green {
+            color: #1fb873;
+        }
+        .text-orange {
+            color: #f5a623;
+        }
+        .text-red {
+            color: #e65f5f;
+        }
+        .text-blue {
+            color: #4f9cf7;
+        }
+        .text-gold {
+            color: #b8860b;
+        }
+
+        .divider {
+            height: 1px;
+            background: #edf2f9;
+            margin: 10px 0;
+        }
+
+        /* ================================================================
+           首页样式
+           ================================================================ */
+        .banner {
+            background: linear-gradient(135deg, #1a2639, #2c3a52);
+            border-radius: 16px;
+            padding: 20px 22px;
+            color: #fff;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .banner .title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .banner .sub {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+        .banner .btn {
+            margin-top: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            font-size: 13px;
+            border-radius: 20px;
+        }
+        .banner .deco {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 80px;
+            opacity: 0.15;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .service-grid .service-item {
+            background: #fff;
+            border-radius: 14px;
+            padding: 14px 6px;
+            text-align: center;
+            border: 1px solid #edf2f9;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .service-grid .service-item:active {
+            transform: scale(0.95);
+        }
+        .service-grid .service-item .icon {
+            font-size: 28px;
+            display: block;
+        }
+        .service-grid .service-item .label {
+            font-size: 12px;
+            color: #3f5370;
+            margin-top: 4px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* ================================================================
+           线路列表（含评分展示）
+           ================================================================ */
+        .route-card {
+            display: flex;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f2f6fc;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .route-card:last-child {
+            border-bottom: none;
+        }
+        .route-card:active {
+            background: #f8faff;
+            margin: 0 -16px;
+            padding: 12px 16px;
+            border-radius: 10px;
+        }
+        .route-card .route-img {
+            width: 80px;
+            height: 72px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+        .route-card .route-img.bg1 {
+            background: #dbeafe;
+        }
+        .route-card .route-img.bg2 {
+            background: #d1fae5;
+        }
+        .route-card .route-img.bg3 {
+            background: #fef3c7;
+        }
+        .route-card .route-img.bg4 {
+            background: #fce4ec;
+        }
+        .route-card .route-img.bg5 {
+            background: #e0e7ff;
+        }
+
+        .route-card .route-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .route-card .route-info .name {
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 14px;
+        }
+        .route-card .route-info .desc {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .route-card .route-info .price {
+            font-weight: 700;
+            color: #1fb873;
+            font-size: 15px;
+            margin-top: 4px;
+        }
+        .route-card .route-info .price .unit {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+        /* 评分展示 */
+        .route-card .route-info .rating-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+            font-size: 12px;
+        }
+        .route-card .route-info .rating-row .stars {
+            color: #f5a623;
+            letter-spacing: 1px;
+        }
+        .route-card .route-info .rating-row .score {
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .route-card .route-info .rating-row .count {
+            color: #6b7f9a;
+            font-size: 11px;
+        }
+        .route-card .route-info .rating-row .tag {
+            font-size: 10px;
+            padding: 1px 8px;
+            border-radius: 12px;
+            background: #fef3e0;
+            color: #b8860b;
+        }
+
+        /* ================================================================
+           筛选面板
+           ================================================================ */
+        .search-filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .search-filter-bar input {
+            flex: 1;
+            padding: 10px 16px;
+            border: 1px solid #d5dee9;
+            border-radius: 12px;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+        }
+        .search-filter-bar input:focus {
+            border-color: #4f9cf7;
+        }
+        .search-filter-bar .btn-filter {
+            padding: 10px 16px;
+            border-radius: 12px;
+            background: #fff;
+            border: 1px solid #d5dee9;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3f5370;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .search-filter-bar .btn-filter .badge-count {
+            background: #4f9cf7;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+            font-weight: 700;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .filter-tags .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px 4px 14px;
+            border-radius: 20px;
+            background: #e3edff;
+            color: #2a5f9c;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .filter-tags .tag:active {
+            transform: scale(0.95);
+        }
+        .filter-tags .tag .remove {
+            font-size: 14px;
+            line-height: 1;
+            opacity: 0.6;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .category-tabs .tab {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid #d5dee9;
+            background: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7f9a;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .category-tabs .tab.active {
+            background: #4f9cf7;
+            color: #fff;
+            border-color: #4f9cf7;
+        }
+
+        /* 筛选面板-底部弹出 */
+        .filter-panel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 30;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .filter-panel-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .filter-panel-overlay .filter-panel {
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 82%;
+            overflow-y: auto;
+            padding: 20px 20px 30px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .filter-panel-overlay.show .filter-panel {
+            transform: translateY(0);
+        }
+        .filter-panel .handle {
+            width: 40px;
+            height: 4px;
+            background: #d5dee9;
+            border-radius: 4px;
+            margin: 0 auto 16px;
+        }
+        .filter-panel .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a2639;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-panel .panel-title .close-btn {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #6b7f9a;
+            cursor: pointer;
+        }
+
+        .filter-section {
+            margin-bottom: 18px;
+        }
+        .filter-section .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            margin-bottom: 8px;
+        }
+        .filter-section .option-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-section .option-group .option {
+            padding: 6px 16px;
+            border-radius: 20px;
+            border: 1px solid #d5dee9;
+            background: #fff;
+            font-size: 13px;
+            color: #3f5370;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .filter-section .option-group .option.active {
+            border-color: #4f9cf7;
+            background: #e3edff;
+            color: #4f9cf7;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+            padding-top: 16px;
+            border-top: 1px solid #edf2f9;
+        }
+        .filter-actions .btn {
+            flex: 1;
+        }
+
+        /* ================================================================
+           模态框通用
+           ================================================================ */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-overlay .modal-sheet {
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 88%;
+            overflow-y: auto;
+            padding: 20px 20px 30px;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .modal-overlay.show .modal-sheet {
+            transform: translateY(0);
+        }
+        .modal-sheet .handle {
+            width: 40px;
+            height: 4px;
+            background: #d5dee9;
+            border-radius: 4px;
+            margin: 0 auto 16px;
+        }
+        .modal-sheet .sheet-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a2639;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-sheet .sheet-title .close-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #6b7f9a;
+            cursor: pointer;
+        }
+        .modal-sheet .sheet-body .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f2f6fc;
+        }
+        .modal-sheet .sheet-body .info-row .label {
+            color: #6b7f9a;
+        }
+        .modal-sheet .sheet-body .info-row .value {
+            font-weight: 500;
+            color: #1a2639;
+            text-align: right;
+        }
+
+        .modal-sheet::-webkit-scrollbar,
+        .filter-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        .modal-sheet::-webkit-scrollbar-thumb,
+        .filter-panel::-webkit-scrollbar-thumb {
+            background: #d5dee9;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .form-group label .required {
+            color: #e65f5f;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d5dee9;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #fafcff;
+            transition: all 0.15s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .form-group textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        /* ================================================================
+           线路详情 - 评分卡片（核心新增）
+           ================================================================ */
+        .route-detail-img {
+            text-align: center;
+            font-size: 64px;
+            margin-bottom: 8px;
+        }
+        .route-detail-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+
+        /* 评分总览卡片 */
+        .rating-summary-card {
+            background: linear-gradient(135deg, #fafcff, #f0f6ff);
+            border-radius: 14px;
+            padding: 16px 18px;
+            border: 1px solid #e3edff;
+            margin: 8px 0 12px;
+        }
+        .rating-summary-card .top-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .rating-summary-card .top-row .big-score {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a2639;
+            line-height: 1;
+        }
+        .rating-summary-card .top-row .big-score .sub {
+            font-size: 16px;
+            font-weight: 400;
+            color: #6b7f9a;
+        }
+        .rating-summary-card .top-row .stars-big {
+            font-size: 20px;
+            color: #f5a623;
+            letter-spacing: 2px;
+        }
+        .rating-summary-card .top-row .meta {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 2px;
+        }
+        .rating-summary-card .top-row .rating-tag {
+            font-size: 11px;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: #fef3e0;
+            color: #b8860b;
+            font-weight: 600;
+            margin-left: auto;
+        }
+
+        /* 五维度评分条 */
+        .dimension-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+        .dimension-row .dim-label {
+            width: 70px;
+            color: #3f5370;
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+        .dimension-row .dim-bar {
+            flex: 1;
+            height: 6px;
+            background: #edf2f9;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        .dimension-row .dim-bar .fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #f5a623, #f7c948);
+            transition: width 0.6s ease;
+        }
+        .dimension-row .dim-score {
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 13px;
+            min-width: 32px;
+            text-align: right;
+        }
+
+        /* 评分说明入口 */
+        .rating-info-trigger {
+            font-size: 12px;
+            color: #4f9cf7;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .rating-info-trigger:active {
+            opacity: 0.7;
+        }
+
+        /* 评分说明弹窗 */
+        .rating-info-content {
+            font-size: 13px;
+            color: #3f5370;
+            line-height: 1.7;
+        }
+        .rating-info-content .formula-box {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            border-left: 3px solid #4f9cf7;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 8px 0;
+        }
+        .rating-info-content .dim-weight {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            font-size: 12px;
+            border-bottom: 1px dashed #edf2f9;
+        }
+
+        /* ================================================================
+           评价页 - 五维度打分
+           ================================================================ */
+        .dimension-rating-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f2f6fc;
+        }
+        .dimension-rating-item:last-child {
+            border-bottom: none;
+        }
+        .dimension-rating-item .dim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dimension-rating-item .dim-header .dim-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a2639;
+        }
+        .dimension-rating-item .dim-header .dim-score-label {
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+        .dimension-rating-item .dim-stars {
+            display: flex;
+            gap: 6px;
+        }
+        .dimension-rating-item .dim-stars .star {
+            font-size: 28px;
+            cursor: pointer;
+            color: #d5dee9;
+            transition: all 0.15s;
+        }
+        .dimension-rating-item .dim-stars .star.active {
+            color: #f5a623;
+        }
+        .dimension-rating-item .dim-stars .star:active {
+            transform: scale(0.85);
+        }
+
+        /* 综合评分展示 */
+        .overall-rating-preview {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 14px 16px;
+            text-align: center;
+            margin: 8px 0 12px;
+        }
+        .overall-rating-preview .preview-score {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .overall-rating-preview .preview-score .sub {
+            font-size: 14px;
+            font-weight: 400;
+            color: #6b7f9a;
+        }
+        .overall-rating-preview .preview-stars {
+            font-size: 18px;
+            color: #f5a623;
+            letter-spacing: 2px;
+        }
+
+        /* ================================================================
+           订单相关样式
+           ================================================================ */
+        .order-tabs {
+            display: flex;
+            gap: 4px;
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 12px;
+        }
+        .order-tabs .tab {
+            flex: 1;
+            padding: 6px 0;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6b7f9a;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .order-tabs .tab.active {
+            background: #fff;
+            color: #1a2639;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .order-item {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border: 1px solid #edf2f9;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .order-item:active {
+            transform: scale(0.98);
+        }
+        .order-item .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .order-item .top .order-id {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1a2639;
+        }
+        .order-item .top .order-id .sub {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-left: 6px;
+        }
+        .order-item .info {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #3f5370;
+        }
+        .order-item .info .label {
+            color: #6b7f9a;
+        }
+        .order-item .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f2f6fc;
+        }
+        .order-item .bottom .time {
+            font-size: 12px;
+            color: #b0bcca;
+        }
+
+        /* 行程进行中 */
+        .progress-card {
+            background: linear-gradient(135deg, #4f9cf7, #2a7fd4);
+            border-radius: 14px;
+            padding: 18px 20px;
+            color: #fff;
+        }
+        .progress-card .route {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .progress-card .sub-info {
+            font-size: 13px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+        .progress-card .progress-bar {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .progress-card .progress-bar .bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-card .progress-bar .bar .fill {
+            height: 100%;
+            background: #fff;
+            border-radius: 4px;
+            width: 60%;
+        }
+        .progress-card .progress-bar .percent {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .driver-info-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+        }
+        .driver-info-card .avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #e3edff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .driver-info-card .info .name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1a2639;
+        }
+        .driver-info-card .info .detail {
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+
+        .success-icon {
+            font-size: 72px;
+            text-align: center;
+            margin: 16px 0 8px;
+        }
+        .success-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .success-sub {
+            text-align: center;
+            font-size: 14px;
+            color: #6b7f9a;
+            margin-top: 4px;
+        }
+
+        /* 我的页面 */
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f2f6fc;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+        .menu-item:active {
+            background: #f8faff;
+            margin: 0 -16px;
+            padding: 12px 16px;
+            border-radius: 10px;
+        }
+        .menu-item .icon {
+            font-size: 20px;
+            width: 28px;
+            text-align: center;
+        }
+        .menu-item .label {
+            flex: 1;
+            font-size: 14px;
+            color: #1a2639;
+        }
+        .menu-item .arrow {
+            color: #b0bcca;
+            font-size: 14px;
+        }
+
+        /* ================================================================
+           响应式
+           ================================================================ */
+        @media (max-width: 420px) {
+            .phone-frame {
+                border-radius: 24px;
+                height: 100vh;
+                max-height: 100vh;
+                padding: 0;
+                box-shadow: none;
+            }
+            body {
+                padding: 0;
+                background: #f0f2f5;
+            }
+        }
+        @media (max-height: 700px) {
+            .phone-frame {
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame">
+
+        <!-- ===== 状态栏 ===== -->
+        <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">📶 📶 🔋</span>
+        </div>
+
+        <!-- ===== 头部 ===== -->
+        <div class="app-header">
+            <div class="title">
+                丽江用车
+                <span class="sub">· 畅游丽江</span>
+            </div>
+            <div class="header-actions">
+                <span>🔔</span>
+                <span>⚙️</span>
+            </div>
+        </div>
+
+        <!-- ===== 内容区域 ===== -->
+        <div class="app-body" id="appBody">
+
+            <!-- ===== 页面1: 首页 ===== -->
+            <div class="page-container active" id="page-home">
+                <div class="banner">
+                    <div class="title">🚐 丽江旅游用车</div>
+                    <div class="sub">专业车队 · 安全舒适 · 随心出行</div>
+                    <button class="btn" onclick="switchTab('route')">立即预订 →</button>
+                    <div class="deco">🏔️</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span>🚗 用车服务</span></div>
+                    <div class="service-grid">
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">🏔️</span><span class="label">景区专线</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">✈️</span><span class="label">接送机</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">🚐</span><span class="label">包车出游</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">👥</span><span class="label">拼车</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">🚙</span><span class="label">租车</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">🏨</span><span class="label">酒店接送</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">🎒</span><span class="label">定制路线</span></div>
+                        <div class="service-item" onclick="switchTab('route')"><span class="icon">📞</span><span class="label">客服咨询</span></div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span>🔥 热门线路</span>
+                        <span class="more" onclick="switchTab('route')">查看全部 →</span>
+                    </div>
+                    <div class="route-card" onclick="openRouteDetail('r1')">
+                        <div class="route-img bg1">🏔️</div>
+                        <div class="route-info">
+                            <div class="name">玉龙雪山一日游</div>
+                            <div class="desc">丽江古城 → 甘海子 → 蓝月谷</div>
+                            <div class="rating-row">
+                                <span class="stars">★★★★★</span>
+                                <span class="score">4.9</span>
+                                <span class="count">(268评价)</span>
+                                <span class="tag">🏆 口碑爆款</span>
+                            </div>
+                            <div class="price">¥320 <span class="unit">/人起</span></div>
+                        </div>
+                    </div>
+                    <div class="route-card" onclick="openRouteDetail('r2')">
+                        <div class="route-img bg2">🌊</div>
+                        <div class="route-info">
+                            <div class="name">泸沽湖两日游</div>
+                            <div class="desc">丽江古城 → 宁蒗 → 泸沽湖</div>
+                            <div class="rating-row">
+                                <span class="stars">★★★★☆</span>
+                                <span class="score">4.8</span>
+                                <span class="count">(156评价)</span>
+                                <span class="tag">👍 好评如潮</span>
+                            </div>
+                            <div class="price">¥680 <span class="unit">/人起</span></div>
+                        </div>
+                    </div>
+                    <div class="route-card" onclick="openRouteDetail('r3')">
+                        <div class="route-img bg3">🐴</div>
+                        <div class="route-info">
+                            <div class="name">拉市海专线</div>
+                            <div class="desc">丽江古城 → 拉市海湿地 → 指云寺</div>
+                            <div class="rating-row">
+                                <span class="stars">★★★★☆</span>
+                                <span class="score">4.7</span>
+                                <span class="count">(89评价)</span>
+                                <span class="tag">🔥 热门推荐</span>
+                            </div>
+                            <div class="price">¥280 <span class="unit">/人起</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 页面2: 线路列表 ===== -->
+            <div class="page-container" id="page-route">
+                <div class="search-filter-bar">
+                    <input placeholder="🔍 搜索目的地或线路" id="routeSearch" oninput="applyAllFilters()">
+                    <button class="btn-filter" onclick="toggleFilterPanel()">
+                        ⚙️ 筛选
+                        <span class="badge-count" id="filterCount" style="display:none;">0</span>
+                    </button>
+                </div>
+                <div class="filter-tags" id="filterTags"></div>
+                <div class="category-tabs">
+                    <button class="tab active" data-cat="all" onclick="setCategory('all')">全部</button>
+                    <button class="tab" data-cat="一日游" onclick="setCategory('一日游')">一日游</button>
+                    <button class="tab" data-cat="两日游" onclick="setCategory('两日游')">两日游</button>
+                    <button class="tab" data-cat="专线" onclick="setCategory('专线')">景区专线</button>
+                    <button class="tab" data-cat="接送" onclick="setCategory('接送')">接送机</button>
+                    <button class="tab" data-cat="包车" onclick="setCategory('包车')">包车</button>
+                </div>
+                <div id="routeList"></div>
+            </div>
+
+            <!-- ===== 页面3: 订单 ===== -->
+            <div class="page-container" id="page-order">
+                <div class="order-tabs">
+                    <button class="tab active" data-status="all" onclick="filterOrders('all')">全部</button>
+                    <button class="tab" data-status="pending" onclick="filterOrders('pending')">待支付</button>
+                    <button class="tab" data-status="upcoming" onclick="filterOrders('upcoming')">待出行</button>
+                    <button class="tab" data-status="ongoing" onclick="filterOrders('ongoing')">进行中</button>
+                    <button class="tab" data-status="done" onclick="filterOrders('done')">已完成</button>
+                </div>
+                <div id="orderList"></div>
+            </div>
+
+            <!-- ===== 页面4: 我的 ===== -->
+            <div class="page-container" id="page-profile">
+                <div class="card" style="text-align:center;padding:20px;">
+                    <div style="width:72px;height:72px;border-radius:50%;background:#e3edff;color:#4f9cf7;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 8px;">👤</div>
+                    <div style="font-size:18px;font-weight:700;color:#1a2639;">旅行者·张</div>
+                    <div style="font-size:13px;color:#6b7f9a;">138 **** 8888</div>
+                    <div style="margin-top:8px;"><span class="badge green">已认证</span></div>
+                </div>
+                <div class="card">
+                    <div class="menu-item" onclick="showToast('个人信息')"><span class="icon">📋</span><span class="label">个人信息</span><span class="arrow">›</span></div>
+                    <div class="menu-item" onclick="switchTab('order')"><span class="icon">🧾</span><span class="label">我的订单</span><span style="background:#e65f5f;color:#fff;font-size:10px;border-radius:50%;padding:0 6px;font-weight:700;">2</span><span class="arrow">›</span></div>
+                    <div class="menu-item" onclick="showToast('支付管理')"><span class="icon">💳</span><span class="label">支付管理</span><span class="arrow">›</span></div>
+                    <div class="menu-item" onclick="showToast('优惠券')"><span class="icon">🎫</span><span class="label">优惠券</span><span class="badge green" style="font-size:10px;">3张</span><span class="arrow">›</span></div>
+                    <div class="menu-item" onclick="showToast('联系客服')"><span class="icon">📞</span><span class="label">联系客服</span><span class="arrow">›</span></div>
+                </div>
+                <button class="btn btn-outline btn-block" onclick="showToast('确认退出登录？')">退出登录</button>
+            </div>
+
+        </div>
+
+        <!-- ===== 底部Tab ===== -->
+        <div class="bottom-tab">
+            <button class="tab-item active" data-tab="home" onclick="switchTab('home')"><span class="icon">🏠</span><span class="label">首页</span></button>
+            <button class="tab-item" data-tab="route" onclick="switchTab('route')"><span class="icon">🗺️</span><span class="label">线路</span></button>
+            <button class="tab-item" data-tab="order" onclick="switchTab('order')"><span class="icon">🧾</span><span class="label">订单</span><span class="badge-num">2</span></button>
+            <button class="tab-item" data-tab="profile" onclick="switchTab('profile')"><span class="icon">👤</span><span class="label">我的</span></button>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- 筛选面板 -->
+        <!-- ============================================================== -->
+        <div class="filter-panel-overlay" id="filterPanel">
+            <div class="filter-panel">
+                <div class="handle"></div>
+                <div class="panel-title">⚙️ 筛选条件<button class="close-btn" onclick="toggleFilterPanel()">✕</button></div>
+                <div class="filter-section"><div class="section-title">🚗 车型</div>
+                    <div class="option-group" data-filter="carType">
+                        <span class="option" data-value="5座" onclick="toggleFilterOption(this)">5座经济型</span>
+                        <span class="option" data-value="7座" onclick="toggleFilterOption(this)">7座豪华型</span>
+                        <span class="option" data-value="9座" onclick="toggleFilterOption(this)">9座舒适型</span>
+                        <span class="option" data-value="19座" onclick="toggleFilterOption(this)">19座舒适型</span>
+                    </div>
+                </div>
+                <div class="filter-section"><div class="section-title">👥 座位数</div>
+                    <div class="option-group" data-filter="seats">
+                        <span class="option" data-value="2-4" onclick="toggleFilterOption(this)">2-4人</span>
+                        <span class="option" data-value="5-7" onclick="toggleFilterOption(this)">5-7人</span>
+                        <span class="option" data-value="8-12" onclick="toggleFilterOption(this)">8-12人</span>
+                        <span class="option" data-value="13+" onclick="toggleFilterOption(this)">13人以上</span>
+                    </div>
+                </div>
+                <div class="filter-section"><div class="section-title">💰 价格区间</div>
+                    <div class="option-group" data-filter="price">
+                        <span class="option" data-value="0-200" onclick="toggleFilterOption(this)">¥0-200</span>
+                        <span class="option" data-value="200-400" onclick="toggleFilterOption(this)">¥200-400</span>
+                        <span class="option" data-value="400-600" onclick="toggleFilterOption(this)">¥400-600</span>
+                        <span class="option" data-value="600+" onclick="toggleFilterOption(this)">¥600以上</span>
+                    </div>
+                </div>
+                <div class="filter-section"><div class="section-title">⭐ 评分</div>
+                    <div class="option-group" data-filter="rating">
+                        <span class="option" data-value="4.5" onclick="toggleFilterOption(this)">4.5分以上</span>
+                        <span class="option" data-value="4.0" onclick="toggleFilterOption(this)">4.0分以上</span>
+                        <span class="option" data-value="3.5" onclick="toggleFilterOption(this)">3.5分以上</span>
+                    </div>
+                </div>
+                <div class="filter-section"><div class="section-title">🕐 出发时段</div>
+                    <div class="option-group" data-filter="time">
+                        <span class="option" data-value="morning" onclick="toggleFilterOption(this)">上午 06:00-12:00</span>
+                        <span class="option" data-value="afternoon" onclick="toggleFilterOption(this)">下午 12:00-18:00</span>
+                        <span class="option" data-value="full" onclick="toggleFilterOption(this)">全天</span>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-outline" onclick="resetFilters()">重置</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">确认筛选</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- 模态框: 线路详情（含评分卡片） -->
+        <!-- ============================================================== -->
+        <div class="modal-overlay" id="routeDetailModal">
+            <div class="modal-sheet">
+                <div class="handle"></div>
+                <div class="sheet-title">🏔️ 线路详情<button class="close-btn" onclick="closeModal('routeDetailModal')">✕</button></div>
+                <div class="sheet-body" id="routeDetailBody"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- 模态框: 评分说明 -->
+        <!-- ============================================================== -->
+        <div class="modal-overlay" id="ratingInfoModal">
+            <div class="modal-sheet" style="max-height:70%;">
+                <div class="handle"></div>
+                <div class="sheet-title">📊 评分说明<button class="close-btn" onclick="closeModal('ratingInfoModal')">✕</button></div>
+                <div class="sheet-body">
+                    <div class="rating-info-content">
+                        <p style="font-weight:600;color:#1a2639;margin-bottom:6px;">综合评分 = 多维度加权计算</p>
+
+                        <div class="formula-box">
+                            综合评分 = (行程评价 × 50%) + (完成质量 × 25%) + (体验反馈 × 15%) + (风控校验 × 10%)
+                        </div>
+
+                        <p style="margin-top:10px;font-weight:600;color:#1a2639;font-size:13px;">📋 行程评价（权重50%）</p>
+                        <div class="dim-weight"><span>司机服务态度</span><span>20%</span></div>
+                        <div class="dim-weight"><span>车辆舒适度</span><span>20%</span></div>
+                        <div class="dim-weight"><span>准时率</span><span>20%</span></div>
+                        <div class="dim-weight"><span>行程路线合理性</span><span>20%</span></div>
+                        <div class="dim-weight"><span>性价比</span><span>20%</span></div>
+
+                        <p style="margin-top:10px;font-weight:600;color:#1a2639;font-size:13px;">📊 完成质量（权重25%）</p>
+                        <div class="dim-weight"><span>订单完成率</span><span>高 → 加分</span></div>
+                        <div class="dim-weight"><span>取消率</span><span>高 → 扣分</span></div>
+                        <div class="dim-weight"><span>回单通过率</span><span>高 → 加分</span></div>
+
+                        <p style="margin-top:10px;font-weight:600;color:#1a2639;font-size:13px;">💬 体验反馈（权重15%）</p>
+                        <div class="dim-weight"><span>推荐率</span><span>高 → 加分</span></div>
+                        <div class="dim-weight"><span>投诉记录</span><span>有 → 大幅扣分</span></div>
+
+                        <p style="margin-top:10px;font-weight:600;color:#1a2639;font-size:13px;">🛡️ 风控校验（权重10%）</p>
+                        <div class="dim-weight"><span>订单异常率</span><span>低 → 加分</span></div>
+                        <div class="dim-weight"><span>虚假评价检测</span><span>有 → 扣分</span></div>
+
+                        <div style="margin-top:14px;padding:12px;background:#f0f6ff;border-radius:10px;font-size:12px;color:#6b7f9a;">
+                            ⚡ 评价数 ≥ 5 条时显示综合评分，< 5 条时显示 "新上线" </div>
+                        </div>
+                        <div class="actions" style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end;">
+                            <button class="btn btn-primary btn-block" onclick="closeModal('ratingInfoModal')">我知道了</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 预订 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="bookingModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">📝 预订<button class="close-btn" onclick="closeModal('bookingModal')">✕</button></div>
+                    <div class="sheet-body" id="bookingBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 支付 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="payModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">💳 确认支付<button class="close-btn" onclick="closeModal('payModal')">✕</button></div>
+                    <div class="sheet-body" id="payBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 支付成功 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="paySuccessModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">✅ 支付成功<button class="close-btn" onclick="closeModal('paySuccessModal')">✕</button></div>
+                    <div class="sheet-body" id="paySuccessBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 待出行详情 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="upcomingDetailModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">🚗 待出行详情<button class="close-btn" onclick="closeModal('upcomingDetailModal')">✕</button></div>
+                    <div class="sheet-body" id="upcomingDetailBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 行程进行中 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="ongoingDetailModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">📍 行程进行中<button class="close-btn" onclick="closeModal('ongoingDetailModal')">✕</button></div>
+                    <div class="sheet-body" id="ongoingDetailBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 行程完成 -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="doneDetailModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">✅ 行程完成<button class="close-btn" onclick="closeModal('doneDetailModal')">✕</button></div>
+                    <div class="sheet-body" id="doneDetailBody"></div>
+                </div>
+            </div>
+
+            <!-- ============================================================== -->
+            <!-- 模态框: 评价（五维度打分） -->
+            <!-- ============================================================== -->
+            <div class="modal-overlay" id="reviewModal">
+                <div class="modal-sheet">
+                    <div class="handle"></div>
+                    <div class="sheet-title">⭐ 评价行程<button class="close-btn" onclick="closeModal('reviewModal')">✕</button></div>
+                    <div class="sheet-body" id="reviewBody"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== Toast ===== -->
+        <div id="toast" style="position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a2639;color:#fff;padding:10px 24px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:999;opacity:0;transition:all 0.4s;pointer-events:none;white-space:nowrap;">
+            ✅ 操作成功
+        </div>
+
+        <script>
+            // ================================================================
+            // 1. 数据（含五维度评分）
+            // ================================================================
+
+            const routesData = [{
+                id: 'r1',
+                name: '玉龙雪山一日游',
+                category: '一日游',
+                img: '🏔️',
+                bg: 'bg1',
+                desc: '丽江古城 → 甘海子 → 蓝月谷 → 玉龙雪山',
+                duration: '1天',
+                price: 320,
+                seats: 9,
+                carType: '9座',
+                start: '丽江古城',
+                end: '玉龙雪山',
+                stops: '甘海子·蓝月谷',
+                timeSlot: 'morning',
+                timeLabel: '08:00出发',
+                // 评分数据
+                rating: 4.9,
+                ratingCount: 268,
+                ratingTag: '🏆 口碑爆款',
+                dimensions: {
+                    driverService: 4.9,
+                    vehicleComfort: 4.8,
+                    punctuality: 4.9,
+                    routeReasonable: 4.8,
+                    valueForMoney: 4.7
+                },
+                recommendRate: 94,
+                completionRate: 98,
+                passRate: 96,
+                complaintCount: 0
+            }, {
+                id: 'r2',
+                name: '泸沽湖两日游',
+                category: '两日游',
+                img: '🌊',
+                bg: 'bg2',
+                desc: '丽江古城 → 宁蒗 → 泸沽湖景区 → 走婚桥',
+                duration: '2天',
+                price: 680,
+                seats: 9,
+                carType: '9座',
+                start: '丽江古城',
+                end: '泸沽湖',
+                stops: '宁蒗·走婚桥',
+                timeSlot: 'morning',
+                timeLabel: '07:00出发',
+                rating: 4.8,
+                ratingCount: 156,
+                ratingTag: '👍 好评如潮',
+                dimensions: {
+                    driverService: 4.7,
+                    vehicleComfort: 4.8,
+                    punctuality: 4.7,
+                    routeReasonable: 4.9,
+                    valueForMoney: 4.6
+                },
+                recommendRate: 91,
+                completionRate: 95,
+                passRate: 94,
+                complaintCount: 0
+            }, {
+                id: 'r3',
+                name: '拉市海专线',
+                category: '专线',
+                img: '🐴',
+                bg: 'bg3',
+                desc: '丽江古城 → 拉市海湿地 → 指云寺',
+                duration: '1天',
+                price: 280,
+                seats: 9,
+                carType: '9座',
+                start: '丽江古城',
+                end: '拉市海',
+                stops: '湿地·指云寺',
+                timeSlot: 'morning',
+                timeLabel: '09:00出发',
+                rating: 4.7,
+                ratingCount: 89,
+                ratingTag: '🔥 热门推荐',
+                dimensions: {
+                    driverService: 4.6,
+                    vehicleComfort: 4.5,
+                    punctuality: 4.7,
+                    routeReasonable: 4.8,
+                    valueForMoney: 4.8
+                },
+                recommendRate: 88,
+                completionRate: 93,
+                passRate: 92,
+                complaintCount: 1
+            }, {
+                id: 'r4',
+                name: '机场接送专线',
+                category: '接送',
+                img: '✈️',
+                bg: 'bg4',
+                desc: '三义机场 ↔ 丽江古城（单程）',
+                duration: '单程',
+                price: 120,
+                seats: 5,
+                carType: '5座',
+                start: '三义机场',
+                end: '丽江古城',
+                stops: '直达',
+                timeSlot: 'full',
+                timeLabel: '灵活出发',
+                rating: 4.9,
+                ratingCount: 312,
+                ratingTag: '🏆 口碑爆款',
+                dimensions: {
+                    driverService: 4.9,
+                    vehicleComfort: 4.8,
+                    punctuality: 5.0,
+                    routeReasonable: 4.9,
+                    valueForMoney: 4.7
+                },
+                recommendRate: 96,
+                completionRate: 99,
+                passRate: 98,
+                complaintCount: 0
+            }, {
+                id: 'r5',
+                name: '香格里拉三日游',
+                category: '两日游',
+                img: '🏯',
+                bg: 'bg5',
+                desc: '丽江古城 → 虎跳峡 → 普达措 → 独克宗',
+                duration: '3天',
+                price: 980,
+                seats: 19,
+                carType: '19座',
+                start: '丽江古城',
+                end: '香格里拉',
+                stops: '虎跳峡·普达措',
+                timeSlot: 'morning',
+                timeLabel: '07:00出发',
+                rating: 4.8,
+                ratingCount: 134,
+                ratingTag: '👍 好评如潮',
+                dimensions: {
+                    driverService: 4.8,
+                    vehicleComfort: 4.7,
+                    punctuality: 4.8,
+                    routeReasonable: 4.9,
+                    valueForMoney: 4.5
+                },
+                recommendRate: 90,
+                completionRate: 94,
+                passRate: 93,
+                complaintCount: 0
+            }, {
+                id: 'r6',
+                name: '束河古镇专线',
+                category: '专线',
+                img: '🏘️',
+                bg: 'bg1',
+                desc: '丽江古城 → 束河古镇（往返）',
+                duration: '1天',
+                price: 160,
+                seats: 7,
+                carType: '7座',
+                start: '丽江古城',
+                end: '束河古镇',
+                stops: '直达',
+                timeSlot: 'afternoon',
+                timeLabel: '13:00出发',
+                rating: 4.6,
+                ratingCount: 56,
+                ratingTag: '🔥 热门推荐',
+                dimensions: {
+                    driverService: 4.5,
+                    vehicleComfort: 4.6,
+                    punctuality: 4.5,
+                    routeReasonable: 4.7,
+                    valueForMoney: 4.6
+                },
+                recommendRate: 85,
+                completionRate: 90,
+                passRate: 88,
+                complaintCount: 1
+            }, {
+                id: 'r7',
+                name: '大理两日游',
+                category: '两日游',
+                img: '🏛️',
+                bg: 'bg2',
+                desc: '丽江古城 → 双廊 → 大理古城',
+                duration: '2天',
+                price: 720,
+                seats: 9,
+                carType: '9座',
+                start: '丽江古城',
+                end: '大理古城',
+                stops: '双廊·喜洲',
+                timeSlot: 'morning',
+                timeLabel: '08:00出发',
+                rating: 4.7,
+                ratingCount: 78,
+                ratingTag: '🔥 热门推荐',
+                dimensions: {
+                    driverService: 4.7,
+                    vehicleComfort: 4.6,
+                    punctuality: 4.7,
+                    routeReasonable: 4.8,
+                    valueForMoney: 4.5
+                },
+                recommendRate: 87,
+                completionRate: 92,
+                passRate: 90,
+                complaintCount: 0
+            }, {
+                id: 'r8',
+                name: '雪山直通车',
+                category: '专线',
+                img: '🚌',
+                bg: 'bg3',
+                desc: '丽江古城 ↔ 玉龙雪山（往返）',
+                duration: '1天',
+                price: 200,
+                seats: 19,
+                carType: '19座',
+                start: '丽江古城',
+                end: '玉龙雪山',
+                stops: '甘海子',
+                timeSlot: 'morning',
+                timeLabel: '07:30出发',
+                rating: 4.5,
+                ratingCount: 42,
+                ratingTag: '新上线',
+                dimensions: {
+                    driverService: 4.4,
+                    vehicleComfort: 4.5,
+                    punctuality: 4.5,
+                    routeReasonable: 4.6,
+                    valueForMoney: 4.4
+                },
+                recommendRate: 82,
+                completionRate: 88,
+                passRate: 86,
+                complaintCount: 0
+            }];
+
+            // 订单数据（保留）
+            const ordersData = [
+                { id: '#OD2024-001', route: '玉龙雪山一日游', routeId: 'r1', date: '2026-06-25', status: 'pending',
+                    price: 320, seats: 2, total: 640, driver: '待分配', plate: '—', time: '08:00-18:00',
+                    start: '丽江古城', end: '玉龙雪山', driverAvatar: '🧑‍✈️', driverPhone: '—', carType: '9座·舒适型',
+                    progress: 0, distance: '0km', duration: '—' },
+                { id: '#OD2024-002', route: '泸沽湖两日游', routeId: 'r2', date: '2026-06-28', status: 'upcoming',
+                    price: 680, seats: 3, total: 2040, driver: '李师傅', plate: '云L·8888', time: '07:00-06-29 19:00',
+                    start: '丽江古城', end: '泸沽湖', driverAvatar: '🧑‍✈️', driverPhone: '139****5678',
+                    carType: '9座·舒适型', progress: 0, distance: '0km', duration: '—', pickupTime: '06:30',
+                    pickupLocation: '丽江古城南门' },
+                { id: '#OD2024-003', route: '拉市海专线', routeId: 'r3', date: '2026-06-23', status: 'ongoing',
+                    price: 280, seats: 2, total: 560, driver: '王师傅', plate: '云L·6666', time: '09:00-15:00',
+                    start: '丽江古城', end: '拉市海', driverAvatar: '🧑‍✈️', driverPhone: '139****9012',
+                    carType: '9座·舒适型', progress: 60, distance: '32km', duration: '2.5h', eta: '12:30',
+                    currentLocation: '拉市海湿地入口' },
+                { id: '#OD2024-004', route: '机场接送专线', routeId: 'r4', date: '2026-06-22', status: 'done',
+                    price: 120, seats: 1, total: 120, driver: '刘师傅', plate: '云L·5555', time: '14:00-16:00',
+                    start: '三义机场', end: '丽江古城', driverAvatar: '🧑‍✈️', driverPhone: '139****3456',
+                    carType: '5座·经济型', progress: 100, distance: '28km', duration: '1.2h', finishTime: '2026-06-22 15:30',
+                    reviewed: false },
+                { id: '#OD2024-005', route: '香格里拉三日游', routeId: 'r5', date: '2026-07-01', status: 'pending',
+                    price: 980, seats: 4, total: 3920, driver: '待分配', plate: '—', time: '07:00-07-04 19:00',
+                    start: '丽江古城', end: '香格里拉', driverAvatar: '🧑‍✈️', driverPhone: '—', carType: '19座·舒适型',
+                    progress: 0, distance: '0km', duration: '—' }
+            ];
+
+            // ================================================================
+            // 2. 评分工具函数
+            // ================================================================
+
+            function getStarDisplay(rating) {
+                const full = Math.floor(rating);
+                const half = rating - full >= 0.5 ? 1 : 0;
+                return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - half);
+            }
+
+            function getRatingTag(rating, count) {
+                if (count < 5) return '新上线';
+                if (rating >= 4.8) return '🏆 口碑爆款';
+                if (rating >= 4.5) return '👍 好评如潮';
+                if (rating >= 4.0) return '🔥 热门推荐';
+                return '⭐ 值得尝试';
+            }
+
+            function getRatingColor(rating) {
+                if (rating >= 4.5) return '#1fb873';
+                if (rating >= 4.0) return '#f5a623';
+                if (rating >= 3.0) return '#6b7f9a';
+                return '#e65f5f';
+            }
+
+            function calcOverallFromDimensions(dims) {
+                const weights = {
+                    driverService: 0.20,
+                    vehicleComfort: 0.20,
+                    punctuality: 0.20,
+                    routeReasonable: 0.20,
+                    valueForMoney: 0.20
+                };
+                let total = 0;
+                Object.keys(dims).forEach(key => {
+                    total += dims[key] * weights[key];
+                });
+                return Math.round(total * 10) / 10;
+            }
+
+            // ================================================================
+            // 3. 页面切换
+            // ================================================================
+
+            let currentTab = 'home';
+            let orderFilter = 'all';
+            let currentBookingRoute = null;
+            let currentReviewOrderId = null;
+
+            function switchTab(tab) {
+                currentTab = tab;
+                document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
+                const target = document.getElementById('page-' + tab);
+                if (target) target.classList.add('active');
+                document.querySelectorAll('.bottom-tab .tab-item').forEach(el => {
+                    el.classList.toggle('active', el.dataset.tab === tab);
+                });
+                document.getElementById('appBody').scrollTop = 0;
+                if (tab === 'route') applyAllFilters();
+                if (tab === 'order') renderOrders();
+            }
+
+            // ================================================================
+            // 4. 筛选逻辑
+            // ================================================================
+
+            let filterState = { carType: [], seats: [], price: [], rating: [], time: [] };
+            let currentCategory = 'all';
+
+            function toggleFilterPanel() {
+                document.getElementById('filterPanel').classList.toggle('show');
+            }
+
+            function toggleFilterOption(el) {
+                el.classList.toggle('active');
+            }
+
+            function resetFilters() {
+                document.querySelectorAll('#filterPanel .option').forEach(el => el.classList.remove('active'));
+                filterState = { carType: [], seats: [], price: [], rating: [], time: [] };
+                updateFilterTags();
+                applyAllFilters();
+                toggleFilterPanel();
+                showToast('🔄 已重置所有筛选条件');
+            }
+
+            function applyFilters() {
+                filterState = { carType: [], seats: [], price: [], rating: [], time: [] };
+                document.querySelectorAll('#filterPanel .option.active').forEach(el => {
+                    const group = el.closest('.option-group');
+                    if (!group) return;
+                    const filterKey = group.dataset.filter;
+                    const value = el.dataset.value;
+                    if (filterKey && value && filterState[filterKey]) {
+                        filterState[filterKey].push(value);
+                    }
+                });
+                toggleFilterPanel();
+                applyAllFilters();
+                updateFilterTags();
+                showToast('✅ 筛选已应用');
+            }
+
+            function updateFilterTags() {
+                const container = document.getElementById('filterTags');
+                const total = Object.values(filterState).reduce((sum, arr) => sum + arr.length, 0);
+                const countBadge = document.getElementById('filterCount');
+                if (total === 0) { container.innerHTML = '';
+                    countBadge.style.display = 'none'; return; }
+                countBadge.style.display = 'inline-flex';
+                countBadge.textContent = total;
+                const labelMap = { carType: { '5座': '5座', '7座': '7座', '9座': '9座', '19座': '19座' },
+                    seats: { '2-4': '2-4人', '5-7': '5-7人', '8-12': '8-12人', '13+': '13人+' },
+                    price: { '0-200': '¥0-200', '200-400': '¥200-400', '400-600': '¥400-600', '600+': '¥600+' },
+                    rating: { '4.5': '⭐4.5+', '4.0': '⭐4.0+', '3.5': '⭐3.5+' },
+                    time: { 'morning': '上午出发', 'afternoon': '下午出发', 'full': '全天' } };
+                let tags = '';
+                Object.keys(filterState).forEach(key => {
+                    filterState[key].forEach(val => {
+                        const label = labelMap[key]?.[val] || val;
+                        tags +=
+                            `<span class="tag" onclick="removeFilter('${key}','${val}')">${label} <span class="remove">✕</span></span>`;
+                    });
+                });
+                tags += `<span class="tag" onclick="resetFilters()" style="background:#f0f2f5;color:#6b7f9a;">清空全部</span>`;
+                container.innerHTML = tags;
+            }
+
+            function removeFilter(key, value) {
+                if (filterState[key]) {
+                    filterState[key] = filterState[key].filter(v => v !== value);
+                    document.querySelectorAll('#filterPanel .option').forEach(el => {
+                        if (el.dataset.value === value && el.closest('.option-group')?.dataset.filter === key) {
+                            el.classList.remove('active');
+                        }
+                    });
+                    updateFilterTags();
+                    applyAllFilters();
+                }
+            }
+
+            function setCategory(cat) {
+                currentCategory = cat;
+                document.querySelectorAll('#categoryTabs .tab').forEach(el => {
+                    el.classList.toggle('active', el.dataset.cat === cat);
+                });
+                applyAllFilters();
+            }
+
+            function applyAllFilters() {
+                const container = document.getElementById('routeList');
+                if (!container) return;
+                const searchVal = document.getElementById('routeSearch')?.value?.trim().toLowerCase() || '';
+                let filtered = routesData.filter(r => {
+                    if (currentCategory !== 'all' && r.category !== currentCategory) return false;
+                    if (searchVal && !r.name.includes(searchVal) && !r.desc.includes(searchVal) && !r.start.includes(
+                        searchVal)) return false;
+                    if (filterState.carType.length > 0 && !filterState.carType.includes(r.carType)) return false;
+                    if (filterState.seats.length > 0) {
+                        let matchSeats = false;
+                        filterState.seats.forEach(range => {
+                            if (range === '2-4' && r.seats >= 2 && r.seats <= 4) matchSeats = true;
+                            if (range === '5-7' && r.seats >= 5 && r.seats <= 7) matchSeats = true;
+                            if (range === '8-12' && r.seats >= 8 && r.seats <= 12) matchSeats = true;
+                            if (range === '13+' && r.seats >= 13) matchSeats = true;
+                        });
+                        if (!matchSeats) return false;
+                    }
+                    if (filterState.price.length > 0) {
+                        let matchPrice = false;
+                        filterState.price.forEach(range => {
+                            if (range === '0-200' && r.price <= 200) matchPrice = true;
+                            if (range === '200-400' && r.price > 200 && r.price <= 400) matchPrice = true;
+                            if (range === '400-600' && r.price > 400 && r.price <= 600) matchPrice = true;
+                            if (range === '600+' && r.price > 600) matchPrice = true;
+                        });
+                        if (!matchPrice) return false;
+                    }
+                    if (filterState.rating.length > 0) {
+                        let matchRating = false;
+                        filterState.rating.forEach(min => {
+                            if (r.rating >= parseFloat(min)) matchRating = true;
+                        });
+                        if (!matchRating) return false;
+                    }
+                    if (filterState.time.length > 0 && !filterState.time.includes(r.timeSlot)) return false;
+                    return true;
+                });
+                if (filtered.length === 0) {
+                    container.innerHTML =
+                        '<div class="card text-center" style="padding:30px;color:#6b7f9a;">📭 暂无匹配线路，试试调整筛选条件</div>';
+                    return;
+                }
+                let html = '';
+                filtered.forEach(r => {
+                    const stars = getStarDisplay(r.rating);
+                    const tag = r.ratingCount >= 5 ? getRatingTag(r.rating, r.ratingCount) : '新上线';
+                    const tagClass = r.ratingCount >= 5 ? 'tag' : 'badge gray';
+                    html += `
+                        <div class="route-card" onclick="openRouteDetail('${r.id}')">
+                            <div class="route-img ${r.bg || 'bg1'}">${r.img}</div>
+                            <div class="route-info">
+                                <div class="name">${r.name} <span class="badge blue" style="font-size:9px;padding:0 6px;">${r.category}</span></div>
+                                <div class="desc">${r.desc}</div>
+                                <div class="rating-row">
+                                    <span class="stars">${stars}</span>
+                                    <span class="score">${r.rating}</span>
+                                    <span class="count">(${r.ratingCount}评价)</span>
+                                    ${r.ratingCount >= 5 ? `<span class="tag">${tag}</span>` : `<span class="badge gray" style="font-size:10px;">新上线</span>`}
+                                </div>
+                                <div class="price">¥${r.price} <span class="unit">/人起</span></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            // ================================================================
+            // 5. 线路详情（含评分卡片）
+            // ================================================================
+
+            function openRouteDetail(routeId) {
+                const route = routesData.find(r => r.id === routeId);
+                if (!route) { showToast('线路不存在'); return; }
+                currentBookingRoute = route;
+
+                const dims = route.dimensions;
+                const overall = route.rating;
+                const stars = getStarDisplay(overall);
+                const tag = route.ratingCount >= 5 ? getRatingTag(overall, route.ratingCount) : '新上线';
+                const color = getRatingColor(overall);
+
+                const body = document.getElementById('routeDetailBody');
+                body.innerHTML = `
+                    <div class="route-detail-img">${route.img}</div>
+                    <div class="route-detail-name">${route.name}</div>
+                    <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap;">
+                        <span class="badge blue">${route.category}</span>
+                        <span class="badge gray">${route.duration}</span>
+                        <span class="badge purple">${route.carType}座</span>
+                        ${route.ratingCount >= 5 ? `<span class="badge gold">${tag}</span>` : `<span class="badge gray">新上线</span>`}
+                    </div>
+
+                    <!-- 评分卡片 -->
+                    <div class="rating-summary-card">
+                        <div class="top-row">
+                            <div>
+                                <span class="big-score">${overall} <span class="sub">/ 5.0</span></span>
+                                <div class="stars-big">${stars}</div>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#1a2639;">${route.ratingCount} 条评价</div>
+                                <div style="font-size:12px;color:#6b7f9a;">推荐率 ${route.recommendRate}% · 完成率 ${route.completionRate}%</div>
+                                ${route.complaintCount > 0 ? `<div style="font-size:12px;color:#e65f5f;">⚠️ ${route.complaintCount} 条投诉记录</div>` : '<div style="font-size:12px;color:#1fb873;">✅ 零投诉</div>'}
+                            </div>
+                            <div class="rating-tag">${tag}</div>
+                        </div>
+                        <div style="margin-top:10px;padding-top:10px;border-top:1px solid #edf2f9;">
+                            <div class="dimension-row">
+                                <span class="dim-label">司机服务</span>
+                                <span class="dim-bar"><span class="fill" style="width:${dims.driverService/5*100}%;"></span></span>
+                                <span class="dim-score">${dims.driverService}</span>
+                            </div>
+                            <div class="dimension-row">
+                                <span class="dim-label">车辆舒适</span>
+                                <span class="dim-bar"><span class="fill" style="width:${dims.vehicleComfort/5*100}%;"></span></span>
+                                <span class="dim-score">${dims.vehicleComfort}</span>
+                            </div>
+                            <div class="dimension-row">
+                                <span class="dim-label">准时率</span>
+                                <span class="dim-bar"><span class="fill" style="width:${dims.punctuality/5*100}%;"></span></span>
+                                <span class="dim-score">${dims.punctuality}</span>
+                            </div>
+                            <div class="dimension-row">
+                                <span class="dim-label">路线合理</span>
+                                <span class="dim-bar"><span class="fill" style="width:${dims.routeReasonable/5*100}%;"></span></span>
+                                <span class="dim-score">${dims.routeReasonable}</span>
+                            </div>
+                            <div class="dimension-row">
+                                <span class="dim-label">性价比</span>
+                                <span class="dim-bar"><span class="fill" style="width:${dims.valueForMoney/5*100}%;"></span></span>
+                                <span class="dim-score">${dims.valueForMoney}</span>
+                            </div>
+                        </div>
+                        <div style="margin-top:8px;text-align:right;">
+                            <span class="rating-info-trigger" onclick="openRatingInfo()">📊 评分怎么算？</span>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+                    <div class="info-row"><span class="label">行程</span><span class="value">${route.desc}</span></div>
+                    <div class="info-row"><span class="label">起点</span><span class="value">${route.start}</span></div>
+                    <div class="info-row"><span class="label">终点</span><span class="value">${route.end}</span></div>
+                    <div class="info-row"><span class="label">途经</span><span class="value">${route.stops}</span></div>
+                    <div class="info-row"><span class="label">车型</span><span class="value">${route.carType}座 · ${route.seats}人</span></div>
+                    <div class="info-row"><span class="label">出发时段</span><span class="value">${route.timeLabel}</span></div>
+                    <div class="info-row" style="border-bottom:none;"><span class="label">价格</span><span class="value" style="font-size:18px;color:#1fb873;">¥${route.price} <span style="font-size:13px;font-weight:400;color:#6b7f9a;">/人</span></span></div>
+                    <div class="mt-2" style="display:flex;gap:10px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('routeDetailModal')">返回</button>
+                        <button class="btn btn-primary btn-block" onclick="openBooking()">立即预订</button>
+                    </div>
+                `;
+                openModal('routeDetailModal');
+            }
+
+            // ================================================================
+            // 6. 评分说明
+            // ================================================================
+
+            function openRatingInfo() {
+                openModal('ratingInfoModal');
+            }
+
+            // ================================================================
+            // 7. 预订
+            // ================================================================
+
+            function openBooking() {
+                closeModal('routeDetailModal');
+                const route = currentBookingRoute;
+                if (!route) return;
+                const body = document.getElementById('bookingBody');
+                body.innerHTML = `
+                    <div class="card" style="border-left:3px solid #4f9cf7;">
+                        <div style="font-weight:600;">${route.name}</div>
+                        <div class="text-muted">${route.desc}</div>
+                        <div class="text-muted" style="margin-top:2px;">⭐ ${route.rating} (${route.ratingCount}评价)</div>
+                    </div>
+                    <div class="form-group"><label>出行日期 <span class="required">*</span></label><input type="date" value="2026-06-25" id="bookingDate"></div>
+                    <div class="form-group"><label>人数 <span class="required">*</span></label>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <button class="btn btn-outline btn-sm" onclick="adjustPeople(-1)">−</button>
+                            <input type="number" value="2" id="peopleCount" style="width:60px;text-align:center;padding:6px;border:1px solid #d5dee9;border-radius:8px;">
+                            <button class="btn btn-outline btn-sm" onclick="adjustPeople(1)">+</button>
+                            <span class="text-muted" style="margin-left:8px;">最多 ${route.seats} 人</span>
+                        </div>
+                    </div>
+                    <div class="form-group"><label>上车地点</label><select id="bookingPickup"><option>${route.start}</option><option>丽江古城南门</option><option>丽江古城北门</option></select></div>
+                    <div class="form-group"><label>特殊需求</label><textarea placeholder="如：需要儿童座椅、轮椅等" id="bookingNote"></textarea></div>
+                    <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;margin:12px 0;">
+                        <div class="flex-between"><span>单价</span><span>¥${route.price} × <span id="displayPeople">2</span> 人</span></div>
+                        <div class="flex-between" style="font-weight:700;font-size:18px;border-top:1px solid #edf2f9;padding-top:8px;margin-top:4px;">
+                            <span>总计</span><span style="color:#1fb873;">¥<span id="totalPrice">${route.price * 2}</span></span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:4px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('bookingModal')">取消</button>
+                        <button class="btn btn-success btn-block" onclick="submitBooking()">✅ 提交订单</button>
+                    </div>
+                `;
+                openModal('bookingModal');
+            }
+
+            function adjustPeople(delta) {
+                const input = document.getElementById('peopleCount');
+                const route = currentBookingRoute;
+                if (!route) return;
+                let val = parseInt(input.value) || 1;
+                val = Math.max(1, Math.min(route.seats, val + delta));
+                input.value = val;
+                document.getElementById('displayPeople').textContent = val;
+                document.getElementById('totalPrice').textContent = route.price * val;
+            }
+
+            function submitBooking() {
+                const route = currentBookingRoute;
+                if (!route) return;
+                const people = parseInt(document.getElementById('peopleCount').value) || 1;
+                const total = route.price * people;
+                const date = document.getElementById('bookingDate').value || '2026-06-25';
+                const newOrder = {
+                    id: '#OD2024-' + String(ordersData.length + 1).padStart(3, '0'),
+                    route: route.name,
+                    routeId: route.id,
+                    date: date,
+                    status: 'pending',
+                    price: route.price,
+                    seats: people,
+                    total: total,
+                    driver: '待分配',
+                    plate: '—',
+                    time: route.duration === '1天' ? '08:00-18:00' : '07:00-19:00',
+                    start: document.getElementById('bookingPickup').value || route.start,
+                    end: route.end,
+                    driverAvatar: '🧑‍✈️',
+                    driverPhone: '—',
+                    carType: route.carType + '座·舒适型',
+                    progress: 0,
+                    distance: '0km',
+                    duration: '—'
+                };
+                ordersData.unshift(newOrder);
+                closeModal('bookingModal');
+                showToast(`✅ 订单 ${newOrder.id} 已创建，请支付`);
+                setTimeout(() => { openPay(newOrder.id); }, 500);
+                updateBadges();
+                switchTab('order');
+                renderOrders();
+            }
+
+            // ================================================================
+            // 8. 支付
+            // ================================================================
+
+            function openPay(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                const body = document.getElementById('payBody');
+                body.innerHTML = `
+                    <div class="card" style="border-left:3px solid #1fb873;">
+                        <div style="font-size:13px;color:#6b7f9a;">订单金额</div>
+                        <div style="font-size:28px;font-weight:700;color:#1fb873;">¥${order.total.toFixed(2)}</div>
+                        <div class="text-muted">${order.id} · ${order.route}</div>
+                    </div>
+                    <div class="form-group"><label>支付方式</label>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button class="btn btn-outline" style="flex:1;padding:12px;" onclick="selectPayMethod(this)">💳 微信支付</button>
+                            <button class="btn btn-outline" style="flex:1;padding:12px;" onclick="selectPayMethod(this)">📱 支付宝</button>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:16px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('payModal')">取消</button>
+                        <button class="btn btn-success btn-block" onclick="confirmPay('${order.id}')">✅ 确认支付</button>
+                    </div>
+                `;
+                document.getElementById('payModal').dataset.orderId = orderId;
+                openModal('payModal');
+            }
+
+            function selectPayMethod(el) {
+                document.querySelectorAll('#payBody .btn-outline').forEach(b => {
+                    b.classList.remove('active');
+                    b.style.borderColor = '#d5dee9';
+                    b.style.background = 'transparent';
+                });
+                el.classList.add('active');
+                el.style.borderColor = '#4f9cf7';
+                el.style.background = '#e3edff';
+            }
+
+            function confirmPay(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                const selected = document.querySelector('#payBody .btn-outline.active');
+                if (!selected) { showToast('⚠️ 请选择支付方式'); return; }
+                order.status = 'upcoming';
+                order.driver = '待分配';
+                order.plate = '—';
+                closeModal('payModal');
+                openPaySuccess(order);
+                renderOrders();
+                updateBadges();
+            }
+
+            function openPaySuccess(order) {
+                const body = document.getElementById('paySuccessBody');
+                body.innerHTML = `
+                    <div class="success-icon">✅</div>
+                    <div class="success-title">支付成功！</div>
+                    <div class="success-sub">订单 ${order.id} 已确认，等待司机接单</div>
+                    <div class="divider"></div>
+                    <div class="info-row"><span class="label">线路</span><span class="value">${order.route}</span></div>
+                    <div class="info-row"><span class="label">出行日期</span><span class="value">${order.date}</span></div>
+                    <div class="info-row"><span class="label">人数</span><span class="value">${order.seats}人</span></div>
+                    <div class="info-row" style="border-bottom:none;"><span class="label">支付金额</span><span class="value" style="color:#1fb873;font-size:18px;">¥${order.total}</span></div>
+                    <div style="display:flex;gap:10px;margin-top:16px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('paySuccessModal')">返回首页</button>
+                        <button class="btn btn-primary btn-block" onclick="closeModal('paySuccessModal');switchTab('order')">查看订单</button>
+                    </div>
+                `;
+                openModal('paySuccessModal');
+            }
+
+            // ================================================================
+            // 9. 订单列表
+            // ================================================================
+
+            function renderOrders() {
+                const container = document.getElementById('orderList');
+                if (!container) return;
+                let filtered = ordersData;
+                if (orderFilter !== 'all') filtered = ordersData.filter(o => o.status === orderFilter);
+                if (filtered.length === 0) {
+                    container.innerHTML =
+                    '<div class="card text-center" style="padding:30px;color:#6b7f9a;">📭 暂无订单</div>';
+                    return;
+                }
+                const statusMap = { 'pending': { label: '待支付', cls: 'orange' }, 'upcoming': { label: '待出行',
+                        cls: 'blue' }, 'ongoing': { label: '进行中', cls: 'blue' }, 'done': { label: '已完成',
+                        cls: 'green' } };
+                let html = '';
+                filtered.forEach(o => {
+                    const st = statusMap[o.status] || { label: o.status, cls: 'gray' };
+                    let actionBtn = '';
+                    if (o.status === 'pending') actionBtn =
+                        `<button class="btn btn-sm btn-success" onclick="event.stopPropagation();openPay('${o.id}')">去支付</button>`;
+                    else if (o.status === 'ongoing') actionBtn =
+                        `<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();openOngoingDetail('${o.id}')">📍 行程</button>`;
+                    else if (o.status === 'upcoming') actionBtn =
+                        `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openUpcomingDetail('${o.id}')">📋 详情</button>`;
+                    else if (o.status === 'done') actionBtn =
+                        `<button class="btn btn-sm btn-outline" onclick="event.stopPropagation();openDoneDetail('${o.id}')">📋 详情</button>`;
+                    html += `
+                        <div class="order-item">
+                            <div class="top">
+                                <span class="order-id">${o.id} <span class="sub">${o.route}</span></span>
+                                <span class="badge ${st.cls}">${st.label}</span>
+                            </div>
+                            <div class="info">
+                                <span class="label">日期：</span>${o.date} · ${o.seats}人<br>
+                                <span class="label">司机：</span>${o.driver || '待分配'} ${o.plate !== '—' ? '· ' + o.plate : ''}
+                            </div>
+                            <div class="bottom">
+                                <span class="time">¥${o.total}</span>
+                                <div class="flex" style="gap:6px;">${actionBtn}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+
+            function filterOrders(status) {
+                orderFilter = status;
+                document.querySelectorAll('#orderTabs .tab').forEach(el => {
+                    el.classList.toggle('active', el.dataset.status === status);
+                });
+                renderOrders();
+            }
+
+            // ================================================================
+            // 10. 订单详情（待出行/进行中/完成）
+            // ================================================================
+
+            function openUpcomingDetail(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                const body = document.getElementById('upcomingDetailBody');
+                body.innerHTML = `
+                    <div class="card" style="border-left:3px solid #4f9cf7;">
+                        <div style="font-size:16px;font-weight:700;">${order.id}</div>
+                        <div class="text-muted">${order.route}</div>
+                        <div style="margin-top:4px;"><span class="badge blue">待出行</span></div>
+                    </div>
+                    <div class="driver-info-card" style="background:#f8fafc;border-radius:12px;padding:12px 16px;margin:8px 0;">
+                        <div class="avatar">${order.driverAvatar}</div>
+                        <div class="info">
+                            <div class="name">${order.driver}</div>
+                            <div class="detail">${order.carType} · ${order.plate !== '—' ? order.plate : '待分配'}</div>
+                            ${order.driverPhone !== '—' ? `<div class="detail">📞 ${order.driverPhone}</div>` : '<div class="detail">⏳ 司机接单中...</div>'}
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-row"><span class="label">出行日期</span><span class="value">${order.date}</span></div>
+                    <div class="info-row"><span class="label">出发时间</span><span class="value">${order.time}</span></div>
+                    <div class="info-row"><span class="label">上车点</span><span class="value">${order.start}</span></div>
+                    <div class="info-row"><span class="label">目的地</span><span class="value">${order.end}</span></div>
+                    <div class="info-row"><span class="label">人数</span><span class="value">${order.seats}人</span></div>
+                    <div class="info-row" style="border-bottom:none;"><span class="label">订单金额</span><span class="value" style="font-size:16px;color:#1fb873;">¥${order.total}</span></div>
+                    <div style="display:flex;gap:10px;margin-top:16px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('upcomingDetailModal')">关闭</button>
+                        <button class="btn btn-primary btn-block" onclick="showToast('📞 正在呼叫司机...')">📞 联系司机</button>
+                    </div>
+                `;
+                openModal('upcomingDetailModal');
+            }
+
+            function openOngoingDetail(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                const body = document.getElementById('ongoingDetailBody');
+                const progress = order.progress || 45;
+                body.innerHTML = `
+                    <div class="progress-card">
+                        <div class="route">📍 ${order.start} → ${order.end}</div>
+                        <div class="sub-info">${order.id} · ${order.route} · ${order.seats}人</div>
+                        <div class="progress-bar">
+                            <span style="font-size:13px;">🚗</span>
+                            <div class="bar"><div class="fill" style="width:${progress}%;"></div></div>
+                            <span class="percent">${progress}%</span>
+                        </div>
+                        <div class="sub-info" style="margin-top:8px;">已行驶 ${order.distance} · 预计 ${order.eta || '12:30'} 到达</div>
+                    </div>
+                    <div class="driver-info-card" style="background:#f8fafc;border-radius:12px;padding:12px 16px;margin:8px 0;">
+                        <div class="avatar">${order.driverAvatar}</div>
+                        <div class="info">
+                            <div class="name">${order.driver}</div>
+                            <div class="detail">${order.carType} · ${order.plate}</div>
+                            <div class="detail">📞 ${order.driverPhone}</div>
+                        </div>
+                        <button class="btn btn-sm btn-primary" onclick="showToast('📞 正在呼叫司机...')">联系</button>
+                    </div>
+                    <div class="card" style="border-left:3px solid #f5a623;">
+                        <div class="flex-between"><span class="text-muted">当前定位</span><span style="font-weight:500;">${order.currentLocation || '行驶中...'}</span></div>
+                        <div class="flex-between mt-1"><span class="text-muted">预计到达</span><span style="font-weight:500;">${order.eta || '12:30'}</span></div>
+                        <div class="flex-between mt-1"><span class="text-muted">已行驶</span><span style="font-weight:500;">${order.distance}</span></div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:12px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('ongoingDetailModal')">关闭</button>
+                        <button class="btn btn-success btn-block" onclick="closeModal('ongoingDetailModal');showToast('已确认到达')">✅ 确认到达</button>
+                    </div>
+                `;
+                openModal('ongoingDetailModal');
+            }
+
+            function openDoneDetail(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                const body = document.getElementById('doneDetailBody');
+                body.innerHTML = `
+                    <div class="card" style="border-left:3px solid #1fb873;text-align:center;padding:20px;">
+                        <div style="font-size:48px;">✅</div>
+                        <div style="font-size:18px;font-weight:700;color:#1fb873;">行程已完成</div>
+                        <div class="text-muted">${order.id} · ${order.route}</div>
+                    </div>
+                    <div class="driver-info-card" style="background:#f8fafc;border-radius:12px;padding:12px 16px;margin:8px 0;">
+                        <div class="avatar">${order.driverAvatar}</div>
+                        <div class="info">
+                            <div class="name">${order.driver}</div>
+                            <div class="detail">${order.carType} · ${order.plate}</div>
+                            <div class="detail">📞 ${order.driverPhone}</div>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="info-row"><span class="label">出行日期</span><span class="value">${order.date}</span></div>
+                    <div class="info-row"><span class="label">行程用时</span><span class="value">${order.duration || '—'}</span></div>
+                    <div class="info-row"><span class="label">行驶里程</span><span class="value">${order.distance}</span></div>
+                    <div class="info-row" style="border-bottom:none;"><span class="label">完成时间</span><span class="value">${order.finishTime || '2026-06-22 15:30'}</span></div>
+                    <div style="display:flex;gap:10px;margin-top:16px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('doneDetailModal')">关闭</button>
+                        <button class="btn btn-warning btn-block" onclick="closeModal('doneDetailModal');openReview('${order.id}')">⭐ 评价行程</button>
+                    </div>
+                `;
+                openModal('doneDetailModal');
+            }
+
+            // ================================================================
+            // 11. 评价（五维度打分）
+            // ================================================================
+
+            let dimensionRatings = {
+                driverService: 0,
+                vehicleComfort: 0,
+                punctuality: 0,
+                routeReasonable: 0,
+                valueForMoney: 0
+            };
+
+            function openReview(orderId) {
+                const order = ordersData.find(o => o.id === orderId);
+                if (!order) { showToast('订单不存在'); return; }
+                currentReviewOrderId = orderId;
+                dimensionRatings = { driverService: 0, vehicleComfort: 0, punctuality: 0, routeReasonable: 0,
+                    valueForMoney: 0 };
+
+                const body = document.getElementById('reviewBody');
+                const dimLabels = {
+                    driverService: '司机服务态度',
+                    vehicleComfort: '车辆舒适度',
+                    punctuality: '准时率',
+                    routeReasonable: '行程路线合理性',
+                    valueForMoney: '性价比'
+                };
+                const dimKeys = ['driverService', 'vehicleComfort', 'punctuality', 'routeReasonable', 'valueForMoney'];
+
+                let dimHtml = '';
+                dimKeys.forEach(key => {
+                    dimHtml += `
+                        <div class="dimension-rating-item" data-key="${key}">
+                            <div class="dim-header">
+                                <span class="dim-label">${dimLabels[key]}</span>
+                                <span class="dim-score-label" id="label_${key}">点击评分</span>
+                            </div>
+                            <div class="dim-stars" id="stars_${key}">
+                                ${[1,2,3,4,5].map(i => `<span class="star" data-key="${key}" data-val="${i}" onclick="setDimRating('${key}',${i})">⭐</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                body.innerHTML = `
+                    <div class="card" style="border-left:3px solid #f5a623;">
+                        <div style="font-weight:600;">${order.route}</div>
+                        <div class="text-muted">${order.id} · ${order.date}</div>
+                    </div>
+                    <div style="font-size:14px;font-weight:600;color:#1a2639;margin:8px 0 4px;">📋 请从五个维度评价本次行程</div>
+                    ${dimHtml}
+                    <div class="overall-rating-preview">
+                        <div>
+                            <span class="preview-score" id="previewOverall">— <span class="sub">/ 5.0</span></span>
+                            <div class="preview-stars" id="previewStars">☆☆☆☆☆</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>文字评价</label>
+                        <textarea placeholder="分享您的出行体验..." id="reviewContent" rows="2"></textarea>
+                    </div>
+                    <div class="form-group" style="display:flex;gap:10px;align-items:center;">
+                        <input type="checkbox" id="reviewAnonymous" style="width:18px;height:18px;">
+                        <label for="reviewAnonymous" style="font-weight:400;font-size:13px;color:#6b7f9a;cursor:pointer;">匿名评价</label>
+                        &nbsp;&nbsp;
+                        <input type="checkbox" id="reviewRecommend" style="width:18px;height:18px;">
+                        <label for="reviewRecommend" style="font-weight:400;font-size:13px;color:#6b7f9a;cursor:pointer;">👍 推荐给朋友</label>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:12px;">
+                        <button class="btn btn-outline btn-block" onclick="closeModal('reviewModal')">稍后评价</button>
+                        <button class="btn btn-success btn-block" onclick="submitReview()">✅ 提交评价</button>
+                    </div>
+                `;
+                openModal('reviewModal');
+            }
+
+            function setDimRating(key, val) {
+                dimensionRatings[key] = val;
+                // 更新星星
+                const container = document.getElementById('stars_' + key);
+                if (container) {
+                    container.querySelectorAll('.star').forEach(el => {
+                        const v = parseInt(el.dataset.val);
+                        el.classList.toggle('active', v <= val);
+                    });
+                }
+                // 更新标签
+                const labelMap = ['', '很差', '较差', '一般', '良好', '非常满意'];
+                const labelEl = document.getElementById('label_' + key);
+                if (labelEl) labelEl.textContent = labelMap[val] || '点击评分';
+                // 更新综合评分预览
+                updateOverallPreview();
+            }
+
+            function updateOverallPreview() {
+                const values = Object.values(dimensionRatings);
+                const rated = values.filter(v => v > 0);
+                if (rated.length === 0) {
+                    document.getElementById('previewOverall').innerHTML = '— <span class="sub">/ 5.0</span>';
+                    document.getElementById('previewStars').textContent = '☆☆☆☆☆';
+                    return;
+                }
+                const avg = rated.reduce((a, b) => a + b, 0) / rated.length;
+                const full = Math.floor(avg);
+                const half = avg - full >= 0.5 ? 1 : 0;
+                const stars = '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - half);
+                document.getElementById('previewOverall').innerHTML = avg.toFixed(1) + ' <span class="sub">/ 5.0</span>';
+                document.getElementById('previewStars').textContent = stars;
+            }
+
+            function submitReview() {
+                const rated = Object.values(dimensionRatings).filter(v => v > 0);
+                if (rated.length < 5) {
+                    showToast('⚠️ 请对全部5个维度进行评分');
+                    return;
+                }
+                const avg = rated.reduce((a, b) => a + b, 0) / 5;
+                const content = document.getElementById('reviewContent').value || '体验很好，推荐！';
+                const isAnonymous = document.getElementById('reviewAnonymous').checked;
+                const isRecommend = document.getElementById('reviewRecommend').checked;
+
+                // 更新订单状态
+                const order = ordersData.find(o => o.id === currentReviewOrderId);
+                if (order) order.reviewed = true;
+
+                // 更新路线评分（模拟：增加一条新评价）
+                const route = routesData.find(r => r.id === order?.routeId);
+                if (route) {
+                    const oldCount = route.ratingCount;
+                    const oldRating = route.rating;
+                    const newCount = oldCount + 1;
+                    const newRating = (oldRating * oldCount + avg) / newCount;
+                    route.ratingCount = newCount;
+                    route.rating = Math.round(newRating * 10) / 10;
+                    // 更新维度评分
+                    Object.keys(dimensionRatings).forEach(key => {
+                        const oldDim = route.dimensions[key];
+                        route.dimensions[key] = Math.round((oldDim * oldCount + dimensionRatings[key]) / newCount *
+                            10) / 10;
+                    });
+                    // 更新推荐率
+                    if (isRecommend) {
+                        route.recommendRate = Math.round((route.recommendRate * oldCount + 100) / newCount);
+                    } else {
+                        route.recommendRate = Math.round((route.recommendRate * oldCount + 0) / newCount);
+                    }
+                }
+
+                closeModal('reviewModal');
+                showToast(`⭐ 评价成功！综合评分 ${avg.toFixed(1)} 星，感谢您的反馈！`);
+                renderOrders();
+                // 刷新线路列表
+                if (currentTab === 'route') applyAllFilters();
+            }
+
+            // ================================================================
+            // 12. 模态框工具
+            // ================================================================
+
+            function openModal(id) { document.getElementById(id).classList.add('show'); }
+
+            function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+            document.querySelectorAll('.modal-overlay').forEach(el => {
+                el.addEventListener('click', function(e) {
+                    if (e.target === this) this.classList.remove('show');
+                });
+            });
+
+            // ================================================================
+            // 13. Toast & 角标
+            // ================================================================
+
+            function showToast(msg) {
+                const toast = document.getElementById('toast');
+                toast.textContent = msg;
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+                clearTimeout(toast._timer);
+                toast._timer = setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(-50%) translateY(20px)';
+                }, 2200);
+            }
+
+            function updateBadges() {
+                const pending = ordersData.filter(o => o.status === 'pending').length;
+                const badge = document.querySelector('.bottom-tab .tab-item[data-tab="order"] .badge-num');
+                if (badge) {
+                    badge.textContent = pending;
+                    badge.style.display = pending > 0 ? 'flex' : 'none';
+                }
+            }
+
+            // ================================================================
+            // 14. 初始化
+            // ================================================================
+
+            applyAllFilters();
+            renderOrders();
+            updateBadges();
+            console.log('🚐 用户端小程序 v3.0 已加载（含完整评分算法）');
+            console.log('📊 评分算法：行程评价50% + 完成质量25% + 体验反馈15% + 风控校验10%');
+            console.log('⭐ 五维度评价：司机服务、车辆舒适、准时率、路线合理、性价比');
+        </script>
+
+    </body>
+    </html>

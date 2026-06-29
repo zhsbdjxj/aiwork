@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 16px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar .page-title .breadcrumb {
+            font-weight: 400;
+            font-size: 14px;
+            color: #6b7f9a;
+        }
+        .topbar .page-title .breadcrumb span {
+            margin: 0 6px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 32px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .card-header .desc {
+            font-weight: 400;
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eef3fc;
+            color: #2a5f9c;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+        .badge.purple {
+            background: #ede7ff;
+            color: #5e3ba0;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn-primary {
+            background: #4f9cf7;
+        }
+        .btn-primary:hover {
+            background: #3a7fcb;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .mb-2 {
+            margin-bottom: 14px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+        .fw-bold {
+            font-weight: 700;
+            color: #1a2639;
+        }
+
+        /* ===== 左侧Tab导航 ===== */
+        .settings-layout {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+        .settings-nav {
+            min-width: 200px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 8px 0;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+        }
+        .settings-nav .nav-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7f9a;
+            border-left: 3px solid transparent;
+            transition: all 0.15s;
+        }
+        .settings-nav .nav-item:hover {
+            background: #f4f8ff;
+            color: #1a2639;
+        }
+        .settings-nav .nav-item.active {
+            background: #f0f6ff;
+            color: #4f9cf7;
+            border-left-color: #4f9cf7;
+        }
+        .settings-nav .nav-item .icon {
+            font-size: 18px;
+        }
+        .settings-nav .nav-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 10px;
+        }
+
+        .settings-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ===== 配置面板 ===== */
+        .config-panel {
+            display: none;
+        }
+        .config-panel.active {
+            display: block;
+        }
+
+        /* ===== 表单样式 ===== */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px 32px;
+        }
+        .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+        }
+        .form-group label .required {
+            color: #e65f5f;
+            margin-left: 2px;
+        }
+        .form-group label .hint {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-left: 6px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            width: 100%;
+            transition: all 0.15s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .form-group input:disabled,
+        .form-group select:disabled {
+            background: #f4f6fa;
+            color: #6b7f9a;
+        }
+        .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .form-group .help-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 2px;
+        }
+        .form-group .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group .input-with-unit input {
+            flex: 1;
+        }
+        .form-group .input-with-unit .unit {
+            font-size: 13px;
+            color: #6b7f9a;
+            font-weight: 500;
+            min-width: 30px;
+        }
+
+        /* ===== 银行账户表格 ===== */
+        .bank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .bank-table th {
+            text-align: left;
+            padding: 10px 6px 8px 0;
+            color: #6b7f9a;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1px solid #edf2f9;
+        }
+        .bank-table td {
+            padding: 10px 6px 10px 0;
+            border-bottom: 1px solid #f2f6fc;
+            color: #1e2c41;
+            vertical-align: middle;
+        }
+        .bank-table .actions-cell {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== 开关 ===== */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d5dee9;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s;
+            flex-shrink: 0;
+        }
+        .toggle-switch.active {
+            background: #1fb873;
+        }
+        .toggle-switch .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all 0.25s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        .toggle-switch.active .toggle-knob {
+            left: 22px;
+        }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .toggle-label .toggle-text {
+            font-size: 13px;
+            color: #3f5370;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field input,
+        .modal .field select,
+        .modal .field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .modal .field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 6px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .settings-layout {
+                flex-direction: column;
+            }
+            .settings-nav {
+                min-width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                padding: 4px;
+                position: static;
+            }
+            .settings-nav .nav-item {
+                padding: 8px 14px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                flex: 1;
+                justify-content: center;
+                min-width: 80px;
+            }
+            .settings-nav .nav-item.active {
+                border-left: none;
+                border-bottom-color: #4f9cf7;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .settings-nav .nav-item {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            .settings-nav .nav-item .icon {
+                font-size: 14px;
+            }
+        }
+        /* 预警开关 */
+        .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f2f5; }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-row .toggle-info { flex: 1; min-width: 0; }
+        .toggle-row .toggle-info .toggle-title { font-weight: 600; font-size: 14px; color: #1a2639; }
+        .toggle-row .toggle-info .toggle-desc { font-size: 12px; color: #6b7f9a; margin-top: 2px; }
+        .toggle-row .toggle-threshold { display: flex; align-items: center; gap: 6px; margin-left: 16px; flex-shrink: 0; }
+        .toggle-row .toggle-threshold input { width: 72px; padding: 5px 8px; border: 1px solid #d5dee9; border-radius: 6px; font-size: 13px; text-align: center; }
+        .toggle-row .toggle-threshold input:disabled { background: #f4f6fa; color: #b0bcca; }
+        .toggle-row .toggle-threshold .unit { font-size: 12px; color: #6b7f9a; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; margin-left: 12px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-switch .slider { position: absolute; cursor: pointer; inset: 0; background: #d5dee9; border-radius: 24px; transition: 0.25s; }
+        .toggle-switch .slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.25s; }
+        .toggle-switch input:checked + .slider { background: #4f9cf7; }
+        .toggle-switch input:checked + .slider::before { transform: translateX(20px); }
+
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心</div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台</div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div class="menu-item active"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title">
+                ⚙️ 系统设置
+                <span class="breadcrumb"><span>›</span> 系统参数配置</span>
+            </div>
+            <div class="topbar-actions">
+                <span>👤 管理员 · 张明</span>
+                <span class="role-tag">超级管理员</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="settings-layout">
+
+                <!-- ===== 左侧导航 ===== -->
+                <div class="settings-nav">
+                    <div class="nav-item active" data-tab="rate" onclick="switchTab('rate')">
+                        <span class="icon">📊</span> 费率配置
+                    </div>
+                    <div class="nav-item" data-tab="bank" onclick="switchTab('bank')">
+                        <span class="icon">🏦</span> 银行账户
+                        <span class="badge-dot">2</span>
+                    </div>
+                    <div class="nav-item" data-tab="rule" onclick="switchTab('rule')">
+                        <span class="icon">📋</span> 结算规则
+                    </div>
+                    <div class="nav-item" data-tab="reconcile" onclick="switchTab('reconcile')">
+                        <span class="icon">📎</span> 对账配置
+                    </div>
+                    <div class="nav-item" data-tab="alert" onclick="switchTab('alert')">
+                        <span class="icon">🚨</span> 预警设置
+                    </div>
+                </div>
+
+                <!-- ===== 右侧内容 ===== -->
+                <div class="settings-content">
+
+                    <!-- ========================================================== -->
+                    <!-- Tab 1: 费率配置 -->
+                    <!-- ========================================================== -->
+                    <div class="config-panel active" id="panel-rate">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📊 费率配置</span>
+                                <span class="desc">平台结算相关费率参数，修改后将影响所有结算计算</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>平台服务费率 <span class="required">*</span></label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.1" value="3.5" id="platformRate">
+                                        <span class="unit">%</span>
+                                    </div>
+                                    <div class="help-text">平台从每笔订单结算金额中收取的服务费比例</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>车队结算费率 <span class="required">*</span></label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.1" value="95.0" id="fleetRate">
+                                        <span class="unit">%</span>
+                                    </div>
+                                    <div class="help-text">平台向车队结算的比例（扣除平台服务费后）</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>默认返点比例 <span class="hint">（旅行社订单）</span></label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.5" value="5.0" id="rebateRate">
+                                        <span class="unit">%</span>
+                                    </div>
+                                    <div class="help-text">旅行社订单默认返点比例，可在订单中单独调整</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>司机提现手续费率</label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.1" value="0.5" id="withdrawFee">
+                                        <span class="unit">%</span>
+                                    </div>
+                                    <div class="help-text">司机提现时收取的手续费（由司机承担）</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>最低结算金额 <span class="required">*</span></label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="1" value="100" id="minSettleAmount">
+                                        <span class="unit">元</span>
+                                    </div>
+                                    <div class="help-text">单次结算金额低于此值时，暂不发起结算（累积至达标）</div>
+                                </div>
+                            </div>
+                            <div class="mt-2" style="display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #edf2f9;padding-top:16px;">
+                                <button class="btn btn-outline" onclick="resetRateConfig()">重置</button>
+                                <button class="btn btn-primary" onclick="saveRateConfig()">💾 保存费率配置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- Tab 2: 银行账户 -->
+                    <!-- ========================================================== -->
+                    <div class="config-panel" id="panel-bank">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🏦 银行账户管理</span>
+                                <button class="btn btn-sm btn-primary" onclick="openBankModal()">+ 添加账户</button>
+                            </div>
+                            <div class="help-text" style="margin-bottom:12px;">管理平台公户及车队绑定的银行账户信息，结算资金将划转至对应账户</div>
+                            <table class="bank-table" id="bankTable">
+                                <thead>
+                                    <tr>
+                                        <th>账户名称</th>
+                                        <th>银行</th>
+                                        <th>账户类型</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankTableBody">
+                                    <!-- JS 动态渲染 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- Tab 3: 结算规则 -->
+                    <!-- ========================================================== -->
+                    <div class="config-panel" id="panel-rule">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📋 结算规则</span>
+                                <span class="desc">定义结算周期、触发条件及自动化策略</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>结算周期 <span class="required">*</span></label>
+                                    <select id="settleCycle">
+                                        <option value="daily">日结（每日自动结算）</option>
+                                        <option value="weekly" selected>周结（每周一结算）</option>
+                                        <option value="monthly">月结（每月1日结算）</option>
+                                        <option value="custom">自定义周期</option>
+                                    </select>
+                                    <div class="help-text">确定结算的时间粒度</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>自定义周期配置 <span class="hint">（仅自定义周期生效）</span></label>
+                                    <select id="customCycle" disabled>
+                                        <option value="2">每2天</option>
+                                        <option value="3">每3天</option>
+                                        <option value="5">每5天</option>
+                                        <option value="7" selected>每7天</option>
+                                        <option value="10">每10天</option>
+                                        <option value="15">每15天</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <div class="toggle-label" onclick="toggleSwitch('autoSettle')">
+                                        <div class="toggle-switch active" id="autoSettle">
+                                            <div class="toggle-knob"></div>
+                                        </div>
+                                        <span class="toggle-text">启用自动结算</span>
+                                    </div>
+                                    <div class="help-text">开启后，系统按结算周期自动发起结算；关闭后需手动结算</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <div class="toggle-label" onclick="toggleSwitch('notifySettle')">
+                                        <div class="toggle-switch active" id="notifySettle">
+                                            <div class="toggle-knob"></div>
+                                        </div>
+                                        <span class="toggle-text">结算完成后发送通知</span>
+                                    </div>
+                                    <div class="help-text">通知财务人员及车队负责人（站内信 + 邮件）</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>结算备注模板</label>
+                                    <input placeholder="自动生成的结算备注格式" value="【{周期}结算】{日期范围} 共{订单数}笔订单" id="settleRemarkTemplate">
+                                    <div class="help-text">支持变量：{周期} {日期范围} {订单数} {总金额} {车队名称}</div>
+                                </div>
+                            </div>
+                            <div class="mt-2" style="display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #edf2f9;padding-top:16px;">
+                                <button class="btn btn-outline" onclick="resetRuleConfig()">重置</button>
+                                <button class="btn btn-primary" onclick="saveRuleConfig()">💾 保存结算规则</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- Tab 4: 对账配置 -->
+                    <!-- ========================================================== -->
+                    <div class="config-panel" id="panel-reconcile">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>📎 对账配置</span>
+                                <span class="desc">财务对账周期与差异处理策略</span>
+                            </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>对账周期 <span class="required">*</span></label>
+                                    <select id="reconcileCycle">
+                                        <option value="daily">每日对账</option>
+                                        <option value="weekly" selected>每周对账</option>
+                                        <option value="monthly">每月对账</option>
+                                    </select>
+                                    <div class="help-text">财务对账的检查周期</div>
+                                </div>
+                                <div class="form-group">
+                                    <label>对账时间 <span class="required">*</span></label>
+                                    <input type="time" value="09:00" id="reconcileTime">
+                                    <div class="help-text">对账任务的执行时间</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>差异处理规则 <span class="required">*</span></label>
+                                    <select id="diffRule">
+                                        <option value="manual">人工介入处理</option>
+                                        <option value="auto" selected>自动调整（差异≤5元）</option>
+                                        <option value="suspend">冻结订单，人工复核</option>
+                                    </select>
+                                    <div class="help-text">当系统对账发现金额差异时的处理策略</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>差异自动调整阈值</label>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" value="5.00" id="diffThreshold">
+                                        <span class="unit">元</span>
+                                    </div>
+                                    <div class="help-text">仅当选择「自动调整」策略时生效，差异小于等于此值自动平账</div>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>对账通知接收人 <span class="hint">（多个邮箱用分号分隔）</span></label>
+                                    <input placeholder="caiwu@lijiang.com; zhangming@lijiang.com" value="caiwu@lijiang.com; zhangming@lijiang.com" id="reconcileReceivers">
+                                    <div class="help-text">对账报告将发送至上述邮箱</div>
+                                </div>
+                            </div>
+                            <div class="mt-2" style="display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #edf2f9;padding-top:16px;">
+                                <button class="btn btn-outline" onclick="resetReconcileConfig()">重置</button>
+                                <button class="btn btn-primary" onclick="saveReconcileConfig()">💾 保存对账配置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================================== -->
+                    <!-- Tab 5: 预警设置 -->
+                    <!-- ========================================================== -->
+                    <div class="config-panel" id="panel-alert">
+                        <div class="card">
+                            <div class="card-header">
+                                <span>🚨 预警条件设置</span>
+                                <span class="desc">配置各类预警的启用状态与触发阈值，实时推送至工作台预警监控</span>
+                            </div>
+                            <!-- 订单超时 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">📋 订单超时预警</div>
+                                    <div class="toggle-desc">待派单订单超过设定时长未处理时触发预警</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <input type="number" value="2" min="0.5" step="0.5" id="alert_orderTimeout" onchange="updateAlertThreshold('orderTimeout')">
+                                    <span class="unit">小时</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_orderTimeout_enabled" checked onchange="updateAlertToggle('orderTimeout')"><span class="slider"></span></label>
+                            </div>
+                            <!-- 车辆维修超时 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">🔧 车辆维修超时预警</div>
+                                    <div class="toggle-desc">车辆处于维修状态超过设定时长时触发预警</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <input type="number" value="48" min="12" step="12" id="alert_maintenanceTimeout" onchange="updateAlertThreshold('maintenanceTimeout')">
+                                    <span class="unit">小时</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_maintenanceTimeout_enabled" checked onchange="updateAlertToggle('maintenanceTimeout')"><span class="slider"></span></label>
+                            </div>
+                            <!-- 对账差异 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">💰 对账差异预警</div>
+                                    <div class="toggle-desc">日结对账差异金额超过设定值时触发预警</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <input type="number" value="100" min="10" step="10" id="alert_reconcileDiff" onchange="updateAlertThreshold('reconcileDiff')">
+                                    <span class="unit">元</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_reconcileDiff_enabled" checked onchange="updateAlertToggle('reconcileDiff')"><span class="slider"></span></label>
+                            </div>
+                            <!-- 司机证件到期 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">📄 司机证件到期预警</div>
+                                    <div class="toggle-desc">司机从业资格证到期前提前提醒</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <input type="number" value="30" min="7" step="7" id="alert_certExpiry" onchange="updateAlertThreshold('certExpiry')">
+                                    <span class="unit">天</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_certExpiry_enabled" checked onchange="updateAlertToggle('certExpiry')"><span class="slider"></span></label>
+                            </div>
+                            <!-- 排班冲突 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">⚠️ 排班冲突预警</div>
+                                    <div class="toggle-desc">同一车辆/司机在相同时段被重复排班时触发预警</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <span class="unit" style="color:#1fb873;">即时触发</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_scheduleConflict_enabled" checked onchange="updateAlertToggle('scheduleConflict')"><span class="slider"></span></label>
+                            </div>
+                            <!-- 审核超时 -->
+                            <div class="toggle-row">
+                                <div class="toggle-info">
+                                    <div class="toggle-title">✅ 审核超时预警</div>
+                                    <div class="toggle-desc">订单提交审核后超过设定时长未处理时触发预警</div>
+                                </div>
+                                <div class="toggle-threshold">
+                                    <input type="number" value="4" min="1" step="1" id="alert_auditTimeout" onchange="updateAlertThreshold('auditTimeout')">
+                                    <span class="unit">小时</span>
+                                </div>
+                                <label class="toggle-switch"><input type="checkbox" id="alert_auditTimeout_enabled" checked onchange="updateAlertToggle('auditTimeout')"><span class="slider"></span></label>
+                            </div>
+                            <div class="mt-2" style="display:flex;gap:12px;justify-content:flex-end;border-top:1px solid #edf2f9;padding-top:16px;">
+                                <button class="btn btn-outline" onclick="resetAlertConfig()">恢复默认</button>
+                                <button class="btn btn-primary" onclick="saveAlertConfig()">💾 保存预警设置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：添加/编辑银行账户 ===== -->
+    <div class="modal-overlay" id="bankModal">
+        <div class="modal">
+            <h3 id="bankModalTitle">🏦 添加银行账户</h3>
+            <div class="field">
+                <label>账户名称 <span class="required">*</span></label>
+                <input placeholder="如：丽江雪山旅游车队" id="bankName">
+            </div>
+            <div class="field">
+                <label>开户银行 <span class="required">*</span></label>
+                <select id="bankSelect">
+                    <option value="工商银行">工商银行</option>
+                    <option value="农业银行">农业银行</option>
+                    <option value="中国银行">中国银行</option>
+                    <option value="建设银行">建设银行</option>
+                    <option value="交通银行">交通银行</option>
+                    <option value="招商银行">招商银行</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>银行账号 <span class="required">*</span></label>
+                <input placeholder="6222 **** **** ****" id="bankAccount">
+            </div>
+            <div class="field">
+                <label>账户类型 <span class="required">*</span></label>
+                <select id="bankType">
+                    <option value="platform">平台公户</option>
+                    <option value="fleet">车队对公账户</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>关联车队（车队账户必选）</label>
+                <select id="bankFleet">
+                    <option value="">请选择</option>
+                    <option value="雪山车队">雪山车队</option>
+                    <option value="古城车队">古城车队</option>
+                    <option value="玉龙车队">玉龙车队</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>备注</label>
+                <input placeholder="可选填" id="bankRemark">
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('bankModal')">取消</button>
+                <button class="btn btn-primary" onclick="saveBank()">💾 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. Tab切换
+        // ================================================================
+        function switchTab(tabId) {
+            // 更新导航
+            document.querySelectorAll('.settings-nav .nav-item').forEach(el => {
+                el.classList.toggle('active', el.dataset.tab === tabId);
+            });
+            // 更新面板
+            document.querySelectorAll('.config-panel').forEach(el => {
+                el.classList.toggle('active', el.id === 'panel-' + tabId);
+            });
+        }
+
+        // ================================================================
+        // 2. 银行账户数据
+        // ================================================================
+        let bankAccounts = [
+            { id: 1, name: '丽江车辆调度平台', bank: '工商银行', account: '6222 **** 0001', type: 'platform', typeLabel: '平台公户',
+                fleet: '-', status: 'active', statusLabel: '✅ 已启用' },
+            { id: 2, name: '雪山车队', bank: '工商银行', account: '6222 **** 8888', type: 'fleet', typeLabel: '车队对公账户',
+                fleet: '雪山车队', status: 'active', statusLabel: '✅ 已启用' },
+            { id: 3, name: '古城车队', bank: '工商银行', account: '6222 **** 9999', type: 'fleet', typeLabel: '车队对公账户',
+                fleet: '古城车队', status: 'active', statusLabel: '✅ 已启用' },
+            { id: 4, name: '玉龙车队', bank: '工商银行', account: '6222 **** 7777', type: 'fleet', typeLabel: '车队对公账户',
+                fleet: '玉龙车队', status: 'pending', statusLabel: '⏳ 待审核' },
+        ];
+
+        function renderBankTable() {
+            const tbody = document.getElementById('bankTableBody');
+            let html = '';
+            bankAccounts.forEach(b => {
+                const statusBadge = b.status === 'active' ?
+                    '<span class="badge green">已启用</span>' :
+                    b.status === 'pending' ?
+                    '<span class="badge orange">待审核</span>' :
+                    '<span class="badge red">已停用</span>';
+                html += `
+                    <tr>
+                        <td><strong>${b.name}</strong><div class="help-text">${b.fleet !== '-' ? b.fleet : '平台'}</div></td>
+                        <td>${b.bank}<div class="help-text">${b.account}</div></td>
+                        <td><span class="badge blue">${b.typeLabel}</span></td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-sm btn-outline" onclick="editBank(${b.id})">✏️</button>
+                                <button class="btn btn-sm btn-outline" onclick="toggleBankStatus(${b.id})">${b.status === 'active' ? '停用' : '启用'}</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteBank(${b.id})">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        // ================================================================
+        // 3. 银行账户操作
+        // ================================================================
+        let editingBankId = null;
+
+        function openBankModal(editId) {
+            if (editId) {
+                const bank = bankAccounts.find(b => b.id === editId);
+                if (!bank) return;
+                editingBankId = editId;
+                document.getElementById('bankModalTitle').innerText = '✏️ 编辑银行账户';
+                document.getElementById('bankName').value = bank.name;
+                document.getElementById('bankSelect').value = bank.bank;
+                document.getElementById('bankAccount').value = bank.account;
+                document.getElementById('bankType').value = bank.type;
+                document.getElementById('bankFleet').value = bank.fleet !== '-' ? bank.fleet : '';
+                document.getElementById('bankRemark').value = '';
+            } else {
+                editingBankId = null;
+                document.getElementById('bankModalTitle').innerText = '🏦 添加银行账户';
+                document.getElementById('bankName').value = '';
+                document.getElementById('bankSelect').value = '工商银行';
+                document.getElementById('bankAccount').value = '';
+                document.getElementById('bankType').value = 'fleet';
+                document.getElementById('bankFleet').value = '';
+                document.getElementById('bankRemark').value = '';
+            }
+            document.getElementById('bankModal').classList.add('show');
+        }
+
+        function saveBank() {
+            const name = document.getElementById('bankName').value.trim();
+            const bank = document.getElementById('bankSelect').value;
+            const account = document.getElementById('bankAccount').value.trim();
+            const type = document.getElementById('bankType').value;
+            const fleet = document.getElementById('bankFleet').value;
+
+            if (!name || !account) {
+                showToast('⚠️ 请填写完整信息');
+                return;
+            }
+            if (type === 'fleet' && !fleet) {
+                showToast('⚠️ 车队账户请选择关联车队');
+                return;
+            }
+
+            const typeLabel = type === 'platform' ? '平台公户' : '车队对公账户';
+            if (editingBankId) {
+                const bankObj = bankAccounts.find(b => b.id === editingBankId);
+                if (bankObj) {
+                    bankObj.name = name;
+                    bankObj.bank = bank;
+                    bankObj.account = account;
+                    bankObj.type = type;
+                    bankObj.typeLabel = typeLabel;
+                    bankObj.fleet = fleet || '-';
+                }
+                showToast('✅ 银行账户已更新');
+            } else {
+                const newId = Math.max(0, ...bankAccounts.map(b => b.id)) + 1;
+                bankAccounts.push({
+                    id: newId,
+                    name,
+                    bank,
+                    account,
+                    type,
+                    typeLabel,
+                    fleet: fleet || '-',
+                    status: 'active',
+                    statusLabel: '✅ 已启用'
+                });
+                showToast('✅ 银行账户已添加');
+            }
+            closeModal('bankModal');
+            renderBankTable();
+        }
+
+        function editBank(id) {
+            openBankModal(id);
+        }
+
+        function toggleBankStatus(id) {
+            const bank = bankAccounts.find(b => b.id === id);
+            if (!bank) return;
+            if (bank.status === 'active') {
+                bank.status = 'inactive';
+                bank.statusLabel = '🔴 已停用';
+                showToast(`⏸️ ${bank.name} 已停用`);
+            } else {
+                bank.status = 'active';
+                bank.statusLabel = '✅ 已启用';
+                showToast(`▶️ ${bank.name} 已启用`);
+            }
+            renderBankTable();
+        }
+
+        function deleteBank(id) {
+            if (!confirm('确认删除该银行账户吗？此操作不可撤销。')) return;
+            bankAccounts = bankAccounts.filter(b => b.id !== id);
+            showToast('🗑️ 银行账户已删除');
+            renderBankTable();
+        }
+
+        // ================================================================
+        // 4. 开关组件
+        // ================================================================
+        function toggleSwitch(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('active');
+        }
+
+        // ================================================================
+        // 5. 保存配置（模拟）
+        // ================================================================
+        function saveRateConfig() {
+            const data = {
+                platformRate: document.getElementById('platformRate').value,
+                fleetRate: document.getElementById('fleetRate').value,
+                rebateRate: document.getElementById('rebateRate').value,
+                withdrawFee: document.getElementById('withdrawFee').value,
+                minSettleAmount: document.getElementById('minSettleAmount').value,
+            };
+            showToast('✅ 费率配置已保存：平台服务费 ' + data.platformRate + '%');
+            console.log('费率配置保存:', data);
+        }
+
+        function resetRateConfig() {
+            document.getElementById('platformRate').value = '3.5';
+            document.getElementById('fleetRate').value = '95.0';
+            document.getElementById('rebateRate').value = '5.0';
+            document.getElementById('withdrawFee').value = '0.5';
+            document.getElementById('minSettleAmount').value = '100';
+            showToast('🔄 费率配置已重置');
+        }
+
+        function saveRuleConfig() {
+            const cycle = document.getElementById('settleCycle').value;
+            const autoSettle = document.getElementById('autoSettle').classList.contains('active');
+            showToast(`✅ 结算规则已保存：${cycle === 'weekly' ? '周结' : cycle === 'daily' ? '日结' : '月结'}，自动结算${autoSettle ? '已开启' : '已关闭'}`);
+        }
+
+        function resetRuleConfig() {
+            document.getElementById('settleCycle').value = 'weekly';
+            document.getElementById('customCycle').value = '7';
+            document.getElementById('autoSettle').classList.add('active');
+            document.getElementById('notifySettle').classList.add('active');
+            document.getElementById('settleRemarkTemplate').value = '【{周期}结算】{日期范围} 共{订单数}笔订单';
+            showToast('🔄 结算规则已重置');
+        }
+
+        function saveReconcileConfig() {
+            const cycle = document.getElementById('reconcileCycle').value;
+            const diffRule = document.getElementById('diffRule').value;
+            showToast(`✅ 对账配置已保存：${cycle === 'weekly' ? '每周' : cycle === 'daily' ? '每日' : '每月'}对账，差异处理：${diffRule === 'auto' ? '自动调整' : diffRule === 'manual' ? '人工处理' : '冻结复核'}`);
+        }
+
+        function resetReconcileConfig() {
+            document.getElementById('reconcileCycle').value = 'weekly';
+            document.getElementById('reconcileTime').value = '09:00';
+            document.getElementById('diffRule').value = 'auto';
+            document.getElementById('diffThreshold').value = '5.00';
+            document.getElementById('reconcileReceivers').value = 'caiwu@lijiang.com; zhangming@lijiang.com';
+            showToast('🔄 对账配置已重置');
+        }
+
+        // ================================================================
+        // 6. 结算周期联动
+        // ================================================================
+        document.getElementById('settleCycle').addEventListener('change', function() {
+            const customEl = document.getElementById('customCycle');
+            customEl.disabled = this.value !== 'custom';
+        });
+
+        // ================================================================
+        // 7. 通用
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ================================================================
+        // 8. 初始化
+        // ================================================================
+        // 预警设置
+        // ================================================================
+        const alertDefaults = {
+            orderTimeout: { enabled: true, value: 2, unit: '小时' },
+            maintenanceTimeout: { enabled: true, value: 48, unit: '小时' },
+            reconcileDiff: { enabled: true, value: 100, unit: '元' },
+            certExpiry: { enabled: true, value: 30, unit: '天' },
+            scheduleConflict: { enabled: true, value: 0, unit: '即时' },
+            auditTimeout: { enabled: true, value: 4, unit: '小时' },
+        };
+        let alertConfig = JSON.parse(localStorage.getItem('alertConfig')) || JSON.parse(JSON.stringify(alertDefaults));
+
+        function updateAlertThreshold(key) {
+            const input = document.getElementById('alert_' + key);
+            if (input) alertConfig[key].value = parseFloat(input.value) || alertDefaults[key].value;
+        }
+        function updateAlertToggle(key) {
+            const cb = document.getElementById('alert_' + key + '_enabled');
+            if (cb) {
+                alertConfig[key].enabled = cb.checked;
+                const input = document.getElementById('alert_' + key);
+                if (input) input.disabled = !cb.checked;
+            }
+        }
+        function resetAlertConfig() {
+            if (!confirm('确认恢复预警设置为默认值？')) return;
+            alertConfig = JSON.parse(JSON.stringify(alertDefaults));
+            localStorage.setItem('alertConfig', JSON.stringify(alertConfig));
+            applyAlertConfigToForm();
+            showToast('✅ 预警设置已恢复默认');
+        }
+        function saveAlertConfig() {
+            localStorage.setItem('alertConfig', JSON.stringify(alertConfig));
+            showToast('✅ 预警设置已保存');
+        }
+        function applyAlertConfigToForm() {
+            Object.entries(alertConfig).forEach(([key, cfg]) => {
+                const cb = document.getElementById('alert_' + key + '_enabled');
+                const input = document.getElementById('alert_' + key);
+                if (cb) cb.checked = cfg.enabled;
+                if (input) {
+                    if (cfg.value > 0) input.value = cfg.value;
+                    input.disabled = !cfg.enabled;
+                }
+            });
+        }
+        // 初始化：回填预警设置
+        applyAlertConfigToForm();
+
+        // ================================================================
+        renderBankTable();
+        console.log('⚙️ 系统设置已加载');
+        console.log('📋 包含：费率配置 · 银行账户 · 结算规则 · 对账配置 · 预警设置');
+    </script>
+</body>
+</html>

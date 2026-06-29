@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频AI轮巡监控 — 智慧工地项目管理平台</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-panel: #111827;
+            --bg-card: #1a2235;
+            --border: #1e2d45;
+            --text-primary: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --accent: #3b82f6;
+            --accent-glow: rgba(59, 130, 246, 0.3);
+            --danger: #ef4444;
+            --danger-glow: rgba(239, 68, 68, 0.3);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.3);
+            --success: #10b981;
+            --info: #06b6d4;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            --radius: 8px;
+            --radius-sm: 4px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* ===== 顶栏 ===== */
+        .topbar {
+            height: 56px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 16px;
+            flex-shrink: 0;
+        }
+        .topbar .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .topbar .logo-area .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+            50% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+        }
+        .topbar .divider { width: 1px; height: 24px; background: var(--border); }
+        .topbar .patrol-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .topbar .patrol-status .camera-name {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .topbar .patrol-status .badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+        }
+        .topbar .controls-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn {
+            padding: 7px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .btn:hover { border-color: var(--accent); background: #1e2e4a; }
+        .btn.accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn.accent:hover { background: #2563eb; }
+        .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn.danger:hover { background: #dc2626; }
+        .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+        /* ===== 主体 ===== */
+        .main-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        /* ===== 左侧视频区 ===== */
+        .video-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            position: relative;
+            min-width: 0;
+        }
+        .video-player {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: #0a0a0a;
+        }
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 30% 40%, rgba(59,130,246,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(239,68,68,0.05) 0%, transparent 50%),
+                linear-gradient(180deg, #0d1117 0%, #111827 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        /* 视频画面图片 */
+        .video-feed-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.92;
+            z-index: 0;
+            transition: opacity 0.4s ease;
+        }
+        .video-feed-img.switching {
+            opacity: 0.3;
+        }
+        /* 模拟施工场景背景（图片未覆盖时的兜底） */
+        .video-placeholder .scene {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+        }
+        .video-placeholder .scene .structure {
+            position: absolute;
+            background: #3b5998;
+        }
+        .video-placeholder .scene .structure.s1 { left:8%; top:30%; width:25%; height:55%; border-radius:2px; }
+        .video-placeholder .scene .structure.s2 { left:38%; top:45%; width:18%; height:40%; border-radius:2px; }
+        .video-placeholder .scene .structure.s3 { left:62%; top:35%; width:30%; height:50%; border-radius:2px; }
+        .video-placeholder .scene .ground { position:absolute; left:0; bottom:0; width:100%; height:18%; background:linear-gradient(0deg, #2a3040, transparent); }
+
+        /* AI 检测框 */
+        .ai-overlay { position: absolute; inset: 0; pointer-events: none; }
+        .ai-box {
+            position: absolute;
+            border: 2px solid var(--danger);
+            border-radius: 4px;
+            animation: ai-box-pulse 1.5s ease-in-out infinite;
+        }
+        .ai-box.warning { border-color: var(--warning); }
+        .ai-box.info { border-color: var(--info); }
+        .ai-box .ai-label {
+            position: absolute;
+            top: -22px;
+            left: -2px;
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px 3px 3px 0;
+            white-space: nowrap;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .ai-box.warning .ai-label { background: var(--warning); color: #000; }
+        .ai-box.info .ai-label { background: var(--info); }
+        .ai-box .ai-conf {
+            position: absolute;
+            bottom: -18px;
+            right: 0;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            background: rgba(0,0,0,0.7);
+            padding: 1px 5px;
+            border-radius: 2px;
+        }
+        @keyframes ai-box-pulse {
+            0%, 100% { box-shadow: 0 0 4px 1px rgba(239,68,68,0.4); }
+            50% { box-shadow: 0 0 10px 3px rgba(239,68,68,0.7); }
+        }
+
+        /* 视频底部信息叠加 */
+        .video-osd {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 16px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+        .video-osd .osd-left { display: flex; gap: 16px; align-items: center; }
+        .video-osd .osd-right { font-family: var(--font-mono); color: var(--text-tertiary); }
+        .video-osd .rec-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--danger);
+            animation: pulse-dot 1s infinite;
+        }
+
+        /* 视频底部控制栏 */
+        .video-controls {
+            height: 52px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .ctrl-btn {
+            width: 36px; height: 36px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .ctrl-btn:hover { border-color: var(--accent); background: #1e2e4a; }
+        .ctrl-btn.active { background: var(--accent); border-color: var(--accent); }
+        .ctrl-btn.skip { font-size: 12px; font-weight: 700; width: auto; padding: 0 12px; }
+        .ctrl-speed {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .ctrl-speed select {
+            background: var(--bg-card); color: var(--text-primary);
+            border: 1px solid var(--border); border-radius: var(--radius-sm);
+            padding: 4px 8px; font-size: 12px; cursor: pointer;
+        }
+        .ctrl-spacer { flex: 1; }
+        .ctrl-progress {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);
+        }
+        .ctrl-progress .progress-bar {
+            width: 120px; height: 4px; background: var(--border); border-radius: 2px;
+            overflow: hidden;
+        }
+        .ctrl-progress .progress-bar .fill {
+            height: 100%; background: var(--accent); border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        /* ===== 右侧面板 ===== */
+        .side-panel {
+            width: 460px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        /* 统计卡片 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .stat-card:hover { border-color: var(--accent); }
+        .stat-card .stat-val {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            line-height: 1;
+        }
+        .stat-card .stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+        }
+        .stat-card .stat-val.accent { color: var(--accent); }
+        .stat-card .stat-val.danger { color: var(--danger); }
+        .stat-card .stat-val.warning { color: var(--warning); }
+        .stat-card .stat-val.success { color: var(--success); }
+
+        /* 轮巡队列 — 3列网格 */
+        .queue-section {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .queue-section .queue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .queue-section .queue-header .queue-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .queue-section .queue-header .queue-count {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+        .queue-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            max-height: 292px;
+            overflow-y: auto;
+        }
+        .queue-grid::-webkit-scrollbar { width: 3px; }
+        .queue-grid::-webkit-scrollbar-track { background: transparent; }
+        .queue-grid::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .queue-cam {
+            cursor: pointer;
+            opacity: 0.55;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .queue-cam.active { opacity: 1; }
+        .queue-cam:hover { opacity: 0.85; }
+        .queue-cam .thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: var(--bg-dark);
+            border: 2px solid var(--border);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-bottom: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+        .queue-cam.active .thumb {
+            border-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .queue-cam .thumb .ai-dot {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--danger);
+            z-index: 2;
+        }
+        .queue-cam .cam-name {
+            font-size: 10px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+
+        /* 预警列表 */
+        .alert-header {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .alert-header .title {
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-header .title .count {
+            font-size: 12px;
+            background: var(--danger);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .alert-filters {
+            display: flex;
+            gap: 6px;
+        }
+        .alert-filters .filter-chip {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .alert-filters .filter-chip.active,
+        .alert-filters .filter-chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(59,130,246,0.1);
+        }
+
+        .alert-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+        .alert-list::-webkit-scrollbar { width: 4px; }
+        .alert-list::-webkit-scrollbar-track { background: transparent; }
+        .alert-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        .alert-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(30,45,69,0.5);
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .alert-item:hover { background: rgba(59,130,246,0.05); }
+        .alert-item.new { border-left: 3px solid var(--danger); padding-left: 9px; }
+        .alert-item .alert-thumb {
+            width: 80px; height: 50px;
+            flex-shrink: 0;
+            background: var(--bg-dark);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        .alert-item .alert-thumb .marker {
+            position: absolute;
+            border: 2px solid var(--danger);
+            border-radius: 2px;
+        }
+        .alert-item .alert-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .alert-item .alert-type {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+        .alert-item .alert-type .type-tag {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .tag-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+        .tag-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+        .tag-info { background: rgba(6,182,212,0.15); color: var(--info); }
+        .alert-item .alert-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            display: flex;
+            gap: 12px;
+        }
+        .alert-item .alert-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            justify-content: center;
+        }
+        .alert-empty {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        /* 详情浮窗 */
+        .detail-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 110;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .detail-overlay.hidden { display: none; }
+        .detail-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .detail-card .detail-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-card .detail-body { padding: 20px; }
+        .detail-card .detail-body .detail-frame {
+            width: 100%;
+            height: 300px;
+            background: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .detail-card .detail-body .detail-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .detail-card .detail-body .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .detail-card .detail-body .info-item .info-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        .detail-card .detail-body .info-item .info-val {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* 单路历史浮窗 */
+        .history-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .history-overlay.hidden { display: none; }
+        .history-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 820px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .history-panel .h-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .history-panel .h-header .h-title {
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .history-panel .h-header .h-cam-badge {
+            font-size: 12px;
+            padding: 3px 10px;
+            background: rgba(59,130,246,0.15);
+            color: var(--accent);
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        .history-panel .h-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .history-panel .h-stat {
+            text-align: center;
+            padding: 8px;
+            background: var(--bg-card);
+            border-radius: 6px;
+        }
+        .history-panel .h-stat .h-stat-val {
+            font-size: 22px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+        .history-panel .h-stat .h-stat-label {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+        .history-panel .h-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+        .history-panel .h-body::-webkit-scrollbar { width: 4px; }
+        .history-panel .h-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .history-panel .h-empty {
+            padding: 50px;
+            text-align: center;
+            color: var(--text-tertiary);
+        }
+        .h-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 20px;
+            border-bottom: 1px solid rgba(30,45,69,0.4);
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 13px;
+        }
+        .h-row:hover { background: rgba(59,130,246,0.04); }
+        .h-row .h-time {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            min-width: 70px;
+            text-align: center;
+        }
+        .h-row .h-type {
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .h-row .h-desc {
+            flex: 1;
+            color: var(--text-secondary);
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: left;
+        }
+        .h-row .h-conf {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            min-width: 50px;
+            text-align: center;
+        }
+        .h-row .h-actions {
+            display: flex;
+            gap: 4px;
+            min-width: 36px;
+            justify-content: center;
+        }
+        .h-row .h-round {
+            font-size: 10px;
+            color: var(--text-tertiary);
+            min-width: 50px;
+            text-align: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--danger);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 200;
+            animation: slide-in 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<div class="topbar">
+    <div class="logo-area">
+        <span>📹 视频AI轮巡监控</span>
+        <div class="dot"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="patrol-status">
+        <span>当前轮巡</span>
+        <span class="camera-name" id="currentCamLabel">#03 隧道出口</span>
+        <span class="badge" id="patrolBadge">● 轮巡中</span>
+        <span style="font-size:11px;color:var(--text-tertiary);" id="patrolProgress">第 3/8 路</span>
+    </div>
+    <div class="controls-right">
+        <button class="btn btn-sm" onclick="togglePatrol()" id="btnTogglePatrol">⏸ 暂停轮巡</button>
+        <button class="btn btn-sm" onclick="manualPatrolNext()">⏭ 跳过当前</button>
+        <button class="btn btn-sm accent" onclick="showAlertDetail(currentAlertId)">📋 最新预警</button>
+        <button class="btn btn-sm" onclick="openCameraHistory()" id="btnCameraHistory">📜 历史记录</button>
+        <span style="color:var(--text-tertiary);font-size:12px;">| 今日轮巡 24轮</span>
+    </div>
+</div>
+
+<!-- 主体 -->
+<div class="main-body">
+
+    <!-- 左侧视频区 -->
+    <div class="video-area">
+        <div class="video-player" id="videoPlayer">
+            <div class="video-placeholder" id="videoPlaceholder">
+                <!-- 视频画面图片 -->
+                <img class="video-feed-img" id="videoFeedImg" src="video-钢筋加工厂.png" alt="视频画面" />
+                <!-- 模拟施工场景（兜底） -->
+                <div class="scene">
+                    <div class="structure s1"></div>
+                    <div class="structure s2"></div>
+                    <div class="structure s3"></div>
+                    <div class="ground"></div>
+                </div>
+                <!-- AI检测叠加层 -->
+                <div class="ai-overlay" id="aiOverlay"></div>
+                <!-- 画面中心文字叠加 -->
+                <div style="position:relative;z-index:2;text-align:center;pointer-events:none;">
+                    <div style="font-size:13px;color:var(--text-primary);margin-top:8px;font-family:monospace;text-shadow:0 0 8px rgba(0,0,0,0.8);" id="camPlaceholderLabel">
+                        CAM-03 隧道出口 — AI轮巡分析中
+                    </div>
+                </div>
+            </div>
+            <!-- OSD信息叠加 -->
+            <div class="video-osd">
+                <div class="osd-left">
+                    <div class="rec-dot"></div>
+                    <span id="osdCamName">CAM-03 隧道出口</span>
+                    <span>|</span>
+                    <span>AI检测: 实时</span>
+                </div>
+                <div class="osd-right" id="osdTime">2026-06-26 14:35:22</div>
+            </div>
+        </div>
+        <!-- 视频控制栏 -->
+        <div class="video-controls">
+            <button class="ctrl-btn" onclick="alert('回放上一段')" title="上一路">⏮</button>
+            <button class="ctrl-btn active" onclick="togglePlay()" title="播放/暂停" id="btnPlay">⏯</button>
+            <button class="ctrl-btn" onclick="manualPatrolNext()" title="下一路">⏭</button>
+            <div class="ctrl-speed">
+                <span>轮巡间隔</span>
+                <select id="patrolSpeed" onchange="updatePatrolSpeed()">
+                    <option value="3">3秒</option>
+                    <option value="5" selected>5秒</option>
+                    <option value="8">8秒</option>
+                    <option value="15">15秒</option>
+                    <option value="30">30秒</option>
+                </select>
+            </div>
+            <div class="ctrl-spacer"></div>
+            <div class="ctrl-progress">
+                <span id="progressLabel">03/08</span>
+                <div class="progress-bar"><div class="fill" id="progressFill" style="width:37%;"></div></div>
+                <span id="progressTime">停留 2s</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右侧面板 -->
+    <div class="side-panel">
+        <!-- 统计卡片 -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-val accent" id="statTotalCameras">8</div>
+                <div class="stat-label">接入摄像头</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val success" id="statTodayRounds">24</div>
+                <div class="stat-label">今日轮巡轮次</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val warning" id="statViolations">17</div>
+                <div class="stat-label">违规识别</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val danger" id="statDangers">6</div>
+                <div class="stat-label">危险行为</div>
+            </div>
+        </div>
+
+        <!-- 摄像头轮巡队列 3列网格 -->
+        <div class="queue-section">
+            <div class="queue-header">
+                <span class="queue-title">📷 轮巡队列</span>
+                <span class="queue-count" id="queueCount">8路在线</span>
+            </div>
+            <div class="queue-grid" id="queueContainer"></div>
+        </div>
+
+        <!-- 预警标题+筛选 -->
+        <div class="alert-header">
+            <div class="title">
+                ⚠ 预警记录
+                <span class="count" id="alertCount">23</span>
+            </div>
+            <div class="alert-filters">
+                <button class="filter-chip active" data-filter="all" onclick="filterAlerts('all', this)">全部</button>
+                <button class="filter-chip" data-filter="danger" onclick="filterAlerts('danger', this)">🔴 危险行为</button>
+                <button class="filter-chip" data-filter="violation" onclick="filterAlerts('violation', this)">🟡 违规行为</button>
+                <button class="filter-chip" data-filter="info" onclick="filterAlerts('info', this)">🔵 提示</button>
+            </div>
+        </div>
+
+        <!-- 预警列表（倒序） -->
+        <div class="alert-list" id="alertList"></div>
+    </div>
+</div>
+
+<!-- 详情浮窗 -->
+<div class="detail-overlay hidden" id="detailOverlay" onclick="if(event.target===this)closeDetail()">
+    <div class="detail-card" id="detailCard"></div>
+</div>
+
+<!-- 单路历史浮窗 -->
+<div class="history-overlay hidden" id="historyOverlay" onclick="if(event.target===this)closeCameraHistory()">
+    <div class="history-panel" id="historyPanel"></div>
+</div>
+
+<!-- 实时预警Toast -->
+<div id="toastContainer"></div>
+
+<script>
+(function() {
+    // ============================================================
+    // 模拟数据
+    // ============================================================
+    const cameras = [
+        { id:'cam01', name:'#01 标段A入口', loc:'K12+350', status:'online', videoImg:'video-钢筋加工厂.png' },
+        { id:'cam02', name:'#02 钢筋加工区', loc:'K12+800', status:'online', videoImg:'video-钢筋加工厂.png' },
+        { id:'cam03', name:'#03 隧道出口', loc:'K15+120', status:'online', videoImg:'video-水稳拌合站.png' },
+        { id:'cam04', name:'#04 桥梁墩柱区', loc:'K18+500', status:'online', videoImg:'video-钢筋加工厂.png' },
+        { id:'cam05', name:'#05 材料堆放场', loc:'K20+100', status:'online', videoImg:'video-钢筋加工厂.png' },
+        { id:'cam06', name:'#06 拌合站', loc:'K22+300', status:'online', videoImg:'video-水稳拌合站.png' },
+        { id:'cam07', name:'#07 路基压实区', loc:'K25+800', status:'online', videoImg:'video-水稳拌合站.png' },
+        { id:'cam08', name:'#08 边坡防护段', loc:'K28+600', status:'offline', videoImg:'video-水稳拌合站.png' },
+    ];
+
+    const alertTypes = {
+        danger: [
+            { type:'danger', tag:'危险行为', tagCls:'tag-danger', label:'高处作业未系安全绳', icon:'🪢', desc:'检测到作业人员在5米以上高空作业区域移动，未佩戴安全绳，属于高风险违规。' },
+            { type:'danger', tag:'危险行为', tagCls:'tag-danger', label:'危险区域人员闯入', icon:'🚷', desc:'识别到非授权人员进入起重吊装危险半径区域，存在被撞击风险。' },
+            { type:'danger', tag:'危险行为', tagCls:'tag-danger', label:'临边防护缺失', icon:'⚠️', desc:'AI检测到基坑边缘标准护栏缺失或倾倒，坠落风险等级高。' },
+            { type:'danger', tag:'危险行为', tagCls:'tag-danger', label:'机械设备异常运行', icon:'⚙️', desc:'塔吊运行轨迹偏离正常范围，检测到异常摆动幅度≥15°。' },
+        ],
+        violation: [
+            { type:'violation', tag:'违规行为', tagCls:'tag-warning', label:'未佩戴安全帽', icon:'🪖', desc:'AI识别到施工区域有人员未正确佩戴安全帽，占比超过阈值。' },
+            { type:'violation', tag:'违规行为', tagCls:'tag-warning', label:'未穿反光背心', icon:'🦺', desc:'在车辆通行区域检测到人员未穿着高可见度反光背心。' },
+            { type:'violation', tag:'违规行为', tagCls:'tag-warning', label:'违规吸烟', icon:'🚬', desc:'在禁烟材料堆放区域检测到吸烟行为，存在火灾隐患。' },
+            { type:'violation', tag:'违规行为', tagCls:'tag-warning', label:'材料堆放超高', icon:'📦', desc:'AI视觉测量显示材料堆垛高度超过安全标准的1.5倍。' },
+            { type:'violation', tag:'违规行为', tagCls:'tag-warning', label:'车辆超速行驶', icon:'🚛', desc:'场内道路工程车辆时速超过15km/h限速标准。' },
+        ],
+        info: [
+            { type:'info', tag:'提示', tagCls:'tag-info', label:'人员聚集密度过高', icon:'👥', desc:'检测到某作业面人员密度超过安全间距标准，建议分散作业。' },
+            { type:'info', tag:'提示', tagCls:'tag-info', label:'扬尘浓度异常', icon:'💨', desc:'视频分析显示施工区域扬尘浓度超过环保标准，建议启动洒水降尘。' },
+        ]
+    };
+
+    // 生成模拟预警记录
+    function generateMockAlerts(count) {
+        const alerts = [];
+        const allTypes = [...alertTypes.danger, ...alertTypes.violation, ...alertTypes.info];
+        const now = new Date();
+        for (let i = 0; i < count; i++) {
+            const tpl = allTypes[Math.floor(Math.random() * allTypes.length)];
+            const dt = new Date(now - (i * 3 + Math.random() * 10) * 60000);
+            const cam = cameras[Math.floor(Math.random() * (cameras.length - 1))]; // exclude offline
+            const timeStr = dt.getFullYear() + '-' +
+                String(dt.getMonth()+1).padStart(2,'0') + '-' +
+                String(dt.getDate()).padStart(2,'0') + ' ' +
+                String(dt.getHours()).padStart(2,'0') + ':' +
+                String(dt.getMinutes()).padStart(2,'0') + ':' +
+                String(dt.getSeconds()).padStart(2,'0');
+            alerts.push({
+                id: 'ALT-' + String(now.getTime() - i * 180000).slice(-8),
+                ...tpl,
+                cameraId: cam.id,
+                cameraName: cam.name,
+                cameraLoc: cam.loc,
+                time: timeStr,
+                timestamp: dt.getTime(),
+                confidence: Math.floor(Math.random() * 15 + 82) + '%',
+                framePos: { left: (10 + Math.random()*60) + '%', top: (15 + Math.random()*50) + '%', w: (10+Math.random()*20) + '%', h: (8+Math.random()*25) + '%' },
+                reviewed: Math.random() > 0.7,
+                snapshot: Math.floor(Math.random() * 4) + 1
+            });
+        }
+        alerts.sort((a, b) => b.timestamp - a.timestamp);
+        return alerts;
+    }
+
+    let mockAlerts = generateMockAlerts(25);
+    let currentAlertFilter = 'all';
+    let currentAlertId = mockAlerts[0]?.id;
+    let isPatrolling = true;
+    let isPlaying = true;
+    let patrolIndex = 2; // current camera index in cameras array (0-based)
+    let patrolInterval = 5000; // ms
+    let patrolTimer = null;
+    let stayStart = Date.now();
+    let stayTimerInterval = null;
+    let osdTimer = null;
+    let currentHistoryRecords = [];  // 当前历史浮窗中的记录缓存
+
+    // ============================================================
+    // 渲染函数
+    // ============================================================
+    function renderQueue() {
+        const container = document.getElementById('queueContainer');
+        const onlineCount = cameras.filter(c => c.status === 'online').length;
+        document.getElementById('queueCount').innerText = onlineCount + '路在线';
+        container.innerHTML = cameras.map((cam, idx) => {
+            const activeCls = idx === patrolIndex ? ' active' : '';
+            const dot = cam.status === 'offline' ? '' : ((idx !== patrolIndex && Math.random() > 0.7) ? '<div class="ai-dot"></div>' : '');
+            const imgTag = cam.videoImg
+                ? `<img src="${cam.videoImg}" alt="${cam.name}" style="width:100%;height:100%;object-fit:cover;" />`
+                : '<span style="font-size:20px;opacity:0.5;">📷</span>';
+            const offlineOverlay = cam.status === 'offline'
+                ? '<div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-size:12px;color:#ef4444;">离线</div>'
+                : '';
+            const histBtn = cam.status === 'online'
+                ? `<div style="position:absolute;bottom:3px;right:3px;width:20px;height:20px;background:rgba(0,0,0,0.65);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;z-index:2;"
+                    onclick="event.stopPropagation();openCameraHistory('${cam.id}');" title="查看轮巡历史">📜</div>`
+                : '';
+            return `<div class="queue-cam${activeCls}" onclick="jumpToCamera(${idx})" title="${cam.name} (${cam.loc})">
+                <div class="thumb">${imgTag}${offlineOverlay}${histBtn}${dot}</div>
+                <div class="cam-name">${cam.name.slice(0,8)}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderAlerts(filterType) {
+        const list = document.getElementById('alertList');
+        let filtered = mockAlerts;
+        if (filterType === 'danger') filtered = mockAlerts.filter(a => a.type === 'danger');
+        else if (filterType === 'violation') filtered = mockAlerts.filter(a => a.type === 'violation');
+        else if (filterType === 'info') filtered = mockAlerts.filter(a => a.type === 'info');
+
+        document.getElementById('alertCount').innerText = filtered.length;
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="alert-empty">✅ 当前筛选条件下暂无预警记录</div>';
+            return;
+        }
+
+        list.innerHTML = filtered.map((a, idx) => {
+            const newCls = (idx < 3 && !a.reviewed) ? ' new' : '';
+            const markerStyle = `left:${a.framePos.left};top:${a.framePos.top};width:${a.framePos.w};height:${a.framePos.h};`;
+            const camColor = a.type === 'danger' ? '#ef4444' : a.type === 'violation' ? '#f59e0b' : '#06b6d4';
+            return `<div class="alert-item${newCls}" onclick="showAlertDetail('${a.id}')" data-id="${a.id}">
+                <div class="alert-thumb" style="border:1px solid ${camColor}22;">
+                    <span>📸</span>
+                    <div class="marker" style="${markerStyle}"></div>
+                </div>
+                <div class="alert-info">
+                    <div class="alert-type">
+                        <span class="type-tag ${a.tagCls}">${a.tag}</span>
+                        <span>${a.label}</span>
+                    </div>
+                    <div class="alert-meta">
+                        <span>📷 ${a.cameraName.slice(0,8)}</span>
+                        <span>🕐 ${a.time.slice(-8)}</span>
+                        <span>🎯 ${a.confidence}</span>
+                    </div>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn btn-sm" onclick="event.stopPropagation();jumpToAlertCamera('${a.cameraId}')">▶ 回放</button>
+                    ${!a.reviewed ? '<span style="font-size:10px;color:var(--danger);text-align:center;">● 新</span>' : '<span style="font-size:10px;color:var(--text-tertiary);text-align:center;">已阅</span>'}
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function renderAIBoxes() {
+        const overlay = document.getElementById('aiOverlay');
+        // Simulate AI detection boxes on current frame
+        const alarmCount = Math.random() > 0.6 ? 2 : (Math.random() > 0.3 ? 1 : 0);
+        let boxes = '';
+        const boxStyles = [
+            { left:'18%', top:'30%', width:'15%', height:'22%', type:'danger', label:'安全绳缺失', conf:'96%' },
+            { left:'55%', top:'42%', width:'12%', height:'18%', type:'warning', label:'安全帽异常', conf:'89%' },
+            { left:'38%', top:'20%', width:'10%', height:'15%', type:'warning', label:'反光背心未穿', conf:'91%' },
+            { left:'68%', top:'52%', width:'11%', height:'16%', type:'info', label:'人员密度预警', conf:'85%' },
+            { left:'25%', top:'55%', width:'9%', height:'12%', type:'danger', label:'危险区域闯入', conf:'93%' },
+        ];
+        for (let i = 0; i < alarmCount; i++) {
+            const bs = boxStyles[Math.floor(Math.random() * boxStyles.length)];
+            const typeCls = bs.type === 'danger' ? 'danger' : (bs.type === 'warning' ? 'warning' : 'info');
+            boxes += `<div class="ai-box ${typeCls}" style="left:${bs.left};top:${bs.top};width:${bs.width};height:${bs.height};">
+                <div class="ai-label">${bs.label}</div>
+                <div class="ai-conf">${bs.conf}</div>
+            </div>`;
+        }
+        overlay.innerHTML = boxes;
+    }
+
+    function updateStats() {
+        const dangerCount = mockAlerts.filter(a => a.type === 'danger').length;
+        const violationCount = mockAlerts.filter(a => a.type === 'violation').length;
+        const infoCount = mockAlerts.filter(a => a.type === 'info').length;
+        document.getElementById('statViolations').innerText = violationCount;
+        document.getElementById('statDangers').innerText = dangerCount;
+        document.getElementById('statTotalCameras').innerText = cameras.filter(c => c.status === 'online').length;
+    }
+
+    function updateCameraView() {
+        const cam = cameras[patrolIndex];
+        // 切换视频画面图片（带淡入淡出）
+        const videoImg = document.getElementById('videoFeedImg');
+        if (videoImg && cam.videoImg && videoImg.src.indexOf(cam.videoImg) === -1) {
+            videoImg.classList.add('switching');
+            setTimeout(() => {
+                videoImg.src = cam.videoImg;
+                videoImg.alt = cam.name;
+                videoImg.classList.remove('switching');
+            }, 200);
+        }
+        document.getElementById('currentCamLabel').innerText = cam.name;
+        document.getElementById('osdCamName').innerText = cam.name + ' (' + cam.loc + ')';
+        document.getElementById('camPlaceholderLabel').innerText = cam.id.toUpperCase() + ' ' + cam.name + ' — AI轮巡分析中';
+        document.getElementById('progressLabel').innerText = String(patrolIndex + 1).padStart(2,'0') + '/' + String(cameras.length).padStart(2,'0');
+        document.getElementById('progressFill').style.width = ((patrolIndex + 1) / cameras.length * 100) + '%';
+        document.getElementById('patrolProgress').innerText = '第 ' + (patrolIndex + 1) + '/' + cameras.length + ' 路';
+        renderAIBoxes();
+        renderQueue();
+    }
+
+    function updateOSDTime() {
+        const now = new Date();
+        document.getElementById('osdTime').innerText =
+            now.getFullYear() + '-' +
+            String(now.getMonth()+1).padStart(2,'0') + '-' +
+            String(now.getDate()).padStart(2,'0') + ' ' +
+            String(now.getHours()).padStart(2,'0') + ':' +
+            String(now.getMinutes()).padStart(2,'0') + ':' +
+            String(now.getSeconds()).padStart(2,'0');
+        // Update stay time
+        const elapsed = Math.floor((Date.now() - stayStart) / 1000);
+        document.getElementById('progressTime').innerText = '停留 ' + elapsed + 's';
+    }
+
+    // ============================================================
+    // 轮巡控制
+    // ============================================================
+    function nextCamera() {
+        // Skip offline cameras
+        let nextIdx = (patrolIndex + 1) % cameras.length;
+        let attempts = 0;
+        while (cameras[nextIdx].status === 'offline' && attempts < cameras.length) {
+            nextIdx = (nextIdx + 1) % cameras.length;
+            attempts++;
+        }
+        patrolIndex = nextIdx;
+        stayStart = Date.now();
+        updateCameraView();
+
+        // Randomly generate new alert during patrol (simulate real-time detection)
+        if (Math.random() > 0.55) {
+            const allTypes = [...alertTypes.danger, ...alertTypes.violation, ...alertTypes.info];
+            const tpl = allTypes[Math.floor(Math.random() * allTypes.length)];
+            const cam = cameras[patrolIndex];
+            const now = new Date();
+            const timeStr = now.getFullYear() + '-' +
+                String(now.getMonth()+1).padStart(2,'0') + '-' +
+                String(now.getDate()).padStart(2,'0') + ' ' +
+                String(now.getHours()).padStart(2,'0') + ':' +
+                String(now.getMinutes()).padStart(2,'0') + ':' +
+                String(now.getSeconds()).padStart(2,'0');
+            const newAlert = {
+                id: 'ALT-' + now.getTime().toString().slice(-8),
+                ...tpl,
+                cameraId: cam.id,
+                cameraName: cam.name,
+                cameraLoc: cam.loc,
+                time: timeStr,
+                timestamp: now.getTime(),
+                confidence: Math.floor(Math.random() * 12 + 85) + '%',
+                framePos: { left:(10+Math.random()*60)+'%', top:(15+Math.random()*50)+'%', w:(8+Math.random()*18)+'%', h:(8+Math.random()*22)+'%' },
+                reviewed: false,
+                snapshot: Math.floor(Math.random() * 4) + 1
+            };
+            mockAlerts.unshift(newAlert);
+            if (mockAlerts.length > 50) mockAlerts = mockAlerts.slice(0, 50);
+            currentAlertId = newAlert.id;
+
+            // Show toast
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<span>🚨</span> 实时预警：${newAlert.label} — ${newAlert.cameraName}`;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+
+            renderAlerts(currentAlertFilter);
+            updateStats();
+        }
+    }
+
+    function startPatrol() {
+        stopPatrol();
+        if (!isPatrolling || !isPlaying) return;
+        patrolTimer = setInterval(() => {
+            if (isPlaying) nextCamera();
+        }, patrolInterval);
+    }
+
+    function stopPatrol() {
+        if (patrolTimer) { clearInterval(patrolTimer); patrolTimer = null; }
+    }
+
+    // ============================================================
+    // 全局操作函数
+    // ============================================================
+    window.togglePatrol = function() {
+        isPatrolling = !isPatrolling;
+        const btn = document.getElementById('btnTogglePatrol');
+        const badge = document.getElementById('patrolBadge');
+        if (isPatrolling) {
+            btn.innerHTML = '⏸ 暂停轮巡';
+            badge.innerHTML = '● 轮巡中';
+            badge.style.background = 'rgba(16,185,129,0.15)';
+            badge.style.color = 'var(--success)';
+            startPatrol();
+        } else {
+            btn.innerHTML = '▶ 继续轮巡';
+            badge.innerHTML = '⏸ 已暂停';
+            badge.style.background = 'rgba(245,158,11,0.15)';
+            badge.style.color = 'var(--warning)';
+            stopPatrol();
+        }
+    };
+
+    window.togglePlay = function() {
+        isPlaying = !isPlaying;
+        const btn = document.getElementById('btnPlay');
+        btn.classList.toggle('active', isPlaying);
+        btn.innerHTML = isPlaying ? '⏯' : '▶';
+        if (isPlaying && isPatrolling) startPatrol();
+        else stopPatrol();
+    };
+
+    window.manualPatrolNext = function() {
+        nextCamera();
+        stayStart = Date.now();
+        if (isPatrolling && isPlaying) {
+            stopPatrol();
+            startPatrol();
+        }
+    };
+
+    window.jumpToCamera = function(idx) {
+        if (cameras[idx].status === 'offline') {
+            alert('该摄像头当前离线，无法切换');
+            return;
+        }
+        patrolIndex = idx;
+        stayStart = Date.now();
+        updateCameraView();
+        if (isPatrolling && isPlaying) {
+            stopPatrol();
+            startPatrol();
+        }
+    };
+
+    window.jumpToAlertCamera = function(cameraId) {
+        const idx = cameras.findIndex(c => c.id === cameraId);
+        if (idx >= 0) window.jumpToCamera(idx);
+    };
+
+    window.updatePatrolSpeed = function() {
+        patrolInterval = parseInt(document.getElementById('patrolSpeed').value) * 1000;
+        if (isPatrolling && isPlaying) {
+            stopPatrol();
+            startPatrol();
+        }
+    };
+
+    window.filterAlerts = function(type, el) {
+        currentAlertFilter = type;
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        renderAlerts(type);
+    };
+
+    window.showAlertDetail = function(alertId) {
+        const a = mockAlerts.find(al => al.id === alertId);
+        if (!a) return;
+        const overlay = document.getElementById('detailOverlay');
+        const card = document.getElementById('detailCard');
+        const camColor = a.type === 'danger' ? '#ef4444' : a.type === 'violation' ? '#f59e0b' : '#06b6d4';
+        const markerStyle = `left:${a.framePos.left};top:${a.framePos.top};width:${a.framePos.w};height:${a.framePos.h};`;
+        const statusText = a.reviewed ? '<span style="color:var(--success)">✅ 已处理</span>' : '<span style="color:var(--danger)">● 待处理</span>';
+        card.innerHTML = `
+            <div class="detail-header">
+                <span style="font-weight:700;font-size:15px;">📋 预警详情 — ${a.id}</span>
+                <button class="btn btn-sm" onclick="closeDetail()">✕ 关闭</button>
+            </div>
+            <div class="detail-body">
+                <div class="detail-frame" style="border:2px solid ${camColor}33;">
+                    <div style="text-align:center;color:var(--text-tertiary);">
+                        <div style="font-size:48px;opacity:0.4;">📸</div>
+                        <div style="font-size:12px;margin-top:8px;">预警截图快照 #${a.snapshot}</div>
+                    </div>
+                    <div style="position:absolute;border:2px solid ${camColor};border-radius:3px;${markerStyle}box-shadow:0 0 8px ${camColor}44;"></div>
+                </div>
+                <div class="detail-info-grid">
+                    <div class="info-item"><span class="info-label">预警类型</span><span class="info-val"><span class="type-tag ${a.tagCls}">${a.tag}</span> ${a.label}</span></div>
+                    <div class="info-item"><span class="info-label">AI置信度</span><span class="info-val" style="color:${camColor};">${a.confidence}</span></div>
+                    <div class="info-item"><span class="info-label">检测时间</span><span class="info-val">${a.time}</span></div>
+                    <div class="info-item"><span class="info-label">摄像头</span><span class="info-val">${a.cameraName}（${a.cameraLoc}）</span></div>
+                    <div class="info-item"><span class="info-label">处理状态</span><span class="info-val">${statusText}</span></div>
+                    <div class="info-item"><span class="info-label">轮巡批次</span><span class="info-val">第 ${Math.floor(Math.random()*20+1)} 轮</span></div>
+                </div>
+                <div style="margin-top:12px;padding:10px;background:var(--bg-card);border-radius:6px;font-size:13px;line-height:1.6;">
+                    <span style="color:var(--text-tertiary);font-size:11px;">AI分析描述</span><br>
+                    ${a.desc}
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                    <button class="btn accent" onclick="jumpToAlertCamera('${a.cameraId}');closeDetail();">▶ 跳转实时画面</button>
+                    <button class="btn" onclick="closeDetail()">📹 查看完整录像回放</button>
+                    <button class="btn" onclick="closeDetail()">📥 导出截图报告</button>
+                </div>
+            </div>
+        `;
+        overlay.classList.remove('hidden');
+    };
+
+    window.closeDetail = function() {
+        document.getElementById('detailOverlay').classList.add('hidden');
+    };
+
+    // ============================================================
+    // 单路监控轮巡历史
+    // ============================================================
+    // 为每个摄像头生成历史预警（模拟当天+前几天的轮巡记录）
+    function getCameraHistory(cameraId) {
+        const cam = cameras.find(c => c.id === cameraId);
+        if (!cam) return [];
+        const allTypes = [...alertTypes.danger, ...alertTypes.violation, ...alertTypes.info];
+        const now = new Date();
+        const records = [];
+        // 生成 8-20 条模拟历史记录
+        const count = 8 + Math.floor(Math.abs(cameraId.charCodeAt(cameraId.length-1) * 7) % 13);
+        for (let i = 0; i < count; i++) {
+            const tpl = allTypes[Math.floor(Math.abs((cameraId.charCodeAt(2) + i * 3) % allTypes.length))];
+            const dt = new Date(now - (i * 7 + Math.random() * 40) * 60000);
+            const timeStr = dt.getFullYear() + '-' +
+                String(dt.getMonth()+1).padStart(2,'0') + '-' +
+                String(dt.getDate()).padStart(2,'0') + ' ' +
+                String(dt.getHours()).padStart(2,'0') + ':' +
+                String(dt.getMinutes()).padStart(2,'0') + ':' +
+                String(dt.getSeconds()).padStart(2,'0');
+            records.push({
+                ...tpl,
+                time: timeStr,
+                timestamp: dt.getTime(),
+                confidence: Math.floor(Math.random() * 16 + 80) + '%',
+                round: Math.floor(Math.random() * 12 + 1),
+                reviewed: Math.random() > 0.5,
+            });
+        }
+        records.sort((a, b) => b.timestamp - a.timestamp);
+        return records;
+    }
+
+    window.openCameraHistory = function(cameraId) {
+        const camId = cameraId || cameras[patrolIndex].id;
+        const cam = cameras.find(c => c.id === camId);
+        if (!cam) return;
+        const records = getCameraHistory(camId);
+        currentHistoryRecords = records;  // 缓存供详情查看
+        const dangerCount = records.filter(r => r.type === 'danger').length;
+        const violationCount = records.filter(r => r.type === 'violation').length;
+        const infoCount = records.filter(r => r.type === 'info').length;
+        const unreviewed = records.filter(r => !r.reviewed).length;
+
+        const panel = document.getElementById('historyPanel');
+        panel.innerHTML = `
+            <div class="h-header">
+                <div class="h-title">
+                    📜 轮巡历史记录
+                    <span class="h-cam-badge">${cam.name}</span>
+                    <span style="font-size:11px;color:var(--text-tertiary);">${cam.loc}</span>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span style="font-size:11px;color:var(--text-tertiary);">共 ${records.length} 条</span>
+                    <button class="btn btn-sm" onclick="closeCameraHistory()">✕ 关闭</button>
+                </div>
+            </div>
+            <div class="h-stats">
+                <div class="h-stat">
+                    <div class="h-stat-val" style="color:var(--text-primary);">${records.length}</div>
+                    <div class="h-stat-label">总预警数</div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-val" style="color:var(--danger);">${dangerCount}</div>
+                    <div class="h-stat-label">🔴 危险行为</div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-val" style="color:var(--warning);">${violationCount}</div>
+                    <div class="h-stat-label">🟡 违规行为</div>
+                </div>
+                <div class="h-stat">
+                    <div class="h-stat-val" style="color:var(--accent);">${unreviewed}</div>
+                    <div class="h-stat-label">📋 待处理</div>
+                </div>
+            </div>
+            <div class="h-body">
+                <div class="h-row" style="font-size:11px;color:var(--text-tertiary);cursor:default;background:var(--bg-card);border-bottom:1px solid var(--border);">
+                    <span class="h-time">检测时间</span>
+                    <span class="h-type">预警类型</span>
+                    <span class="h-desc">AI分析描述</span>
+                    <span class="h-conf" title="AI模型识别置信度">🎯置信度</span>
+                    <span class="h-round">轮巡批次</span>
+                    <span class="h-actions">状态</span>
+                </div>
+                ${records.length === 0 ? '<div class="h-empty">✅ 该监控点位暂无轮巡预警记录</div>' : records.map((r, i) => {
+                    const confColor = r.type === 'danger' ? 'var(--danger)' : r.type === 'violation' ? 'var(--warning)' : 'var(--info)';
+                    return `<div class="h-row" onclick="showHistoryDetail(${i})" title="点击查看完整详情">
+                        <span class="h-time">${r.time.slice(-8)}</span>
+                        <span class="h-type">
+                            <span class="type-tag ${r.tagCls}">${r.tag}</span>
+                            ${r.label}
+                        </span>
+                        <span class="h-desc">${r.desc}</span>
+                        <span class="h-conf" style="color:${confColor};">${r.confidence}</span>
+                        <span class="h-round">第${r.round}轮</span>
+                        <span class="h-actions">
+                            ${!r.reviewed ? '<span style="font-size:10px;color:var(--danger);">●新</span>' : '<span style="font-size:10px;color:var(--success);">✓已阅</span>'}
+                        </span>
+                    </div>`;
+                }).join('')}
+            </div>
+        `;
+        document.getElementById('historyOverlay').classList.remove('hidden');
+    };
+
+    // 查看历史记录中某条的完整详情
+    window.showHistoryDetail = function(index) {
+        const r = currentHistoryRecords[index];
+        if (!r) return;
+        const cam = cameras[patrolIndex];
+        const confColor = r.type === 'danger' ? '#ef4444' : r.type === 'violation' ? '#f59e0b' : '#06b6d4';
+        const statusText = r.reviewed
+            ? '<span style="color:var(--success)">✅ 已处理</span>'
+            : '<span style="color:var(--danger)">● 待处理</span>';
+        const card = document.getElementById('detailCard');
+        card.innerHTML = `
+            <div class="detail-header">
+                <span style="font-weight:700;font-size:15px;">📋 历史预警详情</span>
+                <button class="btn btn-sm" onclick="closeDetail()">✕ 关闭</button>
+            </div>
+            <div class="detail-body">
+                <div class="detail-frame" style="border:2px solid ${confColor}33;">
+                    <div style="text-align:center;color:var(--text-tertiary);padding-top:60px;">
+                        <div style="font-size:48px;opacity:0.3;">📸</div>
+                        <div style="font-size:12px;margin-top:8px;">${cam ? cam.name : ''} — 第${r.round}轮轮巡截图</div>
+                    </div>
+                </div>
+                <div class="detail-info-grid">
+                    <div class="info-item"><span class="info-label">预警类型</span><span class="info-val"><span class="type-tag ${r.tagCls}">${r.tag}</span> ${r.label}</span></div>
+                    <div class="info-item"><span class="info-label">AI置信度</span><span class="info-val" style="color:${confColor};">${r.confidence}</span></div>
+                    <div class="info-item"><span class="info-label">检测时间</span><span class="info-val">${r.time}</span></div>
+                    <div class="info-item"><span class="info-label">轮巡摄像头</span><span class="info-val">${cam ? cam.name + '（' + cam.loc + '）' : '-'}</span></div>
+                    <div class="info-item"><span class="info-label">轮巡批次</span><span class="info-val">第 ${r.round} 轮</span></div>
+                    <div class="info-item"><span class="info-label">处理状态</span><span class="info-val">${statusText}</span></div>
+                </div>
+                <div style="margin-top:12px;padding:10px;background:var(--bg-card);border-radius:6px;font-size:13px;line-height:1.7;">
+                    <span style="color:var(--text-tertiary);font-size:11px;">AI分析描述</span><br>
+                    ${r.desc}
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;">
+                    <button class="btn accent" onclick="closeDetail();">▶ 跳转实时画面</button>
+                    <button class="btn" onclick="closeDetail();">📹 查看完整回放</button>
+                    <button class="btn" onclick="closeDetail();">📥 导出报告</button>
+                </div>
+            </div>
+        `;
+        document.getElementById('detailOverlay').classList.remove('hidden');
+    };
+
+    window.closeCameraHistory = function() {
+        document.getElementById('historyOverlay').classList.add('hidden');
+    };
+    function init() {
+        updateCameraView();
+        renderAlerts('all');
+        updateStats();
+        startPatrol();
+        updateOSDTime();
+        osdTimer = setInterval(updateOSDTime, 1000);
+        stayTimerInterval = setInterval(() => {
+            if (isPlaying) {
+                const elapsed = Math.floor((Date.now() - stayStart) / 1000);
+                document.getElementById('progressTime').innerText = '停留 ' + elapsed + 's';
+            }
+        }, 1000);
+    }
+
+    init();
+})();
+</script>
+
+</body>
+</html>

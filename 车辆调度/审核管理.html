@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审核工作台（完整优化版）- 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 16px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 32px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eef3fc;
+            color: #2a5f9c;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .mb-2 {
+            margin-bottom: 14px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+        .fw-bold {
+            font-weight: 700;
+            color: #1a2639;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid #edf2f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #6b7f9a;
+            margin-bottom: 4px;
+        }
+        .stat-card .value {
+            font-size: 26px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .stat-card .sub {
+            font-size: 12px;
+            color: #4f9cf7;
+            margin-top: 4px;
+        }
+        .stat-card .value.green {
+            color: #1fb873;
+        }
+        .stat-card .value.orange {
+            color: #f5a623;
+        }
+        .stat-card .value.blue {
+            color: #4f9cf7;
+        }
+        .stat-card .value.red {
+            color: #e65f5f;
+        }
+        .stat-card .value.purple {
+            color: #8b5cf6;
+        }
+
+        /* ===== 队列Tabs ===== */
+        .queue-tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #edf2f9;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+        .queue-tabs .tab {
+            padding: 6px 18px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            color: #6b7f9a;
+            transition: all 0.15s;
+            border: none;
+        }
+        .queue-tabs .tab:hover {
+            background: #f0f4fa;
+            color: #1a2639;
+        }
+        .queue-tabs .tab.active {
+            background: #1a2639;
+            color: #fff;
+        }
+        .queue-tabs .tab .count {
+            font-weight: 400;
+            font-size: 11px;
+            margin-left: 4px;
+            opacity: 0.7;
+        }
+
+        /* ===== 筛选栏 ===== */
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            min-width: 110px;
+        }
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+        .filter-bar .date-range {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-bar .date-range input {
+            min-width: 130px;
+        }
+
+        /* ===== 表格 ===== */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            text-align: left;
+            padding: 10px 6px 8px 0;
+            color: #6b7f9a;
+            font-weight: 500;
+            border-bottom: 1px solid #edf2f9;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+        td {
+            padding: 10px 6px 10px 0;
+            border-bottom: 1px solid #f2f6fc;
+            color: #1e2c41;
+            vertical-align: middle;
+        }
+        td .sub-text {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: block;
+        }
+        .checkbox-col {
+            width: 32px;
+            text-align: center;
+        }
+        .checkbox-col input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+        .action-links {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .action-links .btn-sm {
+            font-size: 11px;
+        }
+
+        .reject-reason-preview {
+            font-size: 12px;
+            color: #b33a3a;
+            background: #fef6f6;
+            padding: 2px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: help;
+        }
+
+        .wait-time {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .wait-time.urgent {
+            color: #e65f5f;
+        }
+        .wait-time.warning {
+            color: #f5a623;
+        }
+        .wait-time.normal {
+            color: #6b7f9a;
+        }
+
+        /* ===== 分页 ===== */
+        .pagination {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .pagination .page-btn {
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid #d5dee9;
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            color: #3f5370;
+            transition: all 0.15s;
+        }
+        .pagination .page-btn:hover {
+            background: #f0f4fa;
+        }
+        .pagination .page-btn.active {
+            background: #1a2639;
+            color: #fff;
+            border-color: #1a2639;
+        }
+        .pagination .page-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* ===== 详情抽屉 ===== */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 998;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.25s;
+        }
+        .drawer-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 640px;
+            max-width: 94vw;
+            height: 100%;
+            background: #fff;
+            z-index: 999;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow-y: auto;
+            padding: 28px 30px 40px;
+            box-shadow: -8px 0 30px rgba(0, 0, 0, 0.08);
+        }
+        .drawer-overlay.show .drawer {
+            transform: translateX(0);
+        }
+        .drawer .close-btn {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #6b7f9a;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .drawer .close-btn:hover {
+            color: #1a2639;
+        }
+        .drawer .drawer-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            margin-bottom: 4px;
+        }
+        .drawer .drawer-sub {
+            font-size: 14px;
+            color: #6b7f9a;
+            margin-bottom: 18px;
+        }
+        .drawer .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f2f6fc;
+            font-size: 14px;
+        }
+        .drawer .info-row .label {
+            color: #6b7f9a;
+        }
+        .drawer .info-row .value {
+            font-weight: 500;
+        }
+        .drawer .section-title {
+            font-weight: 600;
+            color: #1a2639;
+            margin: 16px 0 10px;
+            font-size: 15px;
+            border-bottom: 2px solid #edf2f9;
+            padding-bottom: 6px;
+        }
+        .drawer .cost-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+            font-size: 14px;
+        }
+        .drawer .cost-grid .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+        .drawer .cost-grid .total {
+            grid-column: 1 / -1;
+            font-weight: 700;
+            border-top: 2px solid #d5dee9;
+            padding-top: 10px;
+            margin-top: 4px;
+            font-size: 16px;
+        }
+        .drawer .img-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .drawer .img-grid .img-placeholder {
+            width: 110px;
+            height: 72px;
+            background: #f0f4fa;
+            border-radius: 8px;
+            border: 1px solid #d5dee9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #6b7f9a;
+            flex-direction: column;
+        }
+        .drawer .img-grid .img-placeholder .icon {
+            font-size: 22px;
+        }
+
+        /* ===== 操作日志时间线 ===== */
+        .drawer .log-timeline {
+            position: relative;
+            padding-left: 22px;
+        }
+        .drawer .log-timeline::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 4px;
+            bottom: 4px;
+            width: 2px;
+            background: #d5dee9;
+        }
+        .drawer .log-item {
+            position: relative;
+            margin-bottom: 14px;
+            padding-left: 10px;
+        }
+        .drawer .log-item:last-child {
+            margin-bottom: 0;
+        }
+        .drawer .log-item .dot {
+            position: absolute;
+            left: -19px;
+            top: 3px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #d5dee9;
+            background: #fff;
+        }
+        .drawer .log-item .dot.green {
+            background: #1fb873;
+            box-shadow: 0 0 0 2px #1fb873;
+        }
+        .drawer .log-item .dot.red {
+            background: #e65f5f;
+            box-shadow: 0 0 0 2px #e65f5f;
+        }
+        .drawer .log-item .dot.blue {
+            background: #4f9cf7;
+            box-shadow: 0 0 0 2px #4f9cf7;
+        }
+        .drawer .log-item .dot.orange {
+            background: #f5a623;
+            box-shadow: 0 0 0 2px #f5a623;
+        }
+        .drawer .log-item .log-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .drawer .log-item .log-head .title {
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 13px;
+        }
+        .drawer .log-item .log-head .time {
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+        .drawer .log-item .log-desc {
+            font-size: 13px;
+            color: #3f5370;
+            margin-top: 2px;
+        }
+        .drawer .log-item .log-detail {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 1px;
+        }
+
+        .drawer .drawer-actions {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f9;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 480px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field select,
+        .modal .field textarea,
+        .modal .field input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .modal .field textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .modal .field .reason-templates {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .modal .field .reason-templates .template {
+            font-size: 11px;
+            background: #f0f4fa;
+            padding: 2px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: #2a5f9c;
+            transition: all 0.15s;
+        }
+        .modal .field .reason-templates .template:hover {
+            background: #d5dee9;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 6px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1200px) {
+            .stat-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .drawer {
+                width: 100%;
+                max-width: 100%;
+                padding: 20px 16px;
+            }
+            .filter-bar .date-range {
+                flex-wrap: wrap;
+            }
+            .filter-bar .date-range input {
+                min-width: 100px;
+            }
+        }
+        @media (max-width: 480px) {
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心</div>
+        <div class="menu-item active"><span class="icon">✅</span> 审核工作台 <span class="badge-dot">5</span></div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div style="flex:1;"></div>
+        <div class="menu-item" style="color:#6b7f9a;"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title">
+                ✅ 审核工作台
+                <span class="badge" style="font-size:11px;font-weight:400;">v3.0 完整优化版</span>
+            </div>
+            <div class="topbar-actions">
+                <span>👤 财务 · 王芳</span>
+                <span class="role-tag">终审员</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- ===== 统计卡片 ===== -->
+            <div class="stat-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="label">⏳ 待初审</div>
+                    <div class="value orange" id="statPendingFirst">3</div>
+                    <div class="sub">计调待处理</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">⏳ 待终审</div>
+                    <div class="value blue" id="statPendingFinal">2</div>
+                    <div class="sub">财务待处理</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">✅ 今日已审</div>
+                    <div class="value green" id="statTodayDone">0</div>
+                    <div class="sub" id="statTodaySub">较昨日 —</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">⛔ 驳回率</div>
+                    <div class="value red" id="statRejectRate">0%</div>
+                    <div class="sub" id="statRejectSub">较昨日 —</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">⏱️ 平均审核耗时</div>
+                    <div class="value purple" id="statAvgTime">0h</div>
+                    <div class="sub">从提交到终审通过</div>
+                </div>
+            </div>
+
+            <!-- ===== 筛选栏 ===== -->
+            <div class="card" style="padding:12px 20px;">
+                <div class="filter-bar">
+                    <input type="text" placeholder="🔍 订单号 / 团号" id="searchKeyword" oninput="applyFilters()" style="min-width:150px;">
+                    <select id="filterFleet" onchange="applyFilters()">
+                        <option value="">全部车队</option>
+                        <option value="雪山车队">雪山车队</option>
+                        <option value="古城车队">古城车队</option>
+                        <option value="玉龙车队">玉龙车队</option>
+                    </select>
+                    <select id="filterDriver" onchange="applyFilters()">
+                        <option value="">全部司机</option>
+                        <option value="李师傅">李师傅</option>
+                        <option value="王师傅">王师傅</option>
+                        <option value="赵师傅">赵师傅</option>
+                        <option value="周师傅">周师傅</option>
+                        <option value="吴师傅">吴师傅</option>
+                        <option value="刘师傅">刘师傅</option>
+                        <option value="陈师傅">陈师傅</option>
+                    </select>
+                    <div class="date-range">
+                        <input type="date" id="filterDateStart" onchange="applyFilters()" title="开始日期">
+                        <span style="color:#6b7f9a;">~</span>
+                        <input type="date" id="filterDateEnd" onchange="applyFilters()" title="结束日期">
+                    </div>
+                    <button class="btn btn-sm btn-outline" onclick="resetFilters()">重置</button>
+                    <span class="text-muted" style="font-size:12px;margin-left:auto;" id="filterResultCount">显示 0 条</span>
+                </div>
+            </div>
+
+            <!-- ===== 队列Tabs ===== -->
+            <div class="queue-tabs" id="queueTabs">
+                <button class="tab active" data-queue="first" onclick="switchQueue('first')">🔍 初审队列 <span class="count">(0)</span></button>
+                <button class="tab" data-queue="final" onclick="switchQueue('final')">📋 终审队列 <span class="count">(0)</span></button>
+                <button class="tab" data-queue="rejected" onclick="switchQueue('rejected')">⛔ 已驳回（可重提）<span class="count">(0)</span></button>
+                <button class="tab" data-queue="done" onclick="switchQueue('done')">✅ 已结算/已完成 <span class="count">(0)</span></button>
+            </div>
+
+            <!-- ===== 列表 ===== -->
+            <div class="card">
+                <div class="card-header">
+                    <span>📋 <span id="queueTitle">初审队列</span></span>
+                    <div class="flex">
+                        <button class="btn btn-sm btn-success" onclick="batchApprove()">✅ 批量通过</button>
+                        <button class="btn btn-sm btn-danger" onclick="batchReject()">⛔ 批量驳回</button>
+                        <button class="btn btn-sm btn-outline" onclick="refreshList()">🔄 刷新</button>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="checkbox-col"><input type="checkbox" id="selectAll" onchange="toggleAll()"></th>
+                                <th>订单号 / 团号</th>
+                                <th>司机 / 车牌</th>
+                                <th>车队</th>
+                                <th>提交时间</th>
+                                <th>等待时长</th>
+                                <th>金额</th>
+                                <th>垫付/成本</th>
+                                <th>驳回原因</th>
+                                <th style="min-width:130px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            <!-- JS 动态渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2 flex-between">
+                    <span class="text-muted">共 <span id="totalCount">0</span> 条，第 <span id="pageCurrent">1</span> / <span id="pageTotal">1</span> 页</span>
+                    <div class="pagination" id="pagination">
+                        <!-- JS 动态渲染 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 驳回模态框 ===== -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal">
+            <h3>⛔ 驳回订单</h3>
+            <div class="field">
+                <label>驳回原因 *</label>
+                <textarea id="rejectReasonInput" placeholder="请详细说明驳回原因，司机将据此整改重提"></textarea>
+                <div class="reason-templates">
+                    <span class="template" onclick="fillReason('发票金额与回单不符')">📎 发票不符</span>
+                    <span class="template" onclick="fillReason('行程公里数与实际偏差过大')">📏 公里数异常</span>
+                    <span class="template" onclick="fillReason('垫付凭证不清晰或缺失')">📷 凭证缺失</span>
+                    <span class="template" onclick="fillReason('现场回单照片不符合要求')">🖼️ 回单不合格</span>
+                    <span class="template" onclick="fillReason('行程时间与订单不符')">⏰ 时间不符</span>
+                </div>
+                <div class="hint-text">💡 驳回后订单进入「已驳回」队列，司机可修改重提</div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('rejectModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmReject()">⛔ 确认驳回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 批量确认模态框 ===== -->
+    <div class="modal-overlay" id="batchModal">
+        <div class="modal">
+            <h3 id="batchModalTitle">✅ 批量审核确认</h3>
+            <p style="color:#3f5370;margin-bottom:12px;">
+                即将对 <strong id="batchCount">3</strong> 个订单进行 <strong id="batchTypeLabel">初审通过</strong>。
+            </p>
+            <div id="batchWarning" style="display:none;background:#fef6f6;padding:10px 14px;border-radius:8px;border-left:4px solid #e65f5f;margin-bottom:12px;font-size:13px;color:#b33a3a;">
+                ⚠️ 所选订单中包含不同队列的订单，请确保所有订单属于同一审核队列。
+            </div>
+            <p style="background:#f8fafc;padding:12px;border-radius:10px;font-size:13px;color:#6b7f9a;">
+                ⚠️ 通过后不可撤回，请确认数据均已核验无误。
+            </p>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('batchModal')">取消</button>
+                <button class="btn btn-success" id="batchConfirmBtn" onclick="confirmBatch()">✅ 确认批量通过</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 批量驳回确认模态框 ===== -->
+    <div class="modal-overlay" id="batchRejectModal">
+        <div class="modal">
+            <h3>⛔ 批量驳回确认</h3>
+            <div class="field">
+                <label>统一驳回原因 *</label>
+                <textarea id="batchRejectReason" placeholder="请填写统一的驳回原因"></textarea>
+                <div class="reason-templates">
+                    <span class="template" onclick="document.getElementById('batchRejectReason').value='资料不全，请补充完整后重提'">📋 资料不全</span>
+                    <span class="template" onclick="document.getElementById('batchRejectReason').value='行程数据异常，请核实后重提'">📊 数据异常</span>
+                    <span class="template" onclick="document.getElementById('batchRejectReason').value='凭证不清晰，请重新上传'">📷 凭证问题</span>
+                </div>
+            </div>
+            <p style="color:#3f5370;font-size:13px;">即将驳回 <strong id="batchRejectCount">0</strong> 个订单。</p>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('batchRejectModal')">取消</button>
+                <button class="btn btn-danger" onclick="confirmBatchReject()">⛔ 确认批量驳回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 详情抽屉 ===== -->
+    <div class="drawer-overlay" id="detailDrawer">
+        <div class="drawer">
+            <button class="close-btn" onclick="closeDrawer()">✕</button>
+            <div class="drawer-title" id="drawerOrderId">#OD1023</div>
+            <div class="drawer-sub" id="drawerSub">司机：李师傅 · 云L·8888 · 雪山车队</div>
+
+            <div class="section-title">📌 订单信息</div>
+            <div class="info-row"><span class="label">客户</span><span class="value" id="dClient">悦途旅行</span></div>
+            <div class="info-row"><span class="label">线路</span><span class="value" id="dRoute">玉龙雪山一日游</span></div>
+            <div class="info-row"><span class="label">起止时间</span><span class="value" id="dTime">2026-06-23 08:00~18:00</span></div>
+            <div class="info-row"><span class="label">车型</span><span class="value" id="dCarType">9座·舒适型·油车</span></div>
+            <div class="info-row"><span class="label">订单金额</span><span class="value" id="dAmount">¥3,200.00</span></div>
+
+            <div class="section-title">📊 成本与垫付明细</div>
+            <div class="cost-grid" id="drawerCosts">
+                <!-- JS 动态渲染 -->
+            </div>
+
+            <div class="section-title">📎 回单凭证</div>
+            <div class="img-grid" id="drawerImages">
+                <!-- JS 动态渲染 -->
+            </div>
+
+            <div class="section-title">📋 审核操作日志 <span class="badge" style="font-size:10px;">全量留痕</span></div>
+            <div class="log-timeline" id="drawerAuditLogs">
+                <!-- JS 动态渲染 -->
+            </div>
+
+            <div class="drawer-actions" id="drawerActions">
+                <button class="btn btn-outline" onclick="closeDrawer()">关闭</button>
+                <button class="btn btn-success" id="drawerApproveBtn" onclick="drawerApprove()">✅ 通过</button>
+                <button class="btn btn-danger" id="drawerRejectBtn" onclick="drawerReject()">⛔ 驳回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 数据（扩展版）
+        // ================================================================
+        let orderIdCounter = 1032;
+        const now = new Date();
+
+        function getNowStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0') + ' ' +
+                String(d.getHours()).padStart(2, '0') + ':' +
+                String(d.getMinutes()).padStart(2, '0');
+        }
+
+        function getTodayStr() {
+            const d = new Date();
+            return d.getFullYear() + '-' +
+                String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                String(d.getDate()).padStart(2, '0');
+        }
+
+        function calcWaitTime(submitTime) {
+            // submitTime格式: "2026-06-23 17:35"
+            const parts = submitTime.split(' ');
+            if (parts.length < 2) return { text: '—', level: 'normal' };
+            const dateParts = parts[0].split('-');
+            const timeParts = parts[1].split(':');
+            const d = new Date(
+                parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]),
+                parseInt(timeParts[0]), parseInt(timeParts[1])
+            );
+            const diff = (now - d) / 1000 / 60; // 分钟
+            if (diff < 0) return { text: '刚刚', level: 'normal' };
+            if (diff < 60) return { text: Math.floor(diff) + 'min', level: 'normal' };
+            if (diff < 120) return { text: '1h ' + Math.floor(diff - 60) + 'min', level: 'warning' };
+            if (diff < 1440) return { text: Math.floor(diff / 60) + 'h ' + Math.floor(diff % 60) + 'min', level: diff > 720 ?
+                    'urgent' : 'warning' };
+            return { text: Math.floor(diff / 1440) + 'd ' + Math.floor((diff % 1440) / 60) + 'h', level: 'urgent' };
+        }
+
+        // 初始订单数据（带审核日志）
+        function createOrder(opts) {
+            const baseLogs = [{
+                time: opts.submitTime,
+                actor: opts.driver,
+                action: '提交行程回单',
+                detail: `油耗${opts.costs?.fuel || 0}L，公里数${opts.km || 80}km，垫付¥${opts.costs?.advance || 0}`,
+                dot: 'green'
+            }];
+            return {
+                id: opts.id || '#OD' + (orderIdCounter++),
+                group: opts.group || 'AUTO-' + String(orderIdCounter).padStart(4, '0'),
+                driver: opts.driver || '待分配',
+                plate: opts.plate || '—',
+                fleet: opts.fleet || '雪山车队',
+                submitTime: opts.submitTime || getNowStr(),
+                amount: opts.amount || 2000,
+                cost: opts.cost || 1800,
+                status: opts.status || '待初审',
+                queue: opts.queue || 'first',
+                rejectReason: opts.rejectReason || '',
+                rejectRole: opts.rejectRole || '',
+                client: opts.client || '客户',
+                route: opts.route || '固定线路',
+                time: opts.time || '08:00~18:00',
+                carType: opts.carType || '9座·舒适型·油车',
+                km: opts.km || 80,
+                costs: opts.costs || { fuel: 600, toll: 50, advance: 30, rebate: -100, discount: -50 },
+                images: opts.images || ['过路费发票', '垫付凭证', '现场回单'],
+                auditLogs: opts.auditLogs || baseLogs,
+                approvedTime: opts.approvedTime || null, // 终审通过时间（用于统计）
+                rejectTime: opts.rejectTime || null,
+            };
+        }
+
+        // 构建初始数据
+        let auditOrders = [
+            createOrder({
+                id: '#OD1023',
+                group: 'YT-20260623-A',
+                driver: '李师傅',
+                plate: '云L·8888',
+                fleet: '雪山车队',
+                submitTime: '2026-06-23 17:35',
+                amount: 3200,
+                cost: 2610,
+                status: '待初审',
+                queue: 'first',
+                client: '悦途旅行',
+                route: '玉龙雪山一日游',
+                time: '2026-06-23 08:00~18:00',
+                carType: '9座·舒适型·油车',
+                km: 80,
+                costs: { fuel: 680, toll: 50, advance: 30, rebate: -100, discount: -50 },
+                images: ['过路费发票', '垫付凭证', '现场回单', '行车轨迹'],
+                auditLogs: [
+                    { time: '2026-06-23 17:35', actor: '李师傅', action: '提交行程回单',
+                        detail: '油耗100L，公里数80km，垫付¥30', dot: 'green' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1020',
+                group: 'GC-20260622-D',
+                driver: '赵师傅',
+                plate: '云L·9999',
+                fleet: '玉龙车队',
+                submitTime: '2026-06-23 19:30',
+                amount: 4500,
+                cost: 4050,
+                status: '待终审',
+                queue: 'final',
+                client: '古城国旅',
+                route: '泸沽湖两日游',
+                time: '2026-06-23 07:00~06-24 19:00',
+                carType: '19座·舒适型·油车',
+                km: 320,
+                costs: { fuel: 1200, toll: 180, advance: 120, rebate: -200, discount: -100 },
+                images: ['过路费发票', '垫付凭证', '现场回单'],
+                auditLogs: [
+                    { time: '2026-06-23 19:30', actor: '赵师傅', action: '提交行程回单',
+                        detail: '油耗200L，公里数320km，垫付¥120', dot: 'green' },
+                    { time: '2026-06-23 20:00', actor: '张计调', action: '初审通过', detail: '行程与公里数吻合',
+                    dot: 'blue' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1025',
+                group: 'GC-20260623-C',
+                driver: '王师傅',
+                plate: '云L·6666',
+                fleet: '古城车队',
+                submitTime: '2026-06-23 16:20',
+                amount: 1500,
+                cost: 1380,
+                status: '待初审',
+                queue: 'first',
+                client: '商务VIP',
+                route: '定制包车-机场往返',
+                time: '2026-06-23 10:00~16:00',
+                carType: '7座·豪华型·油车',
+                km: 45,
+                costs: { fuel: 180, toll: 40, advance: 20, rebate: 0, discount: -80 },
+                images: ['垫付凭证', '现场回单'],
+                auditLogs: [
+                    { time: '2026-06-23 16:20', actor: '王师傅', action: '提交行程回单',
+                        detail: '油耗30L，公里数45km，垫付¥20', dot: 'green' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1028',
+                group: 'REJ-20260622-F',
+                driver: '周师傅',
+                plate: '云L·4444',
+                fleet: '玉龙车队',
+                submitTime: '2026-06-22 18:00',
+                amount: 2200,
+                cost: 1950,
+                status: '已驳回',
+                queue: 'rejected',
+                rejectReason: '过路费发票金额（¥50）与回单照片（¥80）不符，请重新上传正确发票。',
+                rejectRole: '计调初审驳回',
+                client: '阳光假期',
+                route: '玉龙雪山一日游',
+                time: '2026-06-22 08:00~17:00',
+                carType: '9座·舒适型·油车',
+                km: 75,
+                costs: { fuel: 650, toll: 50, advance: 20, rebate: -100, discount: -50 },
+                images: ['过路费发票(旧)', '垫付凭证', '现场回单'],
+                auditLogs: [
+                    { time: '2026-06-22 18:00', actor: '周师傅', action: '提交行程回单',
+                        detail: '油耗95L，公里数75km，垫付¥20', dot: 'green' },
+                    { time: '2026-06-22 18:30', actor: '张计调', action: '初审通过', detail: '行程数据真实',
+                    dot: 'blue' },
+                    { time: '2026-06-23 16:30', actor: '王财务', action: '终审驳回',
+                        detail: '过路费发票金额（¥50）与回单照片（¥80）不符', dot: 'red' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1029',
+                group: 'SET-20260621-G',
+                driver: '吴师傅',
+                plate: '云L·1313',
+                fleet: '玉龙车队',
+                submitTime: '2026-06-21 18:30',
+                amount: 6800,
+                cost: 6120,
+                status: '已驳回',
+                queue: 'rejected',
+                rejectReason: '行程公里数（320km）与GPS轨迹（295km）偏差过大，请核实后重提。',
+                rejectRole: '财务终审驳回',
+                client: '景区直通车',
+                route: '玉龙雪山直通车',
+                time: '2026-06-22 07:00~18:00',
+                carType: '19座·舒适型·油车',
+                km: 320,
+                costs: { fuel: 1800, toll: 200, advance: 150, rebate: -300, discount: -120 },
+                images: ['过路费发票', '垫付凭证', '现场回单', 'GPS轨迹'],
+                auditLogs: [
+                    { time: '2026-06-21 18:30', actor: '吴师傅', action: '提交行程回单',
+                        detail: '油耗280L，公里数320km，垫付¥150', dot: 'green' },
+                    { time: '2026-06-21 19:00', actor: '张计调', action: '初审通过', detail: '行程数据真实',
+                        dot: 'blue' },
+                    { time: '2026-06-22 10:00', actor: '王财务', action: '终审驳回',
+                        detail: '公里数（320km）与GPS轨迹（295km）偏差过大', dot: 'red' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1030',
+                group: 'SW-20260623-H',
+                driver: '刘师傅',
+                plate: '云L·5555',
+                fleet: '雪山车队',
+                submitTime: '2026-06-23 18:50',
+                amount: 280,
+                cost: 260,
+                status: '待终审',
+                queue: 'final',
+                client: '散客-刘先生',
+                route: '三义机场→古城',
+                time: '2026-06-23 14:00',
+                carType: '5座·经济型·电车',
+                km: 30,
+                costs: { fuel: 30, toll: 15, advance: 0, rebate: 0, discount: -10 },
+                images: ['现场回单'],
+                auditLogs: [
+                    { time: '2026-06-23 18:50', actor: '刘师傅', action: '提交行程回单',
+                        detail: '油耗5L，公里数30km，垫付¥0', dot: 'green' },
+                    { time: '2026-06-23 19:10', actor: '张计调', action: '初审通过', detail: '行程属实，建议通过',
+                        dot: 'blue' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1031',
+                group: 'YT-20260623-I',
+                driver: '陈师傅',
+                plate: '云L·7777',
+                fleet: '雪山车队',
+                submitTime: '2026-06-23 17:00',
+                amount: 3800,
+                cost: 3500,
+                status: '待初审',
+                queue: 'first',
+                client: '悦途旅行',
+                route: '拉市海专线',
+                time: '2026-06-23 09:00~15:00',
+                carType: '9座·舒适型·电车',
+                km: 60,
+                costs: { fuel: 120, toll: 30, advance: 80, rebate: -150, discount: -60 },
+                images: ['过路费发票', '垫付凭证', '现场回单'],
+                auditLogs: [
+                    { time: '2026-06-23 17:00', actor: '陈师傅', action: '提交行程回单',
+                        detail: '油耗20kWh，公里数60km，垫付¥80', dot: 'green' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1032',
+                group: 'DONE-20260622-J',
+                driver: '钱师傅',
+                plate: '云L·1212',
+                fleet: '古城车队',
+                submitTime: '2026-06-22 16:00',
+                amount: 4200,
+                cost: 3800,
+                status: '已结算',
+                queue: 'done',
+                client: '阳光假期',
+                route: '玉龙雪山一日游',
+                time: '2026-06-22 08:00~17:00',
+                carType: '9座·舒适型·油车',
+                km: 82,
+                costs: { fuel: 700, toll: 55, advance: 40, rebate: -120, discount: -60 },
+                images: ['过路费发票', '垫付凭证', '现场回单'],
+                approvedTime: '2026-06-22 19:30',
+                auditLogs: [
+                    { time: '2026-06-22 16:00', actor: '钱师傅', action: '提交行程回单',
+                        detail: '油耗110L，公里数82km，垫付¥40', dot: 'green' },
+                    { time: '2026-06-22 17:00', actor: '张计调', action: '初审通过', detail: '行程数据真实',
+                    dot: 'blue' },
+                    { time: '2026-06-22 19:30', actor: '王财务', action: '终审通过', detail: '金额与成本核对无误，进入结算',
+                        dot: 'green' }
+                ]
+            }),
+            createOrder({
+                id: '#OD1033',
+                group: 'DONE-20260623-K',
+                driver: '孙师傅',
+                plate: '云L·1414',
+                fleet: '玉龙车队',
+                submitTime: '2026-06-23 14:20',
+                amount: 5500,
+                cost: 4950,
+                status: '已结算',
+                queue: 'done',
+                client: '古城国旅',
+                route: '泸沽湖两日游',
+                time: '2026-06-23 07:00~06-24 19:00',
+                carType: '19座·舒适型·油车',
+                km: 315,
+                costs: { fuel: 1500, toll: 190, advance: 100, rebate: -250, discount: -80 },
+                images: ['过路费发票', '垫付凭证', '现场回单', 'GPS轨迹'],
+                approvedTime: '2026-06-23 20:00',
+                auditLogs: [
+                    { time: '2026-06-23 14:20', actor: '孙师傅', action: '提交行程回单',
+                        detail: '油耗240L，公里数315km，垫付¥100', dot: 'green' },
+                    { time: '2026-06-23 15:00', actor: '张计调', action: '初审通过', detail: '行程与GPS吻合',
+                        dot: 'blue' },
+                    { time: '2026-06-23 20:00', actor: '王财务', action: '终审通过', detail: '数据准确，进入结算',
+                        dot: 'green' }
+                ]
+            })
+        ];
+
+        let currentQueue = 'first';
+        let currentRejectOrderId = null;
+        let currentDrawerOrderId = null;
+        let selectedIds = [];
+        let batchRejectIds = [];
+        let currentPage = 1;
+        const PAGE_SIZE = 10;
+
+        // ================================================================
+        // 2. 渲染
+        // ================================================================
+        function getFilteredOrders() {
+            const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
+            const fleetFilter = document.getElementById('filterFleet').value;
+            const driverFilter = document.getElementById('filterDriver').value;
+            const dateStart = document.getElementById('filterDateStart').value;
+            const dateEnd = document.getElementById('filterDateEnd').value;
+
+            let filtered = auditOrders.filter(o => {
+                if (o.queue !== currentQueue) return false;
+                if (keyword && !o.id.toLowerCase().includes(keyword) && !o.group.toLowerCase().includes(keyword))
+                    return false;
+                if (fleetFilter && o.fleet !== fleetFilter) return false;
+                if (driverFilter && o.driver !== driverFilter) return false;
+                // 日期范围：基于submitTime
+                if (dateStart && o.submitTime < dateStart) return false;
+                if (dateEnd && o.submitTime > dateEnd + ' 23:59') return false;
+                return true;
+            });
+            return filtered;
+        }
+
+        function renderList() {
+            const filtered = getFilteredOrders();
+            const total = filtered.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const pageItems = filtered.slice(start, start + PAGE_SIZE);
+
+            document.getElementById('filterResultCount').innerText = `显示 ${total} 条`;
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('pageCurrent').innerText = currentPage;
+            document.getElementById('pageTotal').innerText = totalPages;
+
+            const tbody = document.getElementById('auditTableBody');
+            if (pageItems.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="10" style="text-align:center;padding:40px;color:#6b7f9a;">暂无待审核订单</td></tr>`;
+                renderPagination(totalPages);
+                updateTabCounts();
+                updateStats();
+                return;
+            }
+
+            let html = '';
+            pageItems.forEach(o => {
+                const isRejected = o.status === '已驳回';
+                const isDone = o.status === '已结算';
+                const statusBadge = isDone ? '<span class="badge green">已结算</span>' :
+                    isRejected ? '<span class="badge red">已驳回</span>' :
+                    o.queue === 'first' ? '<span class="badge orange">待初审</span>' :
+                    '<span class="badge blue">待终审</span>';
+
+                const wait = calcWaitTime(o.submitTime);
+                const waitClass = wait.level === 'urgent' ? 'urgent' : wait.level === 'warning' ? 'warning' : 'normal';
+
+                const rejectDisplay = o.rejectReason ?
+                    `<span class="reject-reason-preview" title="${o.rejectReason}">⛔ ${o.rejectReason.substring(0, 14)}${o.rejectReason.length > 14 ? '...' : ''}</span>` :
+                    '—';
+
+                const canApprove = !isRejected && !isDone;
+                const canReject = !isRejected && !isDone;
+                const canResubmit = isRejected;
+
+                html += `<tr data-id="${o.id}">
+                    <td class="checkbox-col">
+                        ${!isDone ? `<input type="checkbox" class="row-checkbox" data-id="${o.id}" onchange="updateSelected()">` : ''}
+                    </td>
+                    <td><span style="font-weight:600;">${o.id}</span><span class="sub-text">${o.group}</span></td>
+                    <td>${o.driver}<span class="sub-text">${o.plate}</span></td>
+                    <td>${o.fleet}</td>
+                    <td>${o.submitTime}</td>
+                    <td><span class="wait-time ${waitClass}">${wait.text}</span></td>
+                    <td>¥${o.amount.toFixed(0)}</td>
+                    <td>¥${o.cost.toFixed(0)}</td>
+                    <td>${rejectDisplay}</td>
+                    <td>
+                        <div class="action-links">
+                            <button class="btn btn-sm btn-outline" onclick="openDrawer('${o.id}')">📄 详情</button>
+                            ${canApprove ? `<button class="btn btn-sm btn-success" onclick="singleApprove('${o.id}')">通过</button>` : ''}
+                            ${canReject ? `<button class="btn btn-sm btn-danger" onclick="openRejectModal('${o.id}')">驳回</button>` : ''}
+                            ${canResubmit ? `<button class="btn btn-sm btn-warning" onclick="reSubmit('${o.id}')">🔄 重提</button>` : ''}
+                            ${isDone ? `<span class="badge green" style="font-size:10px;">已完成</span>` : ''}
+                        </div>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            renderPagination(totalPages);
+            updateTabCounts();
+            updateStats();
+            document.getElementById('selectAll').checked = false;
+            selectedIds = [];
+        }
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            let html = '';
+            html += `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>‹</button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                html +=
+                    `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+            }
+            html +=
+                `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>›</button>`;
+            container.innerHTML = html;
+        }
+
+        function goPage(page) {
+            const filtered = getFilteredOrders();
+            const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderList();
+        }
+
+        function updateTabCounts() {
+            const first = auditOrders.filter(o => o.queue === 'first').length;
+            const final = auditOrders.filter(o => o.queue === 'final').length;
+            const rejected = auditOrders.filter(o => o.queue === 'rejected').length;
+            const done = auditOrders.filter(o => o.queue === 'done').length;
+
+            document.querySelectorAll('.queue-tabs .tab').forEach(tab => {
+                const queue = tab.dataset.queue;
+                let count = 0;
+                if (queue === 'first') count = first;
+                else if (queue === 'final') count = final;
+                else if (queue === 'rejected') count = rejected;
+                else if (queue === 'done') count = done;
+                const countSpan = tab.querySelector('.count');
+                if (countSpan) countSpan.innerText = `(${count})`;
+            });
+        }
+
+        function updateStats() {
+            const first = auditOrders.filter(o => o.queue === 'first').length;
+            const final = auditOrders.filter(o => o.queue === 'final').length;
+            const done = auditOrders.filter(o => o.queue === 'done').length;
+            const rejected = auditOrders.filter(o => o.queue === 'rejected').length;
+            const total = auditOrders.length;
+            const rejectedTotal = auditOrders.filter(o => o.status === '已驳回').length;
+            const rate = total > 0 ? Math.round((rejectedTotal / total) * 100) : 0;
+
+            document.getElementById('statPendingFirst').innerText = first;
+            document.getElementById('statPendingFinal').innerText = final;
+
+            // 今日已审：从done队列中筛选今日终审通过的
+            const today = getTodayStr();
+            const todayDone = auditOrders.filter(o =>
+                o.queue === 'done' &&
+                o.approvedTime &&
+                o.approvedTime.startsWith(today)
+            ).length;
+            document.getElementById('statTodayDone').innerText = todayDone + (done > 0 ? '+' + (done - todayDone) : '');
+            document.getElementById('statTodaySub').innerText = `今日${todayDone}单 · 累计${done}单`;
+
+            // 驳回率
+            document.getElementById('statRejectRate').innerText = rate + '%';
+            document.getElementById('statRejectSub').innerText = `${rejected}单被驳回`;
+
+            // 平均审核耗时：从已结算订单中计算
+            const doneOrders = auditOrders.filter(o => o.queue === 'done' && o.approvedTime);
+            let totalMinutes = 0;
+            doneOrders.forEach(o => {
+                const submit = new Date(o.submitTime.replace(' ', 'T'));
+                const approve = new Date(o.approvedTime.replace(' ', 'T'));
+                const diff = (approve - submit) / 1000 / 60;
+                if (diff > 0) totalMinutes += diff;
+            });
+            const avg = doneOrders.length > 0 ? Math.round(totalMinutes / doneOrders.length) : 0;
+            if (avg < 60) {
+                document.getElementById('statAvgTime').innerText = avg + 'min';
+            } else {
+                const h = Math.floor(avg / 60);
+                const m = avg % 60;
+                document.getElementById('statAvgTime').innerText = h + 'h' + (m > 0 ? m + 'min' : '');
+            }
+        }
+
+        // ================================================================
+        // 3. 队列切换 & 筛选
+        // ================================================================
+        function switchQueue(queue) {
+            currentQueue = queue;
+            currentPage = 1;
+            document.querySelectorAll('.queue-tabs .tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.queue-tabs .tab[data-queue="${queue}"]`).classList.add('active');
+
+            const titles = { first: '初审队列', final: '终审队列', rejected: '已驳回（可重提）', done: '已结算/已完成' };
+            document.getElementById('queueTitle').innerText = titles[queue] || '审核队列';
+            renderList();
+        }
+
+        function applyFilters() {
+            currentPage = 1;
+            renderList();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchKeyword').value = '';
+            document.getElementById('filterFleet').value = '';
+            document.getElementById('filterDriver').value = '';
+            document.getElementById('filterDateStart').value = '';
+            document.getElementById('filterDateEnd').value = '';
+            currentPage = 1;
+            renderList();
+        }
+
+        function refreshList() {
+            showToast('🔄 列表已刷新');
+            renderList();
+        }
+
+        // ================================================================
+        // 4. 复选框 & 批量操作
+        // ================================================================
+        function toggleAll() {
+            const checked = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checked);
+            updateSelected();
+        }
+
+        function updateSelected() {
+            selectedIds = [];
+            document.querySelectorAll('.row-checkbox:checked').forEach(cb => {
+                selectedIds.push(cb.dataset.id);
+            });
+        }
+
+        // ===== 批量通过 =====
+        function batchApprove() {
+            if (selectedIds.length === 0) {
+                showToast('⚠️ 请至少选择一个订单');
+                return;
+            }
+            // P0-2: 队列校验
+            const selectedOrders = selectedIds.map(id => auditOrders.find(o => o.id === id)).filter(Boolean);
+            const queues = new Set(selectedOrders.map(o => o.queue));
+            const hasRejected = selectedOrders.some(o => o.status === '已驳回');
+            const hasDone = selectedOrders.some(o => o.status === '已结算');
+
+            if (hasRejected || hasDone) {
+                document.getElementById('batchWarning').style.display = 'block';
+                document.getElementById('batchWarning').innerHTML =
+                    '⚠️ 所选订单中包含「已驳回」或「已结算」订单，不允许批量通过。请仅选择待审核订单。';
+                document.getElementById('batchModal').classList.add('show');
+                return;
+            }
+
+            if (queues.size > 1) {
+                document.getElementById('batchWarning').style.display = 'block';
+                document.getElementById('batchWarning').innerHTML =
+                    `⚠️ 所选订单属于不同队列（${Array.from(queues).join(', ')}），请确保所有订单属于同一审核队列。`;
+                document.getElementById('batchModal').classList.add('show');
+                return;
+            }
+
+            document.getElementById('batchWarning').style.display = 'none';
+            const label = currentQueue === 'first' ? '初审通过' : '终审通过';
+            document.getElementById('batchModalTitle').innerText = '✅ 批量审核确认';
+            document.getElementById('batchCount').innerText = selectedIds.length;
+            document.getElementById('batchTypeLabel').innerText = label;
+            document.getElementById('batchModal').classList.add('show');
+        }
+
+        function confirmBatch() {
+            const label = currentQueue === 'first' ? '初审' : '终审';
+            const role = currentQueue === 'first' ? '计调' : '财务';
+            const nowStr = getNowStr();
+
+            selectedIds.forEach(id => {
+                const order = auditOrders.find(o => o.id === id);
+                if (!order) return;
+                if (currentQueue === 'first') {
+                    order.status = '待终审';
+                    order.queue = 'final';
+                    order.auditLogs.push({
+                        time: nowStr,
+                        actor: role + '·批量',
+                        action: '初审通过（批量）',
+                        detail: '批量通过，进入终审队列',
+                        dot: 'blue'
+                    });
+                } else if (currentQueue === 'final') {
+                    order.status = '已结算';
+                    order.queue = 'done';
+                    order.approvedTime = nowStr;
+                    order.auditLogs.push({
+                        time: nowStr,
+                        actor: role + '·批量',
+                        action: '终审通过（批量）',
+                        detail: '批量通过，进入结算池',
+                        dot: 'green'
+                    });
+                }
+            });
+            closeModal('batchModal');
+            showToast(`✅ 批量${label}通过：${selectedIds.length} 个订单`);
+            selectedIds = [];
+            renderList();
+        }
+
+        // ===== 批量驳回 =====
+        function batchReject() {
+            if (selectedIds.length === 0) {
+                showToast('⚠️ 请至少选择一个订单');
+                return;
+            }
+            // 过滤掉已驳回和已结算的
+            const validIds = selectedIds.filter(id => {
+                const o = auditOrders.find(order => order.id === id);
+                return o && o.status !== '已驳回' && o.status !== '已结算';
+            });
+            if (validIds.length === 0) {
+                showToast('⚠️ 所选订单均不可驳回（已驳回或已结算）');
+                return;
+            }
+            batchRejectIds = validIds;
+            document.getElementById('batchRejectCount').innerText = validIds.length;
+            document.getElementById('batchRejectReason').value = '';
+            document.getElementById('batchRejectModal').classList.add('show');
+        }
+
+        function confirmBatchReject() {
+            const reason = document.getElementById('batchRejectReason').value.trim();
+            if (!reason) {
+                showToast('⚠️ 请填写驳回原因');
+                return;
+            }
+            const role = currentQueue === 'first' ? '计调' : '财务';
+            const nowStr = getNowStr();
+            batchRejectIds.forEach(id => {
+                const order = auditOrders.find(o => o.id === id);
+                if (!order) return;
+                order.status = '已驳回';
+                order.queue = 'rejected';
+                order.rejectReason = reason;
+                order.rejectRole = role + '初审驳回';
+                order.auditLogs.push({
+                    time: nowStr,
+                    actor: role + '·批量',
+                    action: '驳回（批量）',
+                    detail: reason,
+                    dot: 'red'
+                });
+            });
+            closeModal('batchRejectModal');
+            showToast(`⛔ 批量驳回：${batchRejectIds.length} 个订单`);
+            batchRejectIds = [];
+            renderList();
+        }
+
+        // ================================================================
+        // 5. 单条审核
+        // ================================================================
+        function singleApprove(id) {
+            const order = auditOrders.find(o => o.id === id);
+            if (!order) return;
+            if (order.status === '已驳回') {
+                showToast('⚠️ 已驳回的订单请点击「重提」');
+                return;
+            }
+            if (order.status === '已结算') {
+                showToast('⚠️ 已结算的订单不可操作');
+                return;
+            }
+            const nowStr = getNowStr();
+            const role = currentQueue === 'first' ? '计调' : '财务';
+
+            if (currentQueue === 'first') {
+                order.status = '待终审';
+                order.queue = 'final';
+                order.auditLogs.push({
+                    time: nowStr,
+                    actor: role,
+                    action: '初审通过',
+                    detail: '核实行程数据真实，建议通过',
+                    dot: 'blue'
+                });
+                showToast(`✅ 初审通过：${id}，已进入终审队列`);
+            } else if (currentQueue === 'final') {
+                order.status = '已结算';
+                order.queue = 'done';
+                order.approvedTime = nowStr;
+                order.auditLogs.push({
+                    time: nowStr,
+                    actor: role,
+                    action: '终审通过',
+                    detail: '金额与成本核对无误，进入结算',
+                    dot: 'green'
+                });
+                showToast(`✅ 终审通过：${id}，已进入结算池`);
+            }
+            renderList();
+        }
+
+        // ================================================================
+        // 6. 驳回重提闭环
+        // ================================================================
+        function openRejectModal(id) {
+            currentRejectOrderId = id;
+            document.getElementById('rejectReasonInput').value = '';
+            document.getElementById('rejectModal').classList.add('show');
+        }
+
+        function fillReason(text) {
+            document.getElementById('rejectReasonInput').value = text;
+        }
+
+        function confirmReject() {
+            const reason = document.getElementById('rejectReasonInput').value.trim();
+            if (!reason) {
+                showToast('⚠️ 请填写驳回原因');
+                return;
+            }
+            const order = auditOrders.find(o => o.id === currentRejectOrderId);
+            if (order) {
+                const role = currentQueue === 'first' ? '计调' : '财务';
+                order.status = '已驳回';
+                order.queue = 'rejected';
+                order.rejectReason = reason;
+                order.rejectRole = role + '初审驳回';
+                order.auditLogs.push({
+                    time: getNowStr(),
+                    actor: role,
+                    action: '驳回',
+                    detail: reason,
+                    dot: 'red'
+                });
+                showToast(`⛔ ${order.id} 已驳回`);
+            }
+            closeModal('rejectModal');
+            renderList();
+        }
+
+        function reSubmit(id) {
+            const order = auditOrders.find(o => o.id === id);
+            if (!order) return;
+            if (!confirm(`确认将 ${id} 重新提交至初审队列吗？\n司机修改后需重新核验。`)) return;
+
+            order.status = '待初审';
+            order.queue = 'first';
+            order.rejectReason = '';
+            order.rejectRole = '';
+            order.auditLogs.push({
+                time: getNowStr(),
+                actor: '系统',
+                action: '重新提交',
+                detail: '司机已修改，重新进入初审队列',
+                dot: 'orange'
+            });
+            showToast(`🔄 ${id} 已重新提交至初审队列`);
+            renderList();
+        }
+
+        // ================================================================
+        // 7. 详情抽屉
+        // ================================================================
+        function openDrawer(id) {
+            const order = auditOrders.find(o => o.id === id);
+            if (!order) return;
+            currentDrawerOrderId = id;
+
+            document.getElementById('drawerOrderId').innerText = order.id;
+            document.getElementById('drawerSub').innerText =
+                `司机：${order.driver} · ${order.plate} · ${order.fleet} · 状态：${order.status}`;
+            document.getElementById('dClient').innerText = order.client;
+            document.getElementById('dRoute').innerText = order.route;
+            document.getElementById('dTime').innerText = order.time;
+            document.getElementById('dCarType').innerText = order.carType;
+            document.getElementById('dAmount').innerText = `¥${order.amount.toFixed(2)}`;
+
+            // 成本
+            const costs = order.costs || { fuel: 0, toll: 0, advance: 0, rebate: 0, discount: 0 };
+            const costContainer = document.getElementById('drawerCosts');
+            const total = order.cost || 0;
+            costContainer.innerHTML = `
+                <div class="item"><span>油耗/电耗</span><span>¥${(costs.fuel || 0).toFixed(2)}</span></div>
+                <div class="item"><span>过路费</span><span>¥${(costs.toll || 0).toFixed(2)}</span></div>
+                <div class="item"><span>司机垫付</span><span>¥${(costs.advance || 0).toFixed(2)}</span></div>
+                <div class="item"><span>返点</span><span style="color:#e65f5f;">¥${(costs.rebate || 0).toFixed(2)}</span></div>
+                <div class="item"><span>优惠抵扣</span><span style="color:#e65f5f;">¥${(costs.discount || 0).toFixed(2)}</span></div>
+                <div class="item total"><span>结算基数</span><span>¥${total.toFixed(2)}</span></div>
+            `;
+
+            // 凭证
+            const imgContainer = document.getElementById('drawerImages');
+            if (order.images && order.images.length > 0) {
+                imgContainer.innerHTML = order.images.map(img =>
+                    `<div class="img-placeholder"><span class="icon">📄</span> ${img}</div>`
+                ).join('');
+            } else {
+                imgContainer.innerHTML = '<div class="text-muted">暂无上传凭证</div>';
+            }
+
+            // 审核操作日志
+            const logContainer = document.getElementById('drawerAuditLogs');
+            const logs = order.auditLogs || [];
+            if (logs.length === 0) {
+                logContainer.innerHTML = '<div class="text-muted">暂无审核记录</div>';
+            } else {
+                let logHtml = '';
+                logs.forEach(log => {
+                    const dotColor = log.dot || 'gray';
+                    logHtml += `<div class="log-item">
+                        <div class="dot ${dotColor}"></div>
+                        <div class="log-head">
+                            <span class="title">${log.action}</span>
+                            <span class="time">${log.time}</span>
+                        </div>
+                        <div class="log-desc">${log.actor}</div>
+                        <div class="log-detail">${log.detail}</div>
+                    </div>`;
+                });
+                logContainer.innerHTML = logHtml;
+            }
+
+            // 底部按钮
+            const isRejected = order.status === '已驳回';
+            const isDone = order.status === '已结算';
+            const approveBtn = document.getElementById('drawerApproveBtn');
+            const rejectBtn = document.getElementById('drawerRejectBtn');
+
+            if (isRejected || isDone) {
+                approveBtn.style.display = 'none';
+                rejectBtn.style.display = 'none';
+            } else {
+                approveBtn.style.display = 'inline-flex';
+                rejectBtn.style.display = 'inline-flex';
+                approveBtn.innerText = currentQueue === 'first' ? '✅ 初审通过' : '✅ 终审通过';
+                approveBtn.onclick = function() { singleApprove(id);
+                    closeDrawer(); };
+                rejectBtn.onclick = function() { closeDrawer();
+                    setTimeout(() => openRejectModal(id), 300); };
+            }
+
+            document.getElementById('detailDrawer').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function drawerApprove() {
+            if (currentDrawerOrderId) {
+                singleApprove(currentDrawerOrderId);
+                closeDrawer();
+            }
+        }
+
+        function drawerReject() {
+            if (currentDrawerOrderId) {
+                closeDrawer();
+                setTimeout(() => openRejectModal(currentDrawerOrderId), 300);
+            }
+        }
+
+        function closeDrawer() {
+            document.getElementById('detailDrawer').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+
+        // ================================================================
+        // 8. 通用
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        document.getElementById('detailDrawer').addEventListener('click', function(e) {
+            if (e.target === this) closeDrawer();
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ================================================================
+        // 9. 初始化
+        // ================================================================
+        renderList();
+        console.log('✅ 审核工作台 v3.0 完整优化版已加载');
+        console.log('📋 优化清单：');
+        console.log('  ✅ P0-1: 新增「已结算/已完成」Tab');
+        console.log('  ✅ P0-2: 批量审核增加队列校验');
+        console.log('  ✅ P0-3: 统计卡片动态计算「今日已审」');
+        console.log('  ✅ P1-1: 增加「审核操作日志」时间线');
+        console.log('  ✅ P1-2: 增加「批量驳回」功能');
+        console.log('  ✅ P1-3: 列表增加「等待时长」列');
+        console.log('  ✅ P1-4: 驳回记录增加驳回人角色');
+        console.log('  ✅ P1-5: 日期筛选改为日期范围');
+        console.log('  ✅ P2-1: 增加分页（每页10条）');
+        console.log('  ✅ P2-2: 驳回原因悬停展示完整内容');
+        console.log('  ✅ P2-3: 增加「平均审核耗时」统计');
+    </script>
+</body>
+</html>

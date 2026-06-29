@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>智慧眼镜 · 巡检终端</title>
+    <style>
+        /* ============================================================
+           DESIGN TOKENS — 专业工业级亮色主题
+           ============================================================ */
+        :root {
+            /* 主色调 */
+            --color-primary: #2563EB;
+            --color-primary-hover: #3B82F6;
+            --color-primary-bg: rgba(37, 99, 235, 0.10);
+            --color-primary-border: rgba(37, 99, 235, 0.25);
+
+            /* 语义色 */
+            --color-success: #16A34A;
+            --color-success-bg: rgba(22, 163, 74, 0.10);
+            --color-warning: #B45309;
+            --color-warning-bg: rgba(180, 83, 9, 0.10);
+            --color-danger: #DC2626;
+            --color-danger-bg: rgba(220, 38, 38, 0.08);
+
+            /* 背景层级 */
+            --bg-app: #FFFFFF;
+            --bg-surface: #F8FAFC;
+            --bg-surface-hover: #F1F5F9;
+            --bg-elevated: #E2E8F0;
+
+            /* 边框 */
+            --border-subtle: 1px solid rgba(0, 0, 0, 0.06);
+            --border-default: 1px solid rgba(0, 0, 0, 0.10);
+            --border-emphasis: 1px solid rgba(0, 0, 0, 0.15);
+
+            /* 文字 */
+            --text-primary: #0F172A;
+            --text-secondary: #475569;
+            --text-tertiary: #94A3B8;
+            --text-disabled: #CBD5E1;
+
+            /* 圆角 */
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+            --radius-full: 9999px;
+
+            /* 间距 */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+
+            /* 阴影 */
+            --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            --shadow-elevated: 0 4px 16px rgba(0,0,0,0.10);
+
+            /* 过渡 */
+            --transition-fast: 150ms ease;
+            --transition-normal: 200ms ease;
+
+            /* 字体 */
+            --font-stack: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #F1F5F9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: var(--space-md);
+            font-family: var(--font-stack);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ============================================================
+           UTILITY CLASSES
+           ============================================================ */
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; align-items: center; justify-content: space-between; }
+        .flex-col { display: flex; flex-direction: column; }
+        .gap-xs { gap: var(--space-xs); }
+        .gap-sm { gap: var(--space-sm); }
+        .gap-md { gap: var(--space-md); }
+        .gap-lg { gap: var(--space-lg); }
+        .text-sm { font-size: 12px; }
+        .text-xs { font-size: 11px; }
+        .text-muted { color: var(--text-tertiary); }
+        .text-secondary { color: var(--text-secondary); }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .hide-scrollbar {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* ============================================================
+           PHONE FRAME
+           ============================================================ */
+        .phone {
+            max-width: 390px;
+            width: 100%;
+            background: var(--bg-app);
+            border-radius: 36px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+            position: relative;
+            height: 780px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ============================================================
+           STATUS BAR
+           ============================================================ */
+        .status-bar {
+            padding: 14px var(--space-xl) 6px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .status-bar .time {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+        .status-icons .signal-bar {
+            display: inline-block;
+            width: 14px;
+            height: 9px;
+            background: var(--text-secondary);
+            border-radius: 1px;
+            opacity: 0.7;
+        }
+
+        /* ============================================================
+           CONTENT AREA
+           ============================================================ */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 var(--space-lg) 10px;
+            position: relative;
+        }
+        /* Page transition */
+        .page {
+            display: none;
+            animation: pageIn 200ms ease;
+        }
+        .page.active { display: block; }
+
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================================
+           SECONDARY PAGE (stack overlay)
+           ============================================================ */
+        .secondary-page {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-app);
+            z-index: 30;
+            padding: 0 var(--space-lg) var(--space-lg);
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            animation: pageIn 180ms ease;
+        }
+        .secondary-page.active { display: flex; }
+
+        .secondary-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 0 var(--space-lg);
+            position: sticky;
+            top: 0;
+            background: var(--bg-app);
+            z-index: 5;
+            gap: var(--space-md);
+        }
+        .secondary-header .back-btn {
+            font-size: 26px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color var(--transition-fast);
+            background: none;
+            border: none;
+            padding: var(--space-xs);
+            line-height: 1;
+            border-radius: var(--radius-xs);
+        }
+        .secondary-header .back-btn:hover { color: var(--text-primary); }
+        .secondary-header .title {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+        }
+        .secondary-content { flex: 1; }
+
+        /* ============================================================
+           COMPONENT: Glass Card
+           ============================================================ */
+        .card {
+            background: var(--bg-surface);
+            border: var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg) var(--space-xl);
+            margin-bottom: var(--space-lg);
+            box-shadow: var(--shadow-card);
+        }
+        .card--compact { padding: var(--space-md) var(--space-lg); }
+        .card--inset { padding: var(--space-xs) var(--space-lg); }
+
+        /* ============================================================
+           COMPONENT: Bottom Navigation
+           ============================================================ */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.92);
+            border-top: var(--border-subtle);
+            padding: 8px 0 6px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 20;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            cursor: pointer;
+            transition: color var(--transition-normal);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-full);
+            background: transparent;
+            border: none;
+            outline: none;
+            position: relative;
+        }
+        .nav-item:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+        .nav-item .nav-icon {
+            font-size: 20px;
+            line-height: 1;
+            transition: transform var(--transition-normal);
+        }
+        .nav-item.active {
+            color: var(--text-primary);
+        }
+        .nav-item.active .nav-icon {
+            transform: translateY(-1px);
+        }
+        .nav-item.active::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 18px;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--color-primary);
+        }
+        .nav-item .nav-label { font-size: 10px; }
+
+        /* ============================================================
+           COMPONENT: Device Card
+           ============================================================ */
+        .device-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .device-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .device-icon-wrap {
+            width: 48px;
+            height: 48px;
+            background: var(--color-primary-bg);
+            border: var(--border-default);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+        }
+        .device-icon-wrap .scan-line {
+            position: absolute;
+            width: 60%;
+            height: 1.5px;
+            background: var(--color-primary);
+            opacity: 0.5;
+            animation: scanMove 2.5s ease-in-out infinite;
+            border-radius: 1px;
+        }
+        @keyframes scanMove {
+            0%   { top: 18%; }
+            50%  { top: 68%; }
+            100% { top: 18%; }
+        }
+        .device-info { display: flex; flex-direction: column; gap: 3px; }
+        .device-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.3px;
+        }
+        .device-status {
+            font-size: 11px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--color-success);
+            display: inline-block;
+            animation: dotPulse 2s infinite;
+        }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; }
+            50%      { opacity: 0.35; }
+        }
+
+        /* Battery ring */
+        .battery-ring {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+        }
+        .battery-ring svg { transform: rotate(-90deg); }
+        .battery-ring .center-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+        .battery-ring .center-text small {
+            font-size: 9px;
+            font-weight: 400;
+            color: var(--text-tertiary);
+        }
+
+        /* Unbound guide */
+        .unbound-guide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 28px 0 16px;
+            text-align: center;
+        }
+        .unbound-guide .icon-big {
+            font-size: 48px;
+            margin-bottom: var(--space-md);
+            opacity: 0.55;
+        }
+        .unbound-guide .title {
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: var(--space-lg);
+        }
+        .btn-primary {
+            background: var(--color-primary);
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 10px 28px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition-fast), transform var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            letter-spacing: 0.3px;
+        }
+        .btn-primary:hover {
+            background: var(--color-primary-hover);
+            transform: translateY(-1px);
+        }
+        .btn-primary:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        .btn-ghost {
+            background: var(--bg-elevated);
+            border: var(--border-default);
+            border-radius: var(--radius-full);
+            padding: 6px 14px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: background var(--transition-fast), color var(--transition-fast);
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+        .btn-ghost:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-primary);
+        }
+
+        /* ============================================================
+           COMPONENT: Task Card
+           ============================================================ */
+        .task-card {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            margin-bottom: 8px;
+            border-left: 3px solid transparent;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .task-card:hover { background: var(--bg-surface-hover); }
+        .task-card.status-progress { border-left-color: var(--color-primary); }
+        .task-card.status-pending  { border-left-color: var(--color-warning); }
+        .task-card.status-done     { border-left-color: var(--color-success); }
+        .task-card:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+
+        .task-card .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .task-card .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .task-badge {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: var(--radius-full);
+        }
+        .task-badge.progress { color: var(--color-primary); background: var(--color-primary-bg); }
+        .task-badge.pending  { color: var(--color-warning); background: var(--color-warning-bg); }
+        .task-badge.done     { color: var(--color-success); background: var(--color-success-bg); }
+
+        .task-card .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-sm) var(--space-lg);
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .task-card .task-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .task-card .task-meta-label { color: var(--text-tertiary); }
+        .task-card .task-meta-value { color: var(--text-secondary); }
+        .task-card .task-executor {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .task-card .task-executor .executor-name { color: var(--text-secondary); }
+
+        /* ============================================================
+           COMPONENT: Quick Actions (2×3 Grid)
+           ============================================================ */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md) var(--space-sm);
+            padding: var(--space-xs) 0 2px;
+        }
+        .quick-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            background: none;
+            border: none;
+            padding: var(--space-sm) var(--space-xs);
+            border-radius: var(--radius-sm);
+        }
+        .quick-btn:hover { color: var(--text-primary); }
+        .quick-btn:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+        .quick-btn .circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background var(--transition-fast), border-color var(--transition-fast);
+        }
+        .quick-btn:hover .circle {
+            background: var(--bg-elevated);
+            border-color: rgba(0,0,0,0.12);
+        }
+
+        /* ============================================================
+           COMPONENT: Record Item
+           ============================================================ */
+        .record-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 10px var(--space-sm);
+            border-bottom: var(--border-subtle);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border-radius: var(--radius-xs);
+        }
+        .record-item:last-child { border-bottom: none; }
+        .record-item:hover { background: rgba(0,0,0,0.03); }
+        .record-item:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -2px;
+        }
+        .record-thumb {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--text-tertiary);
+        }
+        .record-info { flex: 1; min-width: 0; }
+        .record-info .name {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .record-info .meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-top: 1px;
+        }
+        .record-tag {
+            padding: 1px 8px;
+            border-radius: var(--radius-full);
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .record-tag.face    { background: var(--color-primary-bg); color: var(--color-primary); }
+        .record-tag.vehicle { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; }
+        .record-tag.hazard  { background: var(--color-danger-bg); color: var(--color-danger); }
+        .record-tag.object  { background: var(--color-success-bg); color: var(--color-success); }
+        .record-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            flex-shrink: 0;
+        }
+        .record-dot.offline { background: rgba(0,0,0,0.12); }
+
+        /* ============================================================
+           COMPONENT: Video / Collab
+           ============================================================ */
+        .video-window {
+            background: #E2E8F0;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            position: relative;
+            height: 200px;
+            margin-bottom: var(--space-md);
+            border: var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+        .video-window .watermark {
+            position: absolute;
+            bottom: 10px;
+            left: 14px;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            font-family: var(--font-mono);
+        }
+        .video-window .badge {
+            position: absolute;
+            top: 10px;
+            right: 14px;
+            background: rgba(0,0,0,0.06);
+            padding: 3px 10px;
+            border-radius: var(--radius-full);
+            color: var(--text-primary);
+            font-size: 10px;
+            border: var(--border-subtle);
+        }
+        .video-controls {
+            display: flex;
+            gap: var(--space-md);
+            justify-content: center;
+            margin-bottom: var(--space-md);
+        }
+        .video-controls button {
+            background: var(--bg-surface);
+            border: var(--border-subtle);
+            border-radius: var(--radius-full);
+            padding: 6px 16px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .video-controls button:hover { background: var(--bg-elevated); }
+
+        .collab-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            flex-shrink: 0;
+        }
+        .collab-btn:hover { background: var(--color-primary-hover); }
+        .collab-btn:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        /* Expert list */
+        .expert-list {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+            overflow-x: auto;
+            padding: var(--space-xs) 0 var(--space-sm);
+        }
+        .expert-list::-webkit-scrollbar { display: none; }
+        .expert-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .expert-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            border: 1.5px solid var(--color-primary-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .expert-name {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        /* ============================================================
+           COMPONENT: Profile
+           ============================================================ */
+        .profile-card { display: flex; align-items: center; justify-content: space-between; }
+        .profile-left { display: flex; align-items: center; gap: var(--space-md); }
+        .profile-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            font-weight: 600;
+        }
+        .profile-info .name {
+            color: var(--text-primary);
+            font-size: 17px;
+            font-weight: 600;
+        }
+        .profile-info .org {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        .assistant-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: var(--border-subtle);
+            color: var(--text-primary);
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .assistant-btn:hover { background: var(--bg-elevated); }
+
+        /* ============================================================
+           COMPONENT: Menu List
+           ============================================================ */
+        .menu-list { margin-top: var(--space-sm); }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 0;
+            border-bottom: var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item:hover { color: var(--text-primary); }
+        .menu-item .right {
+            color: var(--text-tertiary);
+            font-size: 12px;
+        }
+        .badge-dot {
+            background: var(--color-danger);
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        /* ============================================================
+           COMPONENT: Map
+           ============================================================ */
+        .map-container {
+            width: 100%;
+            height: 200px;
+            background: #F1F5F9;
+            border-radius: var(--radius-md);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--space-md);
+            border: var(--border-subtle);
+        }
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,0,0,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.06) 1px, transparent 1px);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+        .map-road {
+            position: absolute;
+            background: rgba(0,0,0,0.08);
+            border-radius: 1px;
+            pointer-events: none;
+        }
+        .map-road.h { height: 1.5px; width: 76%; left: 12%; top: 50%; }
+        .map-road.v { width: 1.5px; height: 76%; top: 12%; left: 50%; }
+        .map-road.d1 { width: 55%; height: 1.5px; left: 22%; top: 32%; transform: rotate(22deg); }
+        .map-road.d2 { width: 45%; height: 1.5px; right: 18%; bottom: 28%; transform: rotate(-18deg); }
+
+        .map-point {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--color-primary-bg);
+            border: 2px solid var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+            transform: translate(-50%, -50%);
+            cursor: default;
+            z-index: 2;
+        }
+        .map-point.done {
+            border-color: var(--color-success);
+            background: var(--color-success-bg);
+        }
+        .map-point.pending {
+            border-color: var(--color-warning);
+            background: var(--color-warning-bg);
+        }
+        .map-point .point-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 10px;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+            font-weight: 400;
+        }
+        .map-point .point-status {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 10px;
+        }
+
+        /* Point list */
+        .point-list .point-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 7px 0;
+            border-bottom: var(--border-subtle);
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .point-list .point-item:last-child { border-bottom: none; }
+        .point-list .point-idx {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .point-list .point-name { flex: 1; }
+        .point-list .point-status-text { font-size: 11px; color: var(--text-tertiary); }
+        .point-list .point-status-text.done { color: var(--color-success); }
+        .point-list .point-status-text.pending { color: var(--color-warning); }
+
+        /* ============================================================
+           COMPONENT: Detail Rows
+           ============================================================ */
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: var(--space-sm) 0;
+            border-bottom: var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .d-label { color: var(--text-tertiary); flex-shrink: 0; }
+        .detail-row .d-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+        .detail-row .d-value.ai-suggestion {
+            color: var(--color-warning);
+            font-weight: 400;
+            font-size: 13px;
+            background: var(--color-warning-bg);
+            padding: 8px var(--space-md);
+            border-radius: var(--radius-sm);
+            border-left: 2px solid var(--color-warning);
+            max-width: 68%;
+            text-align: left;
+            line-height: 1.5;
+        }
+        .detail-row--col {
+            flex-direction: column;
+            align-items: stretch;
+            gap: var(--space-sm);
+        }
+
+        /* ============================================================
+           COMPONENT: Knowledge / Search
+           ============================================================ */
+        .search-bar {
+            background: var(--bg-elevated);
+            border-radius: var(--radius-full);
+            padding: var(--space-sm) var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            border: var(--border-subtle);
+            margin-bottom: var(--space-lg);
+        }
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            flex: 1;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .search-bar input::placeholder { color: var(--text-disabled); }
+        .search-bar .search-icon { color: var(--text-tertiary); font-size: 16px; }
+
+        /* Filter tags */
+        .filter-row {
+            display: flex;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+        }
+        .filter-tag {
+            background: var(--bg-elevated);
+            color: var(--text-tertiary);
+            padding: 5px 14px;
+            border-radius: var(--radius-full);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            border: var(--border-subtle);
+            font-family: inherit;
+        }
+        .filter-tag:hover {
+            background: var(--bg-surface-hover);
+            color: var(--text-secondary);
+        }
+        .filter-tag.active {
+            background: var(--color-primary-bg);
+            color: var(--color-primary);
+            border-color: var(--color-primary-border);
+        }
+
+        /* Doc list */
+        .doc-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 11px 0;
+            border-bottom: var(--border-subtle);
+        }
+        .doc-item:last-child { border-bottom: none; }
+        .doc-item .doc-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .doc-item .doc-info { flex: 1; }
+        .doc-item .doc-title {
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .doc-item .doc-status {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+
+        /* Recog card (face / vehicle entry) */
+        .recog-entry {
+            flex: 1;
+            background: var(--bg-surface);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            border: var(--border-subtle);
+            text-align: center;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .recog-entry:hover { background: var(--bg-surface-hover); }
+        .recog-entry .recog-preview {
+            height: 88px;
+            background: #F1F5F9;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .recog-entry .recog-preview .frame {
+            position: absolute;
+            border: 1.5px solid var(--color-primary-border);
+            width: 55%;
+            height: 55%;
+            border-radius: var(--radius-sm);
+        }
+        .recog-entry .recog-label {
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ============================================================
+           COMPONENT: Floating Lock Button
+           ============================================================ */
+        .float-lock {
+            position: absolute;
+            bottom: 78px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: var(--border-subtle);
+            box-shadow: var(--shadow-elevated);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            z-index: 40;
+            user-select: none;
+        }
+        .float-lock .lock-label {
+            font-size: 8px;
+            margin-top: 1px;
+            color: var(--text-tertiary);
+            letter-spacing: 0.3px;
+        }
+        .float-lock.active {
+            background: rgba(234, 179, 8, 0.15);
+            border-color: rgba(234, 179, 8, 0.3);
+            color: #EAB308;
+        }
+        .float-lock.active .lock-label { color: rgba(234, 179, 8, 0.6); }
+        .float-lock:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        /* ============================================================
+           COMPONENT: Section Header
+           ============================================================ */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        .section-title {
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .section-link {
+            color: var(--color-primary);
+            font-size: 12px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .section-link:hover { text-decoration: underline; }
+
+        /* Detail header */
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+        .detail-title {
+            font-size: 19px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Action footer */
+        .action-footer {
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+        .action-footer .action-link {
+            cursor: pointer;
+            font-weight: 500;
+            transition: color var(--transition-fast);
+        }
+        .action-link.primary { color: var(--color-primary); }
+        .action-link.danger { color: var(--color-danger); }
+        .action-link.success { color: var(--color-success); }
+        .action-link:hover { opacity: 0.8; }
+
+        /* ============================================================
+           COMPONENT: Bluetooth Scan
+           ============================================================ */
+        .bt-scan-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0 20px;
+        }
+        .bt-radar {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--space-lg);
+        }
+        .bt-radar .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1.5px solid var(--color-primary-border);
+            animation: btPulse 2s ease-out infinite;
+        }
+        .bt-radar .ring:nth-child(1) { width: 40px; height: 40px; animation-delay: 0s; }
+        .bt-radar .ring:nth-child(2) { width: 70px; height: 70px; animation-delay: 0.4s; }
+        .bt-radar .ring:nth-child(3) { width: 100px; height: 100px; animation-delay: 0.8s; }
+        .bt-radar .ring:nth-child(4) { width: 130px; height: 130px; animation-delay: 1.2s; }
+        @keyframes btPulse {
+            0%   { opacity: 0.6; transform: scale(0.3); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+        .bt-radar .bt-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .bt-scan-status {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: var(--space-xl);
+        }
+        .bt-scan-status .dot-anim::after {
+            content: '';
+            animation: btDots 1.5s steps(4, end) infinite;
+        }
+        @keyframes btDots {
+            0%   { content: ''; }
+            25%  { content: '.'; }
+            50%  { content: '..'; }
+            75%  { content: '...'; }
+            100% { content: ''; }
+        }
+
+        .bt-device-list {
+            width: 100%;
+        }
+        .bt-device-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: 13px var(--space-md);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border: 1px solid transparent;
+        }
+        .bt-device-item:hover { background: var(--bg-surface-hover); }
+        .bt-device-item.connecting {
+            border-color: var(--color-primary-border);
+            background: var(--color-primary-bg);
+            cursor: default;
+        }
+        .bt-device-item.connected {
+            border-color: rgba(22,163,74,0.25);
+            background: var(--color-success-bg);
+        }
+        .bt-device-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .bt-device-info { flex: 1; min-width: 0; }
+        .bt-device-info .bt-device-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .bt-device-info .bt-device-meta {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        .bt-signal {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            height: 14px;
+        }
+        .bt-signal .bar {
+            width: 3px;
+            border-radius: 1px;
+            background: var(--text-tertiary);
+        }
+        .bt-signal .bar.s1 { height: 4px; }
+        .bt-signal .bar.s2 { height: 7px; }
+        .bt-signal .bar.s3 { height: 10px; }
+        .bt-signal .bar.s4 { height: 14px; }
+        .bt-signal.strong .bar { background: var(--color-success); }
+        .bt-signal.medium .bar { background: var(--color-warning); }
+        .bt-signal.weak .bar { background: var(--text-tertiary); }
+        .bt-device-status {
+            font-size: 11px;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 420px) {
+            .phone { height: 730px; border-radius: 0; }
+            .device-card { flex-wrap: wrap; }
+            .battery-ring { width: 52px; height: 52px; }
+            .battery-ring .center-text { font-size: 12px; }
+            .float-lock { width: 42px; height: 42px; font-size: 18px; bottom: 70px; right: 14px; }
+            .map-container { height: 170px; }
+            .card { padding: var(--space-md); }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone">
+        <!-- Status Bar -->
+        <div class="status-bar" role="status" aria-label="状态栏">
+            <span class="time">9:41</span>
+            <div class="status-icons" aria-hidden="true">
+                <span class="signal-bar"></span>
+                <span class="signal-bar"></span>
+                <span class="signal-bar"></span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area hide-scrollbar" id="contentArea">
+
+            <!-- ===== 工作台 ===== -->
+            <div class="page active" id="page-work" role="tabpanel" aria-labelledby="tab-work">
+                <!-- 设备卡片 -->
+                <div class="card" id="deviceContainer">
+                    <div id="deviceBound">
+                        <div class="device-card">
+                            <div class="device-left">
+                                <div class="device-icon-wrap" aria-hidden="true">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-primary);"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 14h20"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><path d="M14 13v4"/><path d="M10 15h8"/></svg>
+                                    <div class="scan-line"></div>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">HoloLens Pro</div>
+                                    <div class="device-status">
+                                        <span class="status-dot" aria-hidden="true"></span> 5G 在线 · 固件 v3.2.1
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex-center gap-md">
+                                <div class="battery-ring" aria-label="电量 76%">
+                                    <svg width="60" height="60" viewBox="0 0 64 64">
+                                        <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="5"/>
+                                        <circle cx="32" cy="32" r="28" fill="none" stroke="#2563EB" stroke-width="5" stroke-linecap="round"
+                                                stroke-dasharray="175.93" stroke-dashoffset="42.22" />
+                                        <circle cx="32" cy="32" r="20" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="4"/>
+                                        <circle cx="32" cy="32" r="20" fill="none" stroke="#3B82F6" stroke-width="4" stroke-linecap="round"
+                                                stroke-dasharray="125.66" stroke-dashoffset="82.93" />
+                                    </svg>
+                                    <div class="center-text">76<small>%</small></div>
+                                </div>
+                                <button class="btn-ghost" id="unbindBtn" aria-label="解绑设备">解绑</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="deviceUnbound" style="display:none;">
+                        <div class="unbound-guide">
+                            <div class="icon-big" aria-hidden="true">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="opacity:0.5;"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 14h20"/></svg>
+                            </div>
+                            <div class="title">暂无关联设备</div>
+                            <button class="btn-primary" id="addDeviceBtn">＋ 连接设备</button>
+                            <button class="btn-ghost" style="margin-top:14px;" id="bindBtn">模拟绑定</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 金刚区快捷入口 -->
+                <div class="card card--compact">
+                    <div class="quick-actions">
+                        <button class="quick-btn" id="quickRecords" aria-label="识别记录">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/><path d="M21 15l-5-5L5 21"/></svg>
+                            </span>
+                            <span>识别记录</span>
+                        </button>
+                        <button class="quick-btn" id="quickContacts" aria-label="通讯录">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><circle cx="17" cy="10" r="3"/><path d="M3 20v-1a4 4 0 014-4h4a4 4 0 014 4v1"/><path d="M16 14h4a3 3 0 013 3v1"/></svg>
+                            </span>
+                            <span>通讯录</span>
+                        </button>
+                        <button class="quick-btn" id="quickKnowledge" aria-label="知识库">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+                            </span>
+                            <span>知识库</span>
+                        </button>
+                        <button class="quick-btn" id="quickAI" aria-label="AI助手">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>
+                            </span>
+                            <span>AI助手</span>
+                        </button>
+                        <button class="quick-btn" id="quickMonitor" aria-label="视频监控">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M2 14h20"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><path d="M14 13v4"/><path d="M10 15h8"/></svg>
+                            </span>
+                            <span>视频监控</span>
+                        </button>
+                        <button class="quick-btn" id="quickRemote" aria-label="远程协作">
+                            <span class="circle" aria-hidden="true">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><path d="M16 15h2a3 3 0 013 3v1"/></svg>
+                            </span>
+                            <span>远程协作</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 巡检任务 -->
+                <div class="card">
+                    <div class="section-header">
+                        <h3 class="section-title">巡检任务</h3>
+                        <a href="#" class="section-link" role="button">查看全部 ›</a>
+                    </div>
+                    <div class="task-card status-progress" data-task='{"name":"A区周界巡检","status":"进行中","start":"09:30","end":"10:00","order":"有序","executor":"张三","desc":"重点检查周界围栏及监控设备运行状况。","points":[{"name":"入口岗亭","status":"已完成"},{"name":"监控室","status":"已完成"},{"name":"东门","status":"待执行"}]}' tabindex="0" role="button" aria-label="A区周界巡检，进行中">
+                        <div class="task-header">
+                            <span class="task-title">A区周界巡检</span>
+                            <span class="task-badge progress">进行中</span>
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-meta-item"><span class="task-meta-label">开始</span><span class="task-meta-value">09:30</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">10:00</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">有序</span></span>
+                        </div>
+                        <div class="task-executor">执行人：<span class="executor-name">张三</span></div>
+                    </div>
+                    <div class="task-card status-pending" data-task='{"name":"B2停车场车辆巡检","status":"待执行","start":"11:15","end":"11:45","order":"无序","executor":"李四","desc":"对B2停车场所有车辆进行车牌识别及违停检查。"}' tabindex="0" role="button" aria-label="B2停车场车辆巡检，待执行">
+                        <div class="task-header">
+                            <span class="task-title">B2停车场车辆巡检</span>
+                            <span class="task-badge pending">待执行</span>
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-meta-item"><span class="task-meta-label">开始</span><span class="task-meta-value">11:15</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">11:45</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">无序</span></span>
+                        </div>
+                        <div class="task-executor">执行人：<span class="executor-name">李四</span></div>
+                    </div>
+                    <div class="task-card status-done" data-task='{"name":"C区设备间巡检","status":"已完成","start":"08:00","end":"08:30","order":"有序","executor":"王五","desc":"巡检C区所有设备间，检查温湿度及设备运行日志。","points":[{"name":"设备间1","status":"已完成"},{"name":"设备间2","status":"已完成"}]}' tabindex="0" role="button" aria-label="C区设备间巡检，已完成">
+                        <div class="task-header">
+                            <span class="task-title">C区设备间巡检</span>
+                            <span class="task-badge done">已完成</span>
+                        </div>
+                        <div class="task-meta">
+                            <span class="task-meta-item"><span class="task-meta-label">开始</span><span class="task-meta-value">08:00</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">结束</span><span class="task-meta-value">08:30</span></span>
+                            <span class="task-meta-item"><span class="task-meta-label">顺序</span><span class="task-meta-value">有序</span></span>
+                        </div>
+                        <div class="task-executor">执行人：<span class="executor-name">王五</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 识别 ===== -->
+            <div class="page" id="page-recog" role="tabpanel" aria-labelledby="tab-recog">
+                <div class="flex-center gap-md" style="margin-bottom:var(--space-lg);">
+                    <div class="recog-entry" role="button" aria-label="人脸识别" tabindex="0">
+                        <div class="recog-preview">
+                            <div class="frame"></div>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="1.2"><circle cx="9" cy="9" r="2"/><path d="M3 12a9 9 0 0118 0"/><circle cx="12" cy="12" r="9"/></svg>
+                        </div>
+                        <div class="recog-label">人脸识别</div>
+                    </div>
+                    <div class="recog-entry" role="button" aria-label="车辆对比" tabindex="0">
+                        <div class="recog-preview">
+                            <div class="frame"></div>
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.10)" stroke-width="1.2"><rect x="2" y="8" width="20" height="10" rx="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>
+                        </div>
+                        <div class="recog-label">车辆对比</div>
+                    </div>
+                </div>
+
+                <!-- 筛选标签 -->
+                <div class="filter-row">
+                    <button class="filter-tag active" data-filter="all">全部</button>
+                    <button class="filter-tag" data-filter="人脸">人脸</button>
+                    <button class="filter-tag" data-filter="车辆">车辆</button>
+                    <button class="filter-tag" data-filter="隐患">隐患</button>
+                    <button class="filter-tag" data-filter="物体">物体</button>
+                </div>
+
+                <!-- 识别记录 -->
+                <div class="card card--inset" id="recordList">
+                    <div class="section-header" style="margin-bottom:2px;">
+                        <h3 class="section-title" style="font-size:13px;">识别记录</h3>
+                    </div>
+                    <div class="record-item" data-type="人脸" data-record='{"type":"人脸","name":"张明","match":"98.7%","time":"10:32","detail":"匹配库：安保人员库，相似度98.7%，身份已验证。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">张明</div>
+                            <div class="meta"><span class="record-tag face">人脸</span><span>匹配度 98.7%</span><span>· 10:32</span></div>
+                        </div>
+                        <div class="record-dot" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="车辆" data-record='{"type":"车辆","name":"京A·88888","match":"87.2%","time":"09:15","detail":"匹配库：重点车辆库，相似度87.2%，建议人工复核。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="8" width="20" height="10" rx="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">京A·88888</div>
+                            <div class="meta"><span class="record-tag vehicle">车辆</span><span>匹配度 87.2%</span><span>· 09:15</span></div>
+                        </div>
+                        <div class="record-dot offline" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="人脸" data-record='{"type":"人脸","name":"李丽","match":"92.4%","time":"08:40","detail":"匹配库：访客库，相似度92.4%，访客身份确认。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">李丽</div>
+                            <div class="meta"><span class="record-tag face">人脸</span><span>匹配度 92.4%</span><span>· 08:40</span></div>
+                        </div>
+                        <div class="record-dot" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="隐患" data-record='{"type":"隐患","name":"配电箱门未锁","time":"11:20","detail":"位于B2区东侧，配电箱门锁损坏，存在触电风险。","suggestion":"立即更换门锁，设置临时警示围栏，并通知电工班组检修。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2L2 20h20L12 2z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">配电箱门未锁</div>
+                            <div class="meta"><span class="record-tag hazard">隐患</span><span>· 11:20</span></div>
+                        </div>
+                        <div class="record-dot" style="background:var(--color-danger);" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="物体" data-record='{"type":"物体","name":"灭火器（干粉）","time":"10:05","detail":"识别到5kg干粉灭火器，压力表指针在绿色区域，有效期至2027年6月。","function":"适用于A/B/C类火灾，操作方式：拔销-握管-压把。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 10h4"/><path d="M10 14h4"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">灭火器（干粉）</div>
+                            <div class="meta"><span class="record-tag object">物体</span><span>· 10:05</span></div>
+                        </div>
+                        <div class="record-dot" style="background:var(--color-success);" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="隐患" data-record='{"type":"隐患","name":"消防通道堵塞","time":"07:50","detail":"C区消防通道被堆放的建材占用，宽度不足1.5米。","suggestion":"立即清理通道，对责任人进行安全教育，设置禁止堆放标识。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M12 2L2 20h20L12 2z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">消防通道堵塞</div>
+                            <div class="meta"><span class="record-tag hazard">隐患</span><span>· 07:50</span></div>
+                        </div>
+                        <div class="record-dot" style="background:var(--color-danger);" aria-hidden="true"></div>
+                    </div>
+                    <div class="record-item" data-type="物体" data-record='{"type":"物体","name":"安全帽（黄色）","time":"07:20","detail":"识别到黄色安全帽，符合GB 2811-2019标准，帽壳完好，内衬正常。","function":"头部防护，适用于建筑、电力、矿山等作业场景，抗冲击性能≥5kg。"}' tabindex="0" role="button">
+                        <div class="record-thumb" aria-hidden="true">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15c0 3 3 5 8 5s8-2 8-5"/><path d="M6 15V9a6 6 0 0112 0v6"/></svg>
+                        </div>
+                        <div class="record-info">
+                            <div class="name">安全帽（黄色）</div>
+                            <div class="meta"><span class="record-tag object">物体</span><span>· 07:20</span></div>
+                        </div>
+                        <div class="record-dot offline" aria-hidden="true"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 协同 ===== -->
+            <div class="page" id="page-collab" role="tabpanel" aria-labelledby="tab-collab">
+                <div class="video-window" aria-label="实时画面">
+                    <span>实时画面传输中</span>
+                    <div class="badge">直播 · 1080P</div>
+                    <div class="watermark">HoloLens Pro · 2026-06-23 10:23</div>
+                </div>
+                <div class="video-controls">
+                    <button aria-label="截图">截图</button>
+                    <button aria-label="录制">录制</button>
+                    <button aria-label="静音">静音</button>
+                </div>
+                <div class="card card--compact">
+                    <div class="flex-center gap-md">
+                        <div style="flex:1; height:66px; background:var(--bg-elevated); border-radius:var(--radius-md); border:1px dashed rgba(0,0,0,0.10);" class="flex-center text-muted text-xs">专家标注区域（箭头 / 圈点）</div>
+                        <button class="collab-btn" aria-label="发起远程标注">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                        </button>
+                    </div>
+                    <div class="text-xs text-muted" style="margin-top:var(--space-md);">点击按钮发起远程标注</div>
+                </div>
+                <div class="card card--compact">
+                    <div class="flex-between" style="margin-bottom:4px;">
+                        <span style="color:var(--text-primary); font-size:14px; font-weight:500;">在线专家</span>
+                        <span class="text-xs text-muted">一键呼叫</span>
+                    </div>
+                    <div class="expert-list">
+                        <div class="expert-item"><div class="expert-avatar">王</div><span class="expert-name">王工</span></div>
+                        <div class="expert-item"><div class="expert-avatar">李</div><span class="expert-name">李专家</span></div>
+                        <div class="expert-item"><div class="expert-avatar">张</div><span class="expert-name">张总</span></div>
+                        <div class="expert-item"><div class="expert-avatar">赵</div><span class="expert-name">赵博士</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 我的 ===== -->
+            <div class="page" id="page-me" role="tabpanel" aria-labelledby="tab-me">
+                <div class="card profile-card">
+                    <div class="profile-left">
+                        <div class="profile-avatar" aria-hidden="true">李</div>
+                        <div class="profile-info">
+                            <div class="name">李明</div>
+                            <div class="org">XX安保支队</div>
+                        </div>
+                    </div>
+                    <button class="assistant-btn" aria-label="AI 助手">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>
+                    </button>
+                </div>
+                <div class="card card--inset">
+                    <div class="menu-list">
+                        <button class="menu-item"><span>我的预约记录</span><span class="right">今日 14:00 会议室A</span></button>
+                        <button class="menu-item"><span>设备固件升级</span><span class="right"><span class="badge-dot" aria-label="新版本"></span> 新版本</span></button>
+                        <button class="menu-item"><span>隐私与锁屏设置</span><span class="right">›</span></button>
+                        <button class="menu-item" style="color:var(--text-disabled);"><span>退出登录</span><span class="right">›</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 二级页面 -->
+        <div class="secondary-page hide-scrollbar" id="secondaryPage" role="dialog" aria-modal="true" aria-label="详情页">
+            <div class="secondary-header">
+                <button class="back-btn" id="secondaryBack" aria-label="返回">‹</button>
+                <span class="title" id="secondaryTitle">详情</span>
+            </div>
+            <div class="secondary-content" id="secondaryContent"></div>
+        </div>
+
+        <!-- 悬浮锁屏 -->
+        <button class="float-lock" id="floatLock" aria-label="锁屏切换" title="锁屏 / 解锁">
+            <svg id="lockIconSvg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            <span class="lock-label" id="lockLabel">解锁</span>
+        </button>
+
+        <!-- 底部导航 -->
+        <nav class="bottom-nav" role="tablist" aria-label="主导航">
+            <button class="nav-item active" data-page="work" role="tab" aria-selected="true" aria-controls="page-work" id="tab-work">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span class="nav-label">工作台</span>
+            </button>
+            <button class="nav-item" data-page="recog" role="tab" aria-selected="false" aria-controls="page-recog" id="tab-recog">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M3 12h2m14 0h2"/></svg>
+                <span class="nav-label">识别</span>
+            </button>
+            <button class="nav-item" data-page="collab" role="tab" aria-selected="false" aria-controls="page-collab" id="tab-collab">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M3 20v-1a4 4 0 014-4h2a4 4 0 014 4v1"/><path d="M16 15h2a3 3 0 013 3v1"/></svg>
+                <span class="nav-label">协同</span>
+            </button>
+            <button class="nav-item" data-page="me" role="tab" aria-selected="false" aria-controls="page-me" id="tab-me">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2"/></svg>
+                <span class="nav-label">我的</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        (function() {
+            /* ============================================================
+               CACHED DOM REFERENCES
+               ============================================================ */
+            const DOM = {
+                contentArea: document.getElementById('contentArea'),
+                secondaryPage: document.getElementById('secondaryPage'),
+                secondaryTitle: document.getElementById('secondaryTitle'),
+                secondaryContent: document.getElementById('secondaryContent'),
+                secondaryBack: document.getElementById('secondaryBack'),
+                floatLock: document.getElementById('floatLock'),
+                lockIconSvg: document.getElementById('lockIconSvg'),
+                lockLabel: document.getElementById('lockLabel'),
+                boundDiv: document.getElementById('deviceBound'),
+                unboundDiv: document.getElementById('deviceUnbound'),
+                unbindBtn: document.getElementById('unbindBtn'),
+                bindBtn: document.getElementById('bindBtn'),
+                addDeviceBtn: document.getElementById('addDeviceBtn'),
+                navItems: document.querySelectorAll('.nav-item'),
+                pages: {
+                    work: document.getElementById('page-work'),
+                    recog: document.getElementById('page-recog'),
+                    collab: document.getElementById('page-collab'),
+                    me: document.getElementById('page-me')
+                }
+            };
+
+            /* ============================================================
+               CENTRALIZED STATE
+               ============================================================ */
+            const state = {
+                isBound: true,
+                isLocked: false,
+                activePage: 'work',
+                activeFilter: 'all'
+            };
+
+            function setState(key, value) {
+                state[key] = value;
+            }
+
+            /* ============================================================
+               UTILITY: Safe JSON parse
+               ============================================================ */
+            function safeParseJSON(str, fallback) {
+                try {
+                    return JSON.parse(str);
+                } catch (e) {
+                    console.warn('[App] JSON 解析失败:', e.message, str.substring(0, 60));
+                    return fallback || null;
+                }
+            }
+
+            /* ============================================================
+               DEVICE BINDING
+               ============================================================ */
+            function updateDeviceUI() {
+                DOM.boundDiv.style.display = state.isBound ? 'block' : 'none';
+                DOM.unboundDiv.style.display = state.isBound ? 'none' : 'block';
+            }
+
+            DOM.unbindBtn.addEventListener('click', function() {
+                setState('isBound', false);
+                updateDeviceUI();
+            });
+
+            DOM.bindBtn.addEventListener('click', function() {
+                setState('isBound', true);
+                updateDeviceUI();
+            });
+
+            DOM.addDeviceBtn.addEventListener('click', function() {
+                openBluetoothScan();
+            });
+
+            /* ============================================================
+               BLUETOOTH SCAN & CONNECT
+               ============================================================ */
+            var btTimer = null;
+            var btDevicesFound = [];
+
+            function openBluetoothScan() {
+                btDevicesFound = [];
+                // Initial scanning UI
+                var html = '<div class="card"><div class="bt-scan-area"><div class="bt-radar"><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="bt-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></div></div><div class="bt-scan-status">正在搜索附近设备<span class="dot-anim"></span></div></div><div class="bt-device-list" id="btDeviceList"></div></div><div class="card action-footer"><span class="text-xs text-muted">请确保设备蓝牙已开启且处于可发现状态</span></div>';
+                showSecondary('连接设备', html);
+
+                // Simulate discovering devices one by one
+                var mockDevices = [
+                    { name: 'HoloLens Pro',   model: 'HL-200X', signal: 'strong', mac: 'A4:C3:F2:01:2B:8E' },
+                    { name: 'Rokid Glass 2',  model: 'RG-500',  signal: 'strong', mac: 'B8:D5:41:66:F0:12' },
+                    { name: 'XREAL Air',      model: 'XR-300',  signal: 'medium', mac: 'D4:6E:BC:33:A7:55' },
+                    { name: '巡检记录仪-P01',  model: 'PT-100A', signal: 'medium', mac: 'E0:AC:9D:88:14:3C' },
+                    { name: '智能安全帽-C02', model: 'SH-200',  signal: 'weak',   mac: 'F2:1B:7E:45:C9:80' },
+                ];
+
+                var idx = 0;
+                btTimer = setInterval(function() {
+                    if (idx < mockDevices.length) {
+                        btDevicesFound.push(mockDevices[idx]);
+                        renderBtDeviceList();
+                        idx++;
+                    } else {
+                        clearInterval(btTimer);
+                        btTimer = null;
+                        // Update status text
+                        var statusEl = document.querySelector('.bt-scan-status');
+                        if (statusEl) {
+                            statusEl.textContent = '发现 ' + btDevicesFound.length + ' 台可用设备';
+                            statusEl.style.color = 'var(--text-primary)';
+                        }
+                    }
+                }, 600);
+            }
+
+            function renderBtDeviceList() {
+                var listEl = document.getElementById('btDeviceList');
+                if (!listEl) return;
+                var html = '';
+                btDevicesFound.forEach(function(dev, i) {
+                    var barHtml = '';
+                    if (dev.signal === 'strong') {
+                        barHtml = '<div class="bt-signal strong"><div class="bar s1"></div><div class="bar s2" style="background:var(--color-success);"></div><div class="bar s3" style="background:var(--color-success);"></div><div class="bar s4" style="background:var(--color-success);"></div></div>';
+                    } else if (dev.signal === 'medium') {
+                        barHtml = '<div class="bt-signal medium"><div class="bar s1"></div><div class="bar s2"></div><div class="bar s3" style="background:var(--color-warning);"></div><div class="bar s4" style="background:var(--color-warning);"></div></div>';
+                    } else {
+                        barHtml = '<div class="bt-signal weak"><div class="bar s1"></div><div class="bar s2"></div><div class="bar s3"></div><div class="bar s4" style="background:var(--text-tertiary);"></div></div>';
+                    }
+                    html += '<div class="bt-device-item" data-bt-index="' + i + '" data-bt-name="' + dev.name + '" tabindex="0" role="button" aria-label="连接 ' + dev.name + '"><div class="bt-device-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11"/><path d="M17.5 6.5l-11 11"/></svg></div><div class="bt-device-info"><div class="bt-device-name">' + dev.name + '</div><div class="bt-device-meta">' + dev.model + ' · ' + dev.mac + '</div></div>' + barHtml + '<span class="bt-device-status" style="color:var(--color-primary);">未连接</span></div>';
+                });
+                listEl.innerHTML = html;
+            }
+
+            // Handle tap on bt device item (via content area delegation)
+            var origContentClick = DOM.contentArea.onclick;
+            // We already use addEventListener, so the existing handlers will run.
+            // Add a handler to deal with bluetooth device clicks
+            DOM.contentArea.addEventListener('click', function(e) {
+                var item = e.target.closest('.bt-device-item');
+                if (!item) return;
+                if (item.classList.contains('connecting') || item.classList.contains('connected')) return;
+
+                var deviceName = item.dataset.btName;
+                if (!deviceName) return;
+
+                // Start connecting
+                item.classList.add('connecting');
+                var statusEl = item.querySelector('.bt-device-status');
+                if (statusEl) {
+                    statusEl.textContent = '连接中…';
+                    statusEl.style.color = 'var(--color-primary)';
+                }
+
+                // Simulate connection delay
+                setTimeout(function() {
+                    item.classList.remove('connecting');
+                    item.classList.add('connected');
+                    if (statusEl) {
+                        statusEl.textContent = '✓ 已连接';
+                        statusEl.style.color = 'var(--color-success)';
+                    }
+
+                    // Update device name in the bound card
+                    var nameEl = document.querySelector('#deviceBound .device-name');
+                    if (nameEl) nameEl.textContent = deviceName;
+
+                    // Mark as bound and close after brief delay
+                    setState('isBound', true);
+                    updateDeviceUI();
+
+                    setTimeout(function() {
+                        hideSecondary();
+                    }, 800);
+                }, 1200);
+            });
+
+            // Cleanup bluetooth scan timer
+            function cleanupBtTimer() {
+                if (btTimer) { clearInterval(btTimer); btTimer = null; }
+            }
+
+            /* ============================================================
+               NAVIGATION
+               ============================================================ */
+            function switchPage(pageId) {
+                cleanupBtTimer();
+                if (DOM.secondaryPage.classList.contains('active')) {
+                    hideSecondary();
+                }
+                DOM.navItems.forEach(function(n) { n.classList.remove('active'); });
+                // Update aria-selected
+                DOM.navItems.forEach(function(n) {
+                    n.setAttribute('aria-selected', n.dataset.page === pageId ? 'true' : 'false');
+                });
+                // Find and activate the nav item
+                var activeNav = document.querySelector('.nav-item[data-page="' + pageId + '"]');
+                if (activeNav) activeNav.classList.add('active');
+
+                Object.keys(DOM.pages).forEach(function(key) {
+                    DOM.pages[key].classList.remove('active');
+                });
+                if (DOM.pages[pageId]) {
+                    DOM.pages[pageId].classList.add('active');
+                }
+                DOM.contentArea.scrollTop = 0;
+                setState('activePage', pageId);
+            }
+
+            // Event delegation for bottom nav
+            document.querySelector('.bottom-nav').addEventListener('click', function(e) {
+                var navItem = e.target.closest('.nav-item');
+                if (!navItem) return;
+                var pageId = navItem.dataset.page;
+                if (pageId) switchPage(pageId);
+            });
+
+            /* ============================================================
+               SECONDARY PAGE
+               ============================================================ */
+            function showSecondary(title, htmlContent) {
+                DOM.secondaryTitle.textContent = title;
+                DOM.secondaryContent.innerHTML = htmlContent;
+                DOM.secondaryPage.classList.add('active');
+                DOM.secondaryPage.scrollTop = 0;
+            }
+
+            function hideSecondary() {
+                cleanupBtTimer();
+                DOM.secondaryPage.classList.remove('active');
+            }
+
+            DOM.secondaryBack.addEventListener('click', function() {
+                cleanupBtTimer();
+                hideSecondary();
+            });
+
+            // Also cleanup bt timer when nav switches away
+            var bottomNav = document.querySelector('.bottom-nav');
+            bottomNav.addEventListener('click', function(e) {
+                if (e.target.closest('.nav-item') && DOM.secondaryPage.classList.contains('active')) {
+                    cleanupBtTimer();
+                }
+            });
+
+            /* ============================================================
+               LOCK SCREEN
+               ============================================================ */
+            DOM.floatLock.addEventListener('click', function(e) {
+                e.stopPropagation();
+                setState('isLocked', !state.isLocked);
+                this.classList.toggle('active', state.isLocked);
+
+                if (state.isLocked) {
+                    // Lock icon
+                    DOM.lockIconSvg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/>';
+                    DOM.lockLabel.textContent = '已锁';
+                } else {
+                    DOM.lockIconSvg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>';
+                    DOM.lockLabel.textContent = '解锁';
+                }
+            });
+
+            /* ============================================================
+               TASK CARD — Event Delegation
+               ============================================================ */
+            DOM.contentArea.addEventListener('click', function(e) {
+                var card = e.target.closest('.task-card');
+                if (!card) return;
+                if (!card.dataset.task) return;
+
+                var data = safeParseJSON(card.dataset.task);
+                if (!data) return;
+
+                var mapHtml = '';
+                if (data.order === '有序' && data.points && data.points.length > 0) {
+                    // Dynamic positioning based on number of points
+                    var pointCount = data.points.length;
+                    var mapPointsHtml = '';
+                    var listHtml = '';
+
+                    data.points.forEach(function(p, idx) {
+                        // Distribute points evenly around the map
+                        var angle = (idx / pointCount) * Math.PI * 2 - Math.PI / 2;
+                        var radius = 30;
+                        var cx = 50, cy = 50;
+                        var left = cx + Math.cos(angle) * radius;
+                        var top = cy + Math.sin(angle) * radius;
+                        // Add some variation
+                        left += (idx % 3 - 1) * 10;
+                        top += (idx % 2 === 0 ? 1 : -1) * (5 + idx * 3);
+
+                        var statusClass = p.status === '已完成' ? 'done' : 'pending';
+                        var statusIcon = p.status === '已完成' ? '✓' : '…';
+                        mapPointsHtml += '<div class="map-point ' + statusClass + '" style="left:' + left + '%; top:' + top + '%;">' + (idx + 1) + '<span class="point-label">' + p.name + '</span><span class="point-status">' + statusIcon + '</span></div>';
+                        listHtml += '<div class="point-item"><span class="point-idx">' + (idx + 1) + '</span><span class="point-name">' + p.name + '</span><span class="point-status-text ' + statusClass + '">' + p.status + '</span></div>';
+                    });
+
+                    mapHtml = '<div class="map-container"><div class="map-grid"></div><div class="map-road h"></div><div class="map-road v"></div><div class="map-road d1"></div><div class="map-road d2"></div>' + mapPointsHtml + '</div><div class="point-list">' + listHtml + '</div>';
+                }
+
+                var statusClass = data.status === '进行中' ? 'progress' : data.status === '待执行' ? 'pending' : 'done';
+                var html = '<div class="card"><div class="detail-header"><span class="detail-title">' + data.name + '</span><span class="task-badge ' + statusClass + '">' + data.status + '</span></div>' + mapHtml + '<div class="detail-row"><span class="d-label">开始时间</span><span class="d-value">' + data.start + '</span></div><div class="detail-row"><span class="d-label">结束时间</span><span class="d-value">' + data.end + '</span></div><div class="detail-row"><span class="d-label">执行顺序</span><span class="d-value">' + data.order + '</span></div><div class="detail-row"><span class="d-label">执行人</span><span class="d-value">' + data.executor + '</span></div><div class="detail-row"><span class="d-label">任务描述</span><span class="d-value" style="font-weight:400;">' + (data.desc || '无') + '</span></div></div><div class="card action-footer"><span class="action-link primary" style="margin-right:16px;">开始执行</span><span class="action-link" style="color:var(--text-tertiary);">查看附件</span></div>';
+                showSecondary('巡检任务详情', html);
+            });
+
+            /* ============================================================
+               RECORD ITEM — Event Delegation
+               ============================================================ */
+            DOM.contentArea.addEventListener('click', function(e) {
+                var item = e.target.closest('.record-item');
+                if (!item) return;
+                if (!item.dataset.record) return;
+
+                var data = safeParseJSON(item.dataset.record);
+                if (!data) return;
+
+                var type = data.type;
+                var iconMap = { '人脸': 'face', '车辆': 'vehicle', '隐患': 'hazard', '物体': 'object' };
+                var colorMap = { '人脸': 'var(--color-primary)', '车辆': '#8B5CF6', '隐患': 'var(--color-danger)', '物体': 'var(--color-success)' };
+                var iconType = iconMap[type] || 'object';
+                var accentColor = colorMap[type] || 'var(--color-primary)';
+
+                var html = '';
+                if (type === '隐患') {
+                    html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><path d="M12 2L2 20h20L12 2z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.5" fill="' + accentColor + '"/></svg></div><div class="detail-row"><span class="d-label">识别时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">识别隐患</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row detail-row--col"><span class="d-label">建议处理措施 <span class="text-xs text-muted">（AI 生成）</span></span><span class="d-value ai-suggestion" style="max-width:100%; text-align:left;">' + (data.suggestion || '暂无建议') + '</span></div></div><div class="card action-footer"><span class="action-link danger" style="margin-right:16px;">查看现场图像</span><span class="action-link primary">生成整改单</span></div>';
+                } else if (type === '物体') {
+                    html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><rect x="6" y="4" width="12" height="16" rx="3"/><path d="M10 10h4"/><path d="M10 14h4"/></svg></div><div class="detail-row"><span class="d-label">识别时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">识别物体</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row detail-row--col"><span class="d-label">功能说明</span><span class="d-value" style="font-weight:400; font-size:13px; line-height:1.6; max-width:100%;">' + (data.function || '暂无说明') + '</span></div></div><div class="card action-footer"><span class="action-link success" style="margin-right:16px;">查看实物图像</span><span class="action-link primary">记录位置</span></div>';
+                } else {
+                    html = '<div class="card"><div style="width:100%; height:150px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="' + accentColor + '" stroke-width="1.2" opacity="0.4"><circle cx="9" cy="8" r="4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg></div><div class="detail-row"><span class="d-label">识别类型</span><span class="d-value">' + type + '</span></div><div class="detail-row"><span class="d-label">匹配结果</span><span class="d-value" style="color:' + accentColor + ';">' + data.name + '</span></div><div class="detail-row"><span class="d-label">匹配度</span><span class="d-value">' + (data.match || '—') + '</span></div><div class="detail-row"><span class="d-label">时间</span><span class="d-value">' + data.time + '</span></div><div class="detail-row"><span class="d-label">详情</span><span class="d-value" style="font-weight:400;">' + (data.detail || '') + '</span></div></div><div class="card action-footer"><span class="action-link primary">查看原始图像</span></div>';
+                }
+                showSecondary('识别记录详情', html);
+            });
+
+            /* ============================================================
+               FILTER TAGS — Event Delegation
+               ============================================================ */
+            DOM.contentArea.addEventListener('click', function(e) {
+                var tag = e.target.closest('.filter-tag');
+                if (!tag) return;
+
+                var filterRow = tag.parentElement;
+                filterRow.querySelectorAll('.filter-tag').forEach(function(t) { t.classList.remove('active'); });
+                tag.classList.add('active');
+
+                var filter = tag.dataset.filter;
+                setState('activeFilter', filter);
+
+                var items = document.querySelectorAll('.record-item');
+                items.forEach(function(item) {
+                    var type = item.dataset.type;
+                    item.style.display = (filter === 'all' || type === filter) ? 'flex' : 'none';
+                });
+            });
+
+            /* ============================================================
+               QUICK ACTIONS — Event Delegation (6 入口)
+               ============================================================ */
+            DOM.contentArea.addEventListener('click', function(e) {
+                var btn = e.target.closest('.quick-btn');
+                if (!btn) return;
+
+                var btnId = btn.id;
+
+                // 识别记录 → 切换到识别页面
+                if (btnId === 'quickRecords') {
+                    switchPage('recog');
+                    return;
+                }
+
+                // 通讯录 → 打开专家/联系人列表
+                if (btnId === 'quickContacts') {
+                    var html = '<div class="card"><div class="section-header"><h3 class="section-title">通讯录</h3></div><div class="expert-list" style="flex-wrap:wrap; gap:14px;">';
+                    var contacts = [
+                        {name:'王工',role:'电气工程师',dept:'运维部'},
+                        {name:'李专家',role:'安防顾问',dept:'技术部'},
+                        {name:'张总',role:'项目总监',dept:'管理部'},
+                        {name:'赵博士',role:'AI算法',dept:'研发部'},
+                        {name:'陈工',role:'结构工程师',dept:'工程部'},
+                        {name:'刘主任',role:'安保主任',dept:'安保部'}
+                    ];
+                    contacts.forEach(function(c) {
+                        html += '<div class="expert-item" style="margin-bottom:12px;"><div class="expert-avatar">' + c.name.charAt(0) + '</div><span class="expert-name">' + c.name + '</span><span class="text-xs text-muted">' + c.role + '</span></div>';
+                    });
+                    html += '</div></div>';
+                    showSecondary('通讯录', html);
+                    return;
+                }
+
+                // 知识库
+                if (btnId === 'quickKnowledge') {
+                    var html = '<div class="card"><div class="search-bar"><span class="search-icon">🔍</span><input type="text" placeholder="搜索知识库…"><span class="search-icon" style="cursor:pointer;">🎤</span></div><div class="filter-row"><span class="filter-tag active">全部</span><span class="filter-tag">SOP</span><span class="filter-tag">车辆库</span><span class="filter-tag">应急预案</span></div></div><div class="card card--inset"><div class="doc-item"><span class="doc-icon">📄</span><div class="doc-info"><div class="doc-title">特种设备巡检SOP v2.0</div><div class="doc-status">已缓存 · 2.3MB</div></div></div><div class="doc-item"><span class="doc-icon">📄</span><div class="doc-info"><div class="doc-title">常见车辆特征库</div><div class="doc-status">云端 · 1.1MB</div></div></div><div class="doc-item"><span class="doc-icon">📄</span><div class="doc-info"><div class="doc-title">应急预案手册</div><div class="doc-status">已缓存 · 4.5MB</div></div></div><div class="doc-item"><span class="doc-icon">📄</span><div class="doc-info"><div class="doc-title">周界安防巡检指南</div><div class="doc-status">云端 · 0.8MB</div></div></div></div>';
+                    showSecondary('知识库', html);
+                    return;
+                }
+
+                // AI助手
+                if (btnId === 'quickAI') {
+                    var html = '<div class="card"><div style="width:100%; height:120px; background:var(--bg-elevated); border-radius:var(--radius-md);" class="flex-center text-muted" style="margin-bottom:var(--space-lg);"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.2" opacity="0.5"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg></div><div class="detail-row"><span class="d-label">AI 巡检助手</span><span class="d-value" style="color:var(--color-primary);">v2.4.1 在线</span></div><div class="detail-row"><span class="d-label">今日分析</span><span class="d-value">已处理 23 条记录</span></div><div class="detail-row"><span class="d-label">异常预警</span><span class="d-value" style="color:var(--color-danger);">2 条待确认</span></div></div><div class="card action-footer"><span class="action-link primary" style="margin-right:16px;">开始对话</span><span class="action-link" style="color:var(--text-tertiary);">查看历史</span></div>';
+                    showSecondary('AI助手', html);
+                    return;
+                }
+
+                // 视频监控 → 打开实时监控视图
+                if (btnId === 'quickMonitor') {
+                    var html = '<div class="card" style="padding:12px;"><div class="video-window" style="height:180px; margin-bottom:8px;"><span>实时监控画面</span><div class="badge">在线 · 4路</div></div><div class="video-controls" style="margin-bottom:0;"><button>切换画面</button><button>截图</button><button>全屏</button></div></div><div class="card card--compact"><div class="section-header" style="margin-bottom:4px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">监控点位</span></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">A区周界 — 1号枪机</div><div class="doc-status">在线 · 1080P</div></div></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">B2停车场 — 3号球机</div><div class="doc-status">在线 · 1080P</div></div></div><div class="doc-item"><span class="doc-icon">📹</span><div class="doc-info"><div class="doc-title">C区设备间 — 2号半球</div><div class="doc-status">在线 · 720P</div></div></div></div>';
+                    showSecondary('视频监控', html);
+                    return;
+                }
+
+                // 远程协作 → 切换到协同页面
+                if (btnId === 'quickRemote') {
+                    switchPage('collab');
+                    return;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

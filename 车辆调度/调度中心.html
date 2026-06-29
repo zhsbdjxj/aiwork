@@ -1,0 +1,2994 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调度中心（总览+列表+日历+月度）- 丽江车辆调度管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body {
+            background: #f4f7fb;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ===== 侧边栏 ===== */
+        .sidebar {
+            width: 220px;
+            background: #1a2639;
+            color: #a0b3cc;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 14px;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .logo {
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 28px;
+            padding-left: 10px;
+        }
+        .logo span {
+            color: #4f9cf7;
+        }
+        .menu-item {
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 2px;
+            cursor: default;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9aaec9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .menu-item.active {
+            background: #2c3a52;
+            color: #fff;
+            box-shadow: inset 4px 0 0 #4f9cf7;
+        }
+        .menu-item .icon {
+            font-size: 16px;
+            width: 22px;
+            text-align: center;
+        }
+        .menu-item .badge-dot {
+            margin-left: auto;
+            background: #e65f5f;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0 6px;
+            font-size: 11px;
+        }
+
+        /* ===== 主容器 ===== */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            background: #f4f7fb;
+        }
+        .topbar {
+            padding: 16px 28px;
+            background: #fff;
+            border-bottom: 1px solid #e9edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .topbar .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .topbar-actions {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            color: #5a6e8a;
+            font-size: 13px;
+        }
+        .topbar-actions .role-tag {
+            background: #eef3fc;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+        }
+
+        .content-wrapper {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 32px;
+        }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            font-weight: 600;
+            color: #1a2639;
+            font-size: 15px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #eef3fc;
+            color: #2a5f9c;
+        }
+        .badge.orange {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .badge.green {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .badge.red {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .badge.gray {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .badge.blue {
+            background: #e3edff;
+            color: #2a5f9c;
+        }
+
+        .btn {
+            padding: 6px 16px;
+            border-radius: 8px;
+            border: none;
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn:hover {
+            background: #3a7fcb;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d0d8e6;
+            color: #3f5370;
+        }
+        .btn-outline:hover {
+            background: #f0f4fa;
+        }
+        .btn-sm {
+            padding: 3px 10px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #1fb873;
+        }
+        .btn-success:hover {
+            background: #169b5f;
+        }
+        .btn-danger {
+            background: #e65f5f;
+        }
+        .btn-danger:hover {
+            background: #c94a4a;
+        }
+        .btn-warning {
+            background: #f5a623;
+        }
+        .btn-warning:hover {
+            background: #d98e1a;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-lg {
+            padding: 10px 28px;
+            font-size: 15px;
+        }
+
+        .flex {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .mt-2 {
+            margin-top: 14px;
+        }
+        .mb-2 {
+            margin-bottom: 14px;
+        }
+        .text-muted {
+            color: #6b7f9a;
+            font-size: 13px;
+        }
+        .fw-bold {
+            font-weight: 700;
+            color: #1a2639;
+        }
+
+        /* ===== 统计卡片 ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 16px 20px;
+            border-radius: 12px;
+            border: 1px solid #edf2f9;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+        }
+        .stat-card .label {
+            font-size: 13px;
+            color: #6b7f9a;
+            margin-bottom: 4px;
+        }
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .stat-card .sub {
+            font-size: 12px;
+            color: #4f9cf7;
+            margin-top: 4px;
+        }
+        .stat-card .value.green {
+            color: #1fb873;
+        }
+        .stat-card .value.orange {
+            color: #f5a623;
+        }
+        .stat-card .value.blue {
+            color: #4f9cf7;
+        }
+        .stat-card .value.purple {
+            color: #8b5cf6;
+        }
+
+        /* ===== 视图切换 ===== */
+        .view-toggle {
+            display: inline-flex;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #d5dee9;
+            background: #fff;
+        }
+        .view-toggle .toggle-btn {
+            padding: 6px 18px;
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: #6b7f9a;
+            transition: all 0.15s;
+            border-right: 1px solid #d5dee9;
+        }
+        .view-toggle .toggle-btn:last-child {
+            border-right: none;
+        }
+        .view-toggle .toggle-btn:hover {
+            background: #f0f4fa;
+        }
+        .view-toggle .toggle-btn.active {
+            background: #1a2639;
+            color: #fff;
+        }
+
+        /* ===== 筛选栏 ===== */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .filter-bar input,
+        .filter-bar select {
+            padding: 7px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+            min-width: 120px;
+        }
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            outline: 2px solid #4f9cf7;
+            border-color: transparent;
+        }
+
+        /* ===== 可用资源面板 ===== */
+        .resource-panel {
+            background: #f4f8ff;
+            border: 1px solid #e3edff;
+            border-radius: 10px;
+            padding: 12px 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px 30px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .resource-panel .resource-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .resource-panel .resource-item .icon {
+            font-size: 18px;
+        }
+        .resource-panel .resource-item .count {
+            font-weight: 700;
+            font-size: 18px;
+            color: #1a2639;
+        }
+        .resource-panel .driver-tag {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            background: #e2f7ed;
+            color: #137a4b;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 2px 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .resource-panel .driver-tag:hover {
+            background: #1fb873;
+            color: #fff;
+        }
+        .resource-panel .driver-tag .fleet-tag {
+            font-weight: 400;
+            opacity: 0.7;
+            font-size: 10px;
+        }
+
+        /* ============================================================ */
+        /* 列表视图 - 车辆卡片 */
+        /* ============================================================ */
+        .fleet-group {
+            margin-bottom: 16px;
+            border: 1px solid #edf2f9;
+            border-radius: 12px;
+            background: #fff;
+            overflow: hidden;
+        }
+        .fleet-header {
+            background: #f8fafc;
+            padding: 12px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf2f9;
+            font-weight: 600;
+            color: #1a2639;
+            transition: background 0.15s;
+        }
+        .fleet-header:hover {
+            background: #f0f4fa;
+        }
+        .fleet-header .fleet-count {
+            font-weight: 400;
+            font-size: 13px;
+            color: #6b7f9a;
+        }
+        .fleet-body {
+            padding: 12px 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 14px;
+        }
+        .fleet-body.collapsed {
+            display: none;
+        }
+
+        .vehicle-card {
+            background: #fafcff;
+            border: 1px solid #edf2f9;
+            border-radius: 10px;
+            padding: 14px 16px;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .vehicle-card:hover {
+            border-color: #4f9cf7;
+            box-shadow: 0 4px 12px rgba(79, 156, 247, 0.08);
+        }
+        .vehicle-card .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .vehicle-card .plate {
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a2639;
+        }
+        .vehicle-card .plate .sub {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-left: 6px;
+        }
+        .vehicle-card .status-tag {
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .status-tag .dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+        .status-tag.idle {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .status-tag.idle .dot {
+            background: #1fb873;
+        }
+        .status-tag.busy {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .status-tag.busy .dot {
+            background: #f5a623;
+        }
+        .status-tag.off {
+            background: #f0f2f5;
+            color: #6b7f9a;
+        }
+        .status-tag.off .dot {
+            background: #b0bcca;
+        }
+        .status-tag.maintenance {
+            background: #ffe5e5;
+            color: #b33a3a;
+        }
+        .status-tag.maintenance .dot {
+            background: #e65f5f;
+        }
+
+        .vehicle-card .driver-info {
+            font-size: 13px;
+            color: #3f5370;
+            margin-top: 4px;
+        }
+        .vehicle-card .driver-info strong {
+            color: #1a2639;
+        }
+        .vehicle-card .timeline-row {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #edf2f9;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+        .vehicle-card .timeline-row .time-slot {
+            font-size: 12px;
+            background: #f0f4fa;
+            padding: 2px 10px;
+            border-radius: 12px;
+            color: #2a5f9c;
+            white-space: nowrap;
+        }
+        .vehicle-card .timeline-row .time-slot.busy-slot {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .vehicle-card .timeline-row .time-slot .order-link {
+            color: #4f9cf7;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        .vehicle-card .timeline-row .time-slot .order-link:hover {
+            text-decoration: underline;
+        }
+        .vehicle-card .timeline-row .empty-slot {
+            font-size: 12px;
+            color: #6b7f9a;
+            background: #f8fafc;
+            padding: 2px 12px;
+            border-radius: 12px;
+            border: 1px dashed #d5dee9;
+        }
+        .vehicle-card .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================================ */
+        /* 日历视图 - 高对比颜色区分 */
+        /* ============================================================ */
+        .calendar-container {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        .calendar-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 900px;
+        }
+        .calendar-container th,
+        .calendar-container td {
+            padding: 6px 4px;
+            text-align: center;
+            border: 1px solid #edf2f9;
+            vertical-align: middle;
+        }
+        .calendar-container .time-header {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #3f5370;
+            font-size: 12px;
+            padding: 8px 4px;
+            min-width: 70px;
+        }
+        .calendar-container .fleet-row {
+            background: #f4f7fb;
+            font-weight: 600;
+            color: #1a2639;
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .calendar-container .fleet-row td {
+            border-bottom: 2px solid #d5dee9;
+            padding: 8px 12px;
+        }
+        .calendar-container .vehicle-label {
+            text-align: left;
+            font-weight: 500;
+            padding: 6px 10px;
+            white-space: nowrap;
+            background: #fafcff;
+        }
+        .calendar-container .vehicle-label .plate {
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .calendar-container .vehicle-label .sub {
+            font-size: 11px;
+            color: #6b7f9a;
+            display: block;
+        }
+        .calendar-container .vehicle-label .driver-name {
+            font-size: 11px;
+            color: #3f5370;
+        }
+
+        /* 时段单元格 - 高对比颜色 */
+        /* 车辆间分隔 */
+        .calendar-container tr.vehicle-last-row td {
+            border-bottom: 2px solid #c0c8d4;
+        }
+        .calendar-container tr.vehicle-even-row td {
+            background-color: rgba(0,0,0,0.015);
+        }
+        .monthly-container tr.vehicle-last-row td {
+            border-bottom: 2px solid #c0c8d4;
+        }
+        .monthly-container tr.vehicle-even-row td {
+            background-color: rgba(0,0,0,0.015);
+        }
+
+        .calendar-container .slot-cell {
+            height: 40px;
+            min-width: 60px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+        .calendar-container .slot-cell.idle {
+            background: #b7e4c7;      /* 明亮翠绿 */
+            color: #0a4a2e;
+        }
+        .calendar-container .slot-cell.idle:hover {
+            background: #9ad4ae;
+        }
+        .calendar-container .slot-cell.maintenance {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: default;
+        }
+        .calendar-container .slot-cell .order-id {
+            font-size: 10px;
+            font-weight: 600;
+            display: block;
+            margin-top: 1px;
+        }
+        .calendar-container .slot-cell .slot-label {
+            font-size: 10px;
+        }
+        .calendar-container .slot-cell .idle-icon {
+            font-size: 16px;
+        }
+
+        /* 订单色块：统一暖橙，无边线 */
+        .calendar-container .slot-cell.order-block {
+            background: #f9b84a; color: #6b3d0a; font-weight: 500;
+            font-size: 10px; border: none !important; border-radius: 4px;
+        }
+        .calendar-container .slot-cell.order-block:hover { background: #f0a832; }
+        .calendar-container .slot-cell .order-id {
+            font-size: 10px; font-weight: 600; display: block; margin-top: 1px;
+        }
+        .calendar-container .slot-cell .slot-label { font-size: 10px; }
+
+        /* ============================================================ */
+        /* 月度视图 - 同样高对比 */
+        /* ============================================================ */
+        .monthly-container {
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid #edf2f9;
+            overflow: hidden;
+            overflow-x: auto;
+        }
+        .monthly-container table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 800px;
+        }
+        .monthly-container th,
+        .monthly-container td {
+            padding: 4px 2px;
+            text-align: center;
+            border: 1px solid #edf2f9;
+            vertical-align: middle;
+        }
+        .monthly-container .day-header {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #3f5370;
+            font-size: 11px;
+            padding: 6px 2px;
+            min-width: 32px;
+        }
+        .monthly-container .day-header.weekend {
+            color: #e65f5f;
+            background: #fff5f5;
+        }
+        .monthly-container .day-header.today-col {
+            background: #4f9cf7;
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+        }
+        .monthly-container .fleet-row-monthly {
+            background: #f4f7fb;
+            font-weight: 600;
+            color: #1a2639;
+            padding: 6px 10px;
+            text-align: left;
+        }
+        .monthly-container .fleet-row-monthly td {
+            border-bottom: 2px solid #d5dee9;
+            padding: 6px 10px;
+        }
+        .monthly-container .vehicle-label-monthly {
+            text-align: left;
+            font-weight: 500;
+            padding: 4px 8px;
+            white-space: nowrap;
+            background: #fafcff;
+            font-size: 12px;
+        }
+        .monthly-container .vehicle-label-monthly .plate {
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .monthly-container .vehicle-label-monthly .sub {
+            font-size: 10px;
+            color: #6b7f9a;
+            display: block;
+        }
+
+        .monthly-container .day-cell {
+            height: 32px;
+            min-width: 28px;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 500;
+            position: relative;
+        }
+        .monthly-container .day-cell.idle {
+            background: #b7e4c7;
+            color: #0a4a2e;
+        }
+        .monthly-container .day-cell.idle:hover {
+            background: #9ad4ae;
+        }
+        .monthly-container .day-cell.busy {
+            background: #f9b84a;
+            color: #6b3d0a;
+        }
+        .monthly-container .day-cell.busy:hover {
+            background: #f0a832;
+        }
+        .monthly-container .day-cell.maintenance {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: default;
+        }
+        .monthly-container .day-cell .order-label {
+            font-size: 8px;
+            font-weight: 600;
+            color: #6b3d0a;
+            display: block;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .monthly-container .day-cell .day-num {
+            font-size: 10px;
+            font-weight: 400;
+            color: #6b7f9a;
+        }
+
+        /* 跨天订单色块 */
+        .monthly-container .day-cell.order-block {
+            background: #f9b84a;
+            color: #6b3d0a;
+            font-weight: 600;
+            font-size: 10px;
+            border-left: 2px solid #d4871a;
+            border-right: 2px solid #d4871a;
+        }
+        .monthly-container .day-cell.order-block-start {
+            border-left: 2px solid #d4871a;
+            border-radius: 4px 0 0 4px;
+        }
+        .monthly-container .day-cell.order-block-end {
+            border-right: 2px solid #d4871a;
+            border-radius: 0 4px 4px 0;
+        }
+        .monthly-container .day-cell.order-block-single {
+            border: 2px solid #d4871a;
+            border-radius: 4px;
+        }
+        .monthly-container .day-cell .order-block-label {
+            font-size: 9px;
+            font-weight: 600;
+            color: #6b3d0a;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .monthly-container .day-cell .order-block-id {
+            font-size: 8px;
+            color: #d4871a;
+            font-weight: 500;
+        }
+
+        /* 月度图例 */
+        .monthly-legend {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            background: #fafcff;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 1px solid #edf2f9;
+        }
+        .monthly-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #3f5370;
+        }
+        .monthly-legend .legend-color {
+            width: 20px;
+            height: 14px;
+            border-radius: 3px;
+        }
+        .monthly-legend .legend-color.idle {
+            background: #b7e4c7;
+            border: 1px solid #8fc9a3;
+        }
+        .monthly-legend .legend-color.busy {
+            background: #f9b84a;
+            border: 1px solid #d4871a;
+        }
+        .monthly-legend .legend-color.maintenance {
+            background: #e9ecef;
+            border: 1px solid #d5dce6;
+        }
+        .monthly-legend .legend-color.order-block {
+            background: #f9b84a;
+            border: 2px solid #d4871a;
+        }
+
+        /* ===== 模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            visibility: hidden;
+            opacity: 0;
+            transition: all 0.2s;
+        }
+        .modal-overlay.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal {
+            background: #fff;
+            border-radius: 18px;
+            padding: 28px 34px;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+        .modal h3 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #1a2639;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal .field {
+            margin-bottom: 14px;
+        }
+        .modal .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #3f5370;
+            margin-bottom: 4px;
+        }
+        .modal .field select,
+        .modal .field textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d5dee9;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #fafcff;
+        }
+        .modal .field textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .modal .field .driver-option {
+            padding: 8px 12px;
+            border: 1px solid #edf2f9;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal .field .driver-option:hover {
+            background: #f4f8ff;
+            border-color: #4f9cf7;
+        }
+        .modal .field .driver-option.selected {
+            background: #e3edff;
+            border-color: #4f9cf7;
+        }
+        .modal .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .modal .hint-text {
+            font-size: 12px;
+            color: #6b7f9a;
+            margin-top: 6px;
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            background: #1a2639;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(80px);
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* ============================================================ */
+        /* 总览视图 - 地图 + 车辆列表 */
+        /* ============================================================ */
+        /* ===== 总览：全屏地图背景 ===== */
+        .overview-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* 总览模式：flex列布局，保留导航卡标准样式 */
+        .content-wrapper.overview-mode {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .content-wrapper.overview-mode > :not(#overviewViewContainer):not(#dateNavCard) {
+            display: none;
+        }
+        .content-wrapper.overview-mode > #dateNavCard {
+            flex-shrink: 0;
+        }
+        .content-wrapper.overview-mode > #overviewViewContainer {
+            flex: 1;
+            min-height: 0;
+        }
+        .overview-map-wrapper {
+            position: absolute;
+            inset: 0;
+            background: #e8edf3;
+            overflow: hidden;
+            z-index: 0;
+        }
+        #overviewMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 悬浮统计卡片 - 左上 */
+        .overview-float-stats {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        .float-stat-card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 12px;
+            padding: 12px 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            min-width: 90px;
+            text-align: center;
+        }
+        .float-stat-card .label {
+            font-size: 11px;
+            color: #6b7f9a;
+            margin-bottom: 2px;
+        }
+        .float-stat-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a2639;
+        }
+        .float-stat-card .value.green { color: #1fb873; }
+        .float-stat-card .value.orange { color: #f5a623; }
+        .float-stat-card .value.blue { color: #4f9cf7; }
+
+        /* 悬浮图例 - 左下 */
+        .overview-float-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 10px;
+            padding: 8px 14px;
+            z-index: 10;
+            font-size: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        /* 自定义 Leaflet 弹窗 */
+        .map-popup { font-family: inherit; }
+        .map-popup .popup-plate { font-weight: 700; font-size: 14px; color: #1a2639; }
+        .map-popup .popup-info { font-size: 12px; color: #3f5370; margin-top: 4px; line-height: 1.6; }
+        .map-popup .popup-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+        .map-popup .popup-badge.busy { background: #fff1e0; color: #b55f1a; }
+        .map-popup .popup-badge.idle { background: #e2f7ed; color: #137a4b; }
+
+        /* 悬浮车辆列表 - 右侧 */
+        .overview-vehicle-panel {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            bottom: 16px;
+            width: 360px;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .overview-vehicle-panel .panel-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a2639;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .overview-vehicle-panel .panel-header .count-badge {
+            font-weight: 400;
+            font-size: 12px;
+            color: #6b7f9a;
+        }
+        .overview-vehicle-panel .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 14px;
+        }
+        .overview-vehicle-panel .panel-body::-webkit-scrollbar {
+            width: 4px;
+        }
+        .overview-vehicle-panel .panel-body::-webkit-scrollbar-thumb {
+            background: #d5dee9;
+            border-radius: 2px;
+        }
+
+        /* 总览车辆卡片 */
+        .ov-vehicle-card {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .ov-vehicle-card:hover {
+            border-color: #4f9cf7;
+            box-shadow: 0 4px 12px rgba(79,156,247,0.1);
+        }
+        .ov-vehicle-card.selected {
+            border-color: #4f9cf7;
+            background: #f4f8ff;
+            box-shadow: 0 0 0 3px rgba(79,156,247,0.12);
+        }
+        .ov-vehicle-card .ov-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .ov-vehicle-card .ov-plate {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1a2639;
+        }
+        .ov-vehicle-card .ov-status {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .ov-vehicle-card .ov-status.busy {
+            background: #fff1e0;
+            color: #b55f1a;
+        }
+        .ov-vehicle-card .ov-status.idle {
+            background: #e2f7ed;
+            color: #137a4b;
+        }
+        .ov-vehicle-card .ov-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .ov-vehicle-card .ov-status.busy .ov-status-dot {
+            background: #f5a623;
+        }
+        .ov-vehicle-card .ov-status.idle .ov-status-dot {
+            background: #1fb873;
+        }
+        .ov-vehicle-card .ov-driver {
+            font-size: 13px;
+            color: #3f5370;
+            margin-bottom: 6px;
+        }
+        .ov-vehicle-card .ov-driver strong {
+            color: #1a2639;
+        }
+        .ov-vehicle-card .ov-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 14px;
+            font-size: 12px;
+            color: #5a6e8a;
+            padding-top: 8px;
+            border-top: 1px solid #edf2f9;
+        }
+        .ov-vehicle-card .ov-info-grid .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .ov-vehicle-card .ov-info-grid .info-label {
+            color: #8b9db5;
+        }
+        .ov-vehicle-card .ov-info-grid .info-value {
+            font-weight: 500;
+            color: #1a2639;
+        }
+        .ov-vehicle-card .ov-info-grid .info-value.speed {
+            color: #4f9cf7;
+        }
+        .ov-vehicle-card .ov-info-grid .info-value.dist {
+            color: #1fb873;
+        }
+        .ov-vehicle-card .ov-time-row {
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed #edf2f9;
+            font-size: 11px;
+            color: #6b7f9a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .ov-vehicle-card .ov-time-row .time-tag {
+            background: #f0f4fa;
+            padding: 2px 8px;
+            border-radius: 10px;
+            color: #2a5f9c;
+            font-weight: 500;
+        }
+
+        /* 地图标记脉冲动画 */
+        @keyframes pulse-busy {
+            0% { box-shadow: 0 0 0 0 rgba(245,166,35,0.5); }
+            70% { box-shadow: 0 0 0 12px rgba(245,166,35,0); }
+            100% { box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+        }
+        @keyframes pulse-idle {
+            0% { box-shadow: 0 0 0 0 rgba(31,184,115,0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(31,184,115,0); }
+            100% { box-shadow: 0 0 0 0 rgba(31,184,115,0); }
+        }
+
+        /* 图例 */
+        .map-legend {
+            position: absolute;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 10px 14px;
+            z-index: 999;
+            font-size: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .map-legend .legend-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .map-legend .legend-dot.busy {
+            background: #f5a623;
+        }
+        .map-legend .legend-dot.idle {
+            background: #1fb873;
+        }
+        .map-legend .legend-line {
+            display: inline-block;
+            width: 18px;
+            height: 2px;
+            background: #4f9cf7;
+            border-radius: 1px;
+            margin-right: 4px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .stat-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .overview-container { height: 500px; }
+            .overview-vehicle-panel {
+                width: 300px;
+                top: 80px;
+            }
+            .overview-float-stats { top: 8px; left: 8px; gap: 6px; }
+            .float-stat-card { padding: 8px 12px; min-width: 70px; }
+            .float-stat-card .value { font-size: 20px; }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            .menu-item span:not(.icon) {
+                display: none;
+            }
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+            .fleet-body {
+                grid-template-columns: 1fr;
+            }
+            .resource-panel {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .monthly-container table {
+                font-size: 10px;
+                min-width: 600px;
+            }
+            .monthly-container .day-cell {
+                height: 26px;
+                min-width: 20px;
+            }
+        }
+        body.in-iframe .sidebar{display:none!important}body.in-iframe .topbar{display:none!important}body.in-iframe .main-container{margin-left:0!important}
+    </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+<script>if(window.top!==window.self)document.body.classList.add('in-iframe')</script>
+
+    <!-- ===== 侧边栏 ===== -->
+    <div class="sidebar">
+        <div class="logo">🚐 <span>丽江</span>调度</div>
+        <div class="menu-item"><span class="icon">📊</span> 工作台</div>
+        <div class="menu-item"><span class="icon">📁</span> 档案中心</div>
+        <div class="menu-item active"><span class="icon">📅</span> 调度排班</div>
+        <div class="menu-item"><span class="icon">🧾</span> 订单中心 <span class="badge-dot">3</span></div>
+        <div class="menu-item"><span class="icon">✅</span> 审核工作台 <span class="badge-dot">4</span></div>
+        <div class="menu-item"><span class="icon">💰</span> 结算中心</div>
+        <div style="flex:1;"></div>
+        <div class="menu-item" style="color:#6b7f9a;"><span class="icon">⚙️</span> 系统设置</div>
+    </div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="main-container">
+        <div class="topbar">
+            <div class="page-title">
+                📅 调度排班
+                <span class="badge" style="font-size:11px;font-weight:400;">v4.0 四视图·实时轨迹</span>
+            </div>
+            <div class="topbar-actions">
+                <span>👤 总调员 · 张明</span>
+                <span class="role-tag">协会级</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <!-- ===== 日期/月份 导航 ===== -->
+            <div class="card" style="padding:12px 20px;" id="dateNavCard">
+                <div class="flex-between">
+                    <div class="flex" id="navControls">
+                        <!-- 日视图控件（默认显示） -->
+                        <div id="dayNavControls" class="flex">
+                            <button class="btn btn-sm btn-outline" onclick="changeDate(-1)">← 前一天</button>
+                            <button class="btn btn-sm btn-outline" onclick="changeDate(0)">📅 今天</button>
+                            <button class="btn btn-sm btn-outline" onclick="changeDate(1)">后一天 →</button>
+                            <span style="font-weight:600;font-size:16px;color:#1a2639;margin-left:8px;" id="currentDateDisplay">2026-06-23</span>
+                            <span class="badge" style="font-size:11px;background:#f0f4fa;" id="weekdayDisplay">周二</span>
+                        </div>
+                        <!-- 30天视图控件（月度视图时显示） -->
+                        <div id="monthNavControls" class="flex" style="display:none;">
+                            <button class="btn btn-sm btn-outline" onclick="shiftMonthWindow(-15)">← 前15天</button>
+                            <button class="btn btn-sm btn-outline" onclick="shiftMonthWindow(0)">📅 今天</button>
+                            <button class="btn btn-sm btn-outline" onclick="shiftMonthWindow(15)">后15天 →</button>
+                            <span style="font-weight:600;font-size:16px;color:#1a2639;margin-left:8px;" id="currentMonthDisplay">近30天</span>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <!-- 视图切换 -->
+                        <div class="view-toggle">
+                            <button class="toggle-btn active" data-view="overview" onclick="switchView('overview')">🗺️ 总览</button>
+                            <button class="toggle-btn" data-view="list" onclick="switchView('list')">📋 列表</button>
+                            <button class="toggle-btn" data-view="calendar" onclick="switchView('calendar')">📅 日历</button>
+                            <button class="toggle-btn" data-view="monthly" onclick="switchView('monthly')">📆 月度</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 统计卡片 ===== -->
+            <div class="stat-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="label">🚐 总车辆</div>
+                    <div class="value" id="statTotal">12</div>
+                    <div class="sub">覆盖 3 个车队</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">🟢 空闲车辆</div>
+                    <div class="value green" id="statIdle">4</div>
+                    <div class="sub">可调度车辆</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">🟡 执行中车辆</div>
+                    <div class="value orange" id="statBusy">5</div>
+                    <div class="sub">关联订单可追踪</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">📋 排班订单</div>
+                    <div class="value blue" id="statOrders">8</div>
+                    <div class="sub" id="statOrdersSub">今日排班</div>
+                </div>
+            </div>
+
+            <!-- ===== 筛选栏 ===== -->
+            <div class="card" style="padding:12px 20px;" id="filterCard">
+                <div class="filter-bar">
+                    <select id="filterFleet" onchange="applyFilters()">
+                        <option value="">全部车队</option>
+                        <option value="雪山车队">雪山车队</option>
+                        <option value="古城车队">古城车队</option>
+                        <option value="玉龙车队">玉龙车队</option>
+                    </select>
+                    <select id="filterStatus" onchange="applyFilters()">
+                        <option value="">全部状态</option>
+                        <option value="空闲">🟢 空闲</option>
+                        <option value="执行中">🟡 执行中</option>
+                        <option value="维修">🔴 维修/休息</option>
+                    </select>
+                    <select id="filterCarType" onchange="applyFilters()">
+                        <option value="">全部车型</option>
+                        <option value="9座">9座</option>
+                        <option value="7座">7座</option>
+                        <option value="19座">19座</option>
+                        <option value="5座">5座</option>
+                    </select>
+                    <select id="filterEnergy" onchange="applyFilters()">
+                        <option value="">全部能源</option>
+                        <option value="油车">油车</option>
+                        <option value="电车">新能源电车</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline" onclick="resetFilters()">重置</button>
+                    <span class="text-muted" style="font-size:12px;margin-left:auto;" id="filterResultCount">显示 12 辆车</span>
+                </div>
+            </div>
+
+            <!-- ===== 可用资源面板（仅日历视图显示） ===== -->
+            <div id="resourcePanel" class="resource-panel" style="display:none;">
+                <div class="resource-item">
+                    <span class="icon">🟢</span>
+                    <span>空闲车辆：</span>
+                    <span class="count" id="resIdleCount">4</span>
+                    <span class="text-muted">辆</span>
+                </div>
+                <div class="resource-item">
+                    <span class="icon">👤</span>
+                    <span>可用司机：</span>
+                    <span class="count" id="resDriverCount">6</span>
+                    <span class="text-muted">位</span>
+                    <span style="margin-left:8px;" id="resDriverList"></span>
+                </div>
+                <div style="flex:1;"></div>
+                <span class="text-muted" style="font-size:12px;">💡 点击司机标签可快速分配</span>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 列表视图 -->
+            <!-- ========================================================= -->
+            <div id="listViewContainer">
+                <div id="fleetContainer"></div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 日历视图 -->
+            <!-- ========================================================= -->
+            <div id="calendarViewContainer" style="display:none;">
+                <div class="calendar-container" id="calendarContainer"></div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 月度视图 -->
+            <!-- ========================================================= -->
+            <div id="monthlyViewContainer" style="display:none;">
+                <!-- 月度图例 -->
+                <div class="monthly-legend">
+                    <div class="legend-item"><span class="legend-color idle"></span> 空闲</div>
+                    <div class="legend-item"><span class="legend-color busy"></span> 执行中（单日）</div>
+                    <div class="legend-item"><span class="legend-color order-block"></span> 跨天订单（连续色块）</div>
+                    <div class="legend-item"><span class="legend-color maintenance"></span> 维修/休息</div>
+                    <div class="legend-item" style="margin-left:auto;"><span class="badge" style="font-size:10px;">💡 点击色块查看详情</span></div>
+                </div>
+                <div class="monthly-container" id="monthlyContainer"></div>
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 总览视图 - 全屏地图背景 + 悬浮卡片 -->
+            <!-- ========================================================= -->
+            <div id="overviewViewContainer">
+                <div class="overview-container">
+                    <!-- 全屏地图背景 -->
+                    <div class="overview-map-wrapper" id="mapWrapper">
+                        <div id="overviewMap"></div>
+                    </div>
+                    <!-- 悬浮：统计卡片 -->
+                    <div class="overview-float-stats" id="overviewFloatStats">
+                        <div class="float-stat-card">
+                            <div class="label">🚐 总车辆</div>
+                            <div class="value" id="ovStatTotal">12</div>
+                        </div>
+                        <div class="float-stat-card">
+                            <div class="label">🟢 空闲</div>
+                            <div class="value green" id="ovStatIdle">4</div>
+                        </div>
+                        <div class="float-stat-card">
+                            <div class="label">🟡 执行中</div>
+                            <div class="value orange" id="ovStatBusy">5</div>
+                        </div>
+                        <div class="float-stat-card">
+                            <div class="label">📋 订单</div>
+                            <div class="value blue" id="ovStatOrders">8</div>
+                        </div>
+                    </div>
+                    <!-- 悬浮：图例 -->
+                    <div class="overview-float-legend">
+                        <span><span class="legend-dot busy"></span> 执行中</span>
+                        <span><span class="legend-dot idle"></span> 空闲</span>
+                        <span><span class="legend-line"></span> 轨迹线</span>
+                    </div>
+                    <!-- 悬浮：右侧车辆列表 -->
+                    <div class="overview-vehicle-panel">
+                        <div class="panel-header">
+                            🚐 车辆列表
+                            <span class="count-badge" id="ovVehicleCount">共 12 辆</span>
+                        </div>
+                        <div style="padding:8px 14px;border-bottom:1px solid rgba(0,0,0,0.06);">
+                            <input class="search-input" placeholder="🔍 搜索车牌号..." id="ovPlateSearch"
+                                oninput="renderOverviewVehicleCards()"
+                                style="width:100%;padding:6px 10px;border:1px solid rgba(0,0,0,0.1);border-radius:8px;font-size:13px;background:rgba(255,255,255,0.7);outline:none;">
+                        </div>
+                        <div class="panel-body" id="ovVehicleList">
+                            <!-- 动态渲染 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===== 模态框：分配司机 ===== -->
+    <div class="modal-overlay" id="assignModal">
+        <div class="modal">
+            <h3>🚗 分配司机 — <span id="assignPlate">云L·8888</span></h3>
+            <div class="field">
+                <label>选择司机 *</label>
+                <div id="driverList"></div>
+                <div class="hint-text">💡 仅显示持有对应车型资质的空闲司机</div>
+            </div>
+            <div class="field">
+                <label>关联订单（可选）</label>
+                <select id="assignOrderSelect">
+                    <option value="">暂不关联（仅排班）</option>
+                    <option value="#OD1027">#OD1027 - 拉市海专线（待派单）</option>
+                    <option value="#OD1021">#OD1021 - 接机（待派单）</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>备注</label>
+                <textarea placeholder="可选填排班备注"></textarea>
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('assignModal')">取消</button>
+                <button class="btn btn-success" onclick="confirmAssign()">✅ 确认排班</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 模态框：排班详情（支持订单时段展示） ===== -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal">
+            <h3>📋 排班详情 — <span id="detailPlate">云L·8888</span></h3>
+            <div style="margin-bottom:12px;">
+                <span class="badge" id="detailStatusBadge">执行中</span>
+                <span class="text-muted" style="margin-left:12px;">司机：<strong id="detailDriver">李师傅</strong></span>
+            </div>
+            <div class="field">
+                <label id="detailTimelineLabel">📌 今日时段</label>
+                <div id="detailTimeline" style="background:#f8fafc;border-radius:8px;padding:12px;font-size:13px;"></div>
+            </div>
+            <div class="field">
+                <label>📄 关联订单</label>
+                <div id="detailOrders" style="font-size:13px;color:#3f5370;"></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-outline" onclick="closeModal('detailModal')">关闭</button>
+                <button class="btn btn-sm btn-outline" onclick="closeModal('detailModal');showToast('模拟：跳转至订单详情')">📄 查看订单</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div class="toast" id="toast">✅ 操作成功</div>
+
+    <script>
+        // ================================================================
+        // 1. 数据
+        // ================================================================
+        const fleets = ['雪山车队', '古城车队', '玉龙车队'];
+
+        const vehiclesData = [
+            // 雪山车队
+            { id: 'v1', plate: '云L·8888', fleet: '雪山车队', type: '9座', energy: '油车', status: '执行中', driver: '李师傅',
+                orders: ['#OD1023','#OD1050'], timeSlots: ['08:00-12:00 玉龙雪山','10:00-16:00 机场往返'],
+                orderDetails: [
+                    { orderId: '#OD1023', time: '08:00-12:00', label: '玉龙雪山', colorIdx: 0 },
+                    { orderId: '#OD1050', time: '10:00-16:00', label: '机场往返', colorIdx: 1 }
+                ],
+                currentNode: '束河古镇', lat: 26.9220, lng: 100.2050, speed: 45, distanceToDest: 18.5,
+                orderStartTime: '08:00', orderEndTime: '16:00',
+                trajectory: [[26.8870,100.2298],[26.8980,100.2220],[26.9100,100.2140],[26.9220,100.2050]] },
+            { id: 'v2', plate: '云L·5555', fleet: '雪山车队', type: '9座', energy: '油车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '丽江古城南门', lat: 26.8680, lng: 100.2320, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            { id: 'v3', plate: '云L·7777', fleet: '雪山车队', type: '7座', energy: '油车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '黑龙潭公园', lat: 26.8880, lng: 100.2338, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            { id: 'v4', plate: '云L·9999', fleet: '雪山车队', type: '19座', energy: '油车', status: '执行中', driver: '赵师傅',
+                orders: ['#OD1020','#OD1060'], timeSlots: ['07:00-19:00 泸沽湖两日游','20:00-22:00 夜间接送'],
+                orderDetails: [
+                    { orderId: '#OD1020', time: '07:00-19:00', label: '泸沽湖两日游', colorIdx: 0 },
+                    { orderId: '#OD1060', time: '20:00-22:00', label: '夜间接送', colorIdx: 1 }
+                ],
+                currentNode: '宁蒗县', lat: 27.2800, lng: 100.8500, speed: 62, distanceToDest: 85.0,
+                orderStartTime: '07:00', orderEndTime: '19:00',
+                trajectory: [[26.8870,100.2298],[27.0500,100.2800],[27.1600,100.5500],[27.2800,100.8500]] },
+            // 古城车队
+            { id: 'v5', plate: '云L·6666', fleet: '古城车队', type: '7座', energy: '油车', status: '执行中', driver: '王师傅',
+                orders: ['#OD1025','#OD1051'], timeSlots: ['10:00-16:00 机场往返','14:00-20:00 市区包车'],
+                orderDetails: [
+                    { orderId: '#OD1025', time: '10:00-16:00', label: '机场往返', colorIdx: 0 },
+                    { orderId: '#OD1051', time: '14:00-20:00', label: '市区包车', colorIdx: 2 }
+                ],
+                currentNode: '丽江机场高速', lat: 26.7500, lng: 100.2450, speed: 78, distanceToDest: 28.0,
+                orderStartTime: '10:00', orderEndTime: '20:00',
+                trajectory: [[26.8720,100.2298],[26.8200,100.2350],[26.7800,100.2400],[26.7500,100.2450]] },
+            { id: 'v6', plate: '云L·2222', fleet: '古城车队', type: '5座', energy: '电车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '丽江古城北门', lat: 26.8750, lng: 100.2280, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            { id: 'v7', plate: '云L·3333', fleet: '古城车队', type: '19座', energy: '油车', status: '维修', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '维修厂', lat: 26.8650, lng: 100.2150, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            { id: 'v8', plate: '云L·1111', fleet: '古城车队', type: '9座', energy: '油车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '古城停车场', lat: 26.8700, lng: 100.2350, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            // 玉龙车队
+            { id: 'v9', plate: '云L·4444', fleet: '玉龙车队', type: '9座', energy: '电车', status: '执行中', driver: '周师傅',
+                orders: ['#OD1028','#OD1052','#OD1053'], timeSlots: ['08:00-17:00 玉龙雪山','12:00-14:00 午餐接送','16:00-20:00 夜景专线'],
+                orderDetails: [
+                    { orderId: '#OD1028', time: '08:00-17:00', label: '玉龙雪山', colorIdx: 0 },
+                    { orderId: '#OD1052', time: '12:00-14:00', label: '午餐接送', colorIdx: 2 },
+                    { orderId: '#OD1053', time: '16:00-20:00', label: '夜景专线', colorIdx: 3 }
+                ],
+                currentNode: '甘海子', lat: 27.0200, lng: 100.1900, speed: 35, distanceToDest: 12.0,
+                orderStartTime: '08:00', orderEndTime: '20:00',
+                trajectory: [[26.8870,100.2298],[26.9400,100.2150],[26.9800,100.2000],[27.0200,100.1900]] },
+            { id: 'v10', plate: '云L·1212', fleet: '玉龙车队', type: '7座', energy: '油车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '玉龙县城', lat: 26.8200, lng: 100.2350, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+            { id: 'v11', plate: '云L·1313', fleet: '玉龙车队', type: '9座', energy: '油车', status: '执行中', driver: '吴师傅',
+                orders: ['#OD1029','#OD1054'], timeSlots: ['07:00-13:00 雪山直通车','11:00-18:00 团队包车'],
+                orderDetails: [
+                    { orderId: '#OD1029', time: '07:00-13:00', label: '雪山直通车', colorIdx: 1 },
+                    { orderId: '#OD1054', time: '11:00-18:00', label: '团队包车', colorIdx: 3 }
+                ],
+                currentNode: '蓝月谷', lat: 27.0380, lng: 100.1850, speed: 28, distanceToDest: 8.0,
+                orderStartTime: '07:00', orderEndTime: '18:00',
+                trajectory: [[26.8800,100.2300],[26.9400,100.2120],[26.9900,100.1980],[27.0380,100.1850]] },
+            { id: 'v12', plate: '云L·1414', fleet: '玉龙车队', type: '19座', energy: '油车', status: '空闲', driver: null,
+                orders: [], timeSlots: [], orderDetails: [],
+                currentNode: '拉市海服务区', lat: 26.8967, lng: 100.1349, speed: 0, distanceToDest: 0,
+                orderStartTime: '—', orderEndTime: '—', trajectory: [] },
+        ];
+
+        // 可用司机池
+        let availableDrivers = [
+            { name: '刘师傅', type: '9座', status: '空闲', fleet: '雪山车队' },
+            { name: '陈师傅', type: '7座', status: '空闲', fleet: '雪山车队' },
+            { name: '林师傅', type: '9座', status: '空闲', fleet: '古城车队' },
+            { name: '黄师傅', type: '19座', status: '空闲', fleet: '玉龙车队' },
+            { name: '杨师傅', type: '5座', status: '空闲', fleet: '古城车队' },
+            { name: '郑师傅', type: '9座', status: '空闲', fleet: '玉龙车队' },
+        ];
+
+        // 当前状态
+        let currentDate = new Date(2026, 5, 23);
+        let currentMonth = new Date(2026, 5, 1);
+        let currentAssignVehicleId = null;
+        let currentView = 'overview';
+        let selectedDriverName = null;
+        let overviewMap = null;
+        let overviewMarkers = {};
+        let overviewPolylines = {};
+
+        // 订单色板：A B C D，重叠用 overlap
+
+        // 时间段定义（日历视图用）
+        const TIME_SLOTS = [
+            { id: '06-08', label: '06:00-08:00', start: 6, end: 8 },
+            { id: '08-10', label: '08:00-10:00', start: 8, end: 10 },
+            { id: '10-12', label: '10:00-12:00', start: 10, end: 12 },
+            { id: '12-14', label: '12:00-14:00', start: 12, end: 14 },
+            { id: '14-16', label: '14:00-16:00', start: 14, end: 16 },
+            { id: '16-18', label: '16:00-18:00', start: 16, end: 18 },
+            { id: '18-20', label: '18:00-20:00', start: 18, end: 20 },
+            { id: '20-22', label: '20:00-22:00', start: 20, end: 22 },
+        ];
+
+        // ================================================================
+        // 2. 工具函数
+        // ================================================================
+        function formatDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatMonth(date) {
+            const y = date.getFullYear();
+            const m = date.getMonth() + 1;
+            return `${y}年${m}月`;
+        }
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function getWeekday(year, month, day) {
+            return new Date(year, month, day).getDay();
+        }
+
+        function parseTimeRange(timeStr) {
+            const parts = timeStr.match(/(\d{2}):(\d{2})-(\d{2}):(\d{2})\s*(.*)/);
+            if (!parts) return null;
+            const startH = parseInt(parts[1]);
+            const endH = parseInt(parts[3]);
+            const label = parts[5] || '';
+            return { start: startH, end: endH, label };
+        }
+
+        // 检测某时段是否被订单覆盖
+        function slotCovered(slotStart, slotEnd, orderStartH, orderEndH) {
+            return (slotStart >= orderStartH && slotStart < orderEndH) ||
+                   (slotEnd > orderStartH && slotEnd <= orderEndH) ||
+                   (orderStartH <= slotStart && orderEndH >= slotEnd);
+        }
+
+        // 检测订单组是否存在时间重叠
+        function hasOverlap(details) {
+            for (let i = 0; i < details.length; i++) {
+                const a = parseTimeRange(details[i].time);
+                if (!a) continue;
+                for (let j = i + 1; j < details.length; j++) {
+                    const b = parseTimeRange(details[j].time);
+                    if (!b) continue;
+                    if (!(a.end <= b.start || b.end <= a.start)) return true;
+                }
+            }
+            return false;
+        }
+
+        // 检测月度订单是否存在天范围重叠
+        function hasMonthlyOverlap(orders) {
+            for (let i = 0; i < orders.length; i++) {
+                for (let j = i + 1; j < orders.length; j++) {
+                    if (!(orders[i].endIdx < orders[j].startIdx || orders[j].endIdx < orders[i].startIdx)) return true;
+                }
+            }
+            return false;
+        }
+
+        // ================================================================
+        // 3. 统计卡片
+        // ================================================================
+        function updateStats(viewMode) {
+            const total = vehiclesData.length;
+            const idle = vehiclesData.filter(v => v.status === '空闲').length;
+            const busy = vehiclesData.filter(v => v.status === '执行中').length;
+            const orders = vehiclesData.reduce((sum, v) => sum + (v.orders ? v.orders.length : 0), 0);
+
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statIdle').innerText = idle;
+            document.getElementById('statBusy').innerText = busy;
+
+            if (viewMode === 'monthly') {
+                const daysInMonth = getDaysInMonth(currentMonth.getFullYear(), currentMonth.getMonth());
+                const totalVehicleDays = total * daysInMonth;
+                const busyVehicles = vehiclesData.filter(v => v.status === '执行中').length;
+                const usageRate = Math.round((busyVehicles / total) * 100);
+                document.getElementById('statOrders').innerText = orders + 4; // 模拟月度订单数
+                document.getElementById('statOrdersSub').innerText = `本月订单 · 使用率${usageRate}%`;
+                document.getElementById('statTotal').innerText = total;
+                document.getElementById('statIdle').innerText = idle;
+                document.getElementById('statBusy').innerText = busy;
+            } else {
+                document.getElementById('statOrders').innerText = orders;
+                document.getElementById('statOrdersSub').innerText = '今日排班';
+            }
+
+            // 资源面板
+            document.getElementById('resIdleCount').innerText = idle;
+            const availDrivers = availableDrivers.filter(d => d.status === '空闲');
+            document.getElementById('resDriverCount').innerText = availDrivers.length;
+            const driverListEl = document.getElementById('resDriverList');
+            if (availDrivers.length > 0) {
+                driverListEl.innerHTML = availDrivers.map(d =>
+                    `<span class="driver-tag" onclick="quickAssignDriver('${d.name}')">${d.name} <span class="fleet-tag">${d.type}</span></span>`
+                ).join('');
+            } else {
+                driverListEl.innerHTML = '<span class="text-muted">暂无空闲司机</span>';
+            }
+        }
+
+        // ================================================================
+        // 4. 列表视图
+        // ================================================================
+        function renderListView() {
+            const container = document.getElementById('fleetContainer');
+            const fleetFilter = document.getElementById('filterFleet').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const typeFilter = document.getElementById('filterCarType').value;
+            const energyFilter = document.getElementById('filterEnergy').value;
+
+            let filtered = vehiclesData.filter(v => {
+                if (fleetFilter && v.fleet !== fleetFilter) return false;
+                if (statusFilter && v.status !== statusFilter) return false;
+                if (typeFilter && v.type !== typeFilter) return false;
+                if (energyFilter && v.energy !== energyFilter) return false;
+                return true;
+            });
+
+            document.getElementById('filterResultCount').innerText = `显示 ${filtered.length} 辆车`;
+
+            let html = '';
+            fleets.forEach(fleet => {
+                const fleetVehicles = filtered.filter(v => v.fleet === fleet);
+                if (fleetVehicles.length === 0) return;
+                const total = fleetVehicles.length;
+                const idle = fleetVehicles.filter(v => v.status === '空闲').length;
+                const busy = fleetVehicles.filter(v => v.status === '执行中').length;
+
+                html += `<div class="fleet-group" data-fleet="${fleet}">
+                    <div class="fleet-header" onclick="toggleFleet(this)">
+                        <span>🚌 ${fleet} <span class="fleet-count">(${total}辆 · 🟢${idle}空闲 · 🟡${busy}执行中)</span></span>
+                        <span style="font-size:13px;color:#6b7f9a;">▼</span>
+                    </div>
+                    <div class="fleet-body">`;
+
+                fleetVehicles.forEach(v => {
+                    html += renderVehicleCard(v);
+                });
+
+                html += `</div></div>`;
+            });
+
+            if (filtered.length === 0) {
+                html = `<div class="card" style="text-align:center;padding:40px;color:#6b7f9a;">🚫 没有匹配的车辆，请调整筛选条件</div>`;
+            }
+
+            container.innerHTML = html;
+            updateStats('list');
+        }
+
+        function renderVehicleCard(v) {
+            const statusMap = {
+                '空闲': { cls: 'idle', label: '🟢 空闲' },
+                '执行中': { cls: 'busy', label: '🟡 执行中' },
+                '维修': { cls: 'maintenance', label: '🔴 维修/休息' },
+            };
+            const st = statusMap[v.status] || { cls: 'gray', label: v.status };
+
+            let timeSlotsHtml = '';
+            if (v.timeSlots && v.timeSlots.length > 0) {
+                v.timeSlots.forEach(slot => {
+                    const orderLink = v.orders && v.orders.length > 0 ?
+                        `<span class="order-link" onclick="showToast('模拟：跳转至${v.orders[0]}详情')">${v.orders[0]}</span>` :
+                        '';
+                    timeSlotsHtml += `<span class="time-slot busy-slot">📌 ${slot} ${orderLink}</span>`;
+                });
+            } else {
+                timeSlotsHtml = `<span class="empty-slot">⚪ 今日暂无排班</span>`;
+            }
+
+            const driverName = v.driver || '未分配';
+
+            return `
+                <div class="vehicle-card" data-id="${v.id}">
+                    <div class="top-row">
+                        <div>
+                            <span class="plate">${v.plate} <span class="sub">${v.type} · ${v.energy}</span></span>
+                            <div class="driver-info">🧑‍✈️ <strong>${driverName}</strong> ${v.driver ? '' : '<span style="color:#e65f5f;font-size:12px;">(待分配)</span>'}</div>
+                        </div>
+                        <span class="status-tag ${st.cls}"><span class="dot"></span> ${st.label}</span>
+                    </div>
+                    <div class="timeline-row">${timeSlotsHtml}</div>
+                    <div class="actions">
+                        ${v.status === '空闲' ? `<button class="btn btn-sm btn-success" onclick="openAssignModal('${v.id}')">📋 分配司机</button>` : ''}
+                        ${v.status === '执行中' ? `<button class="btn btn-sm btn-outline" onclick="openDetailModal('${v.id}')">📄 查看详情</button>` : ''}
+                        ${v.status === '空闲' ? `<button class="btn btn-sm btn-outline" onclick="openDetailModal('${v.id}')">📄 详情</button>` : ''}
+                        <button class="btn btn-sm btn-outline" onclick="showToast('模拟：换车/拼单调度')">🔄 换车/拼单</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================================================================
+        // 5. 日历视图（高对比颜色 + 合并色块）
+        // ================================================================
+        function renderCalendarView() {
+            const container = document.getElementById('calendarContainer');
+            const fleetFilter = document.getElementById('filterFleet').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const typeFilter = document.getElementById('filterCarType').value;
+            const energyFilter = document.getElementById('filterEnergy').value;
+
+            let filtered = vehiclesData.filter(v => {
+                if (fleetFilter && v.fleet !== fleetFilter) return false;
+                if (statusFilter && v.status !== statusFilter) return false;
+                if (typeFilter && v.type !== typeFilter) return false;
+                if (energyFilter && v.energy !== energyFilter) return false;
+                return true;
+            });
+
+            document.getElementById('filterResultCount').innerText = `显示 ${filtered.length} 辆车`;
+
+            if (filtered.length === 0) {
+                container.innerHTML =
+                    `<div style="padding:40px;text-align:center;color:#6b7f9a;">🚫 没有匹配的车辆，请调整筛选条件</div>`;
+                return;
+            }
+
+            // 图例
+            let html = `<div class="monthly-legend" style="margin-bottom:10px;">
+                <div class="legend-item"><span class="legend-color" style="background:#f9b84a;"></span> 订单时段</div>
+                <div class="legend-item"><span class="legend-color idle"></span> 空闲</div>
+                <div class="legend-item" style="margin-left:auto;"><span class="badge" style="font-size:10px;">💡 同一车辆多订单各占一行，重叠时段上下自然可见</span></div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="time-header" style="min-width:120px;text-align:left;">车辆</th>
+                        ${TIME_SLOTS.map(s => `<th class="time-header">${s.label}</th>`).join('')}
+                        <th class="time-header" style="min-width:80px;">状态</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            fleets.forEach(fleet => {
+                const fleetVehicles = filtered.filter(v => v.fleet === fleet);
+                if (fleetVehicles.length === 0) return;
+
+                const total = fleetVehicles.length;
+                const idle = fleetVehicles.filter(v => v.status === '空闲').length;
+                const busy = fleetVehicles.filter(v => v.status === '执行中').length;
+                html += `<tr class="fleet-row"><td colspan="${TIME_SLOTS.length + 2}" style="font-weight:600;">
+                            🚌 ${fleet} — ${total}辆 · 🟢${idle}空闲 · 🟡${busy}执行中
+                        </td></tr>`;
+
+                fleetVehicles.forEach((v, vi) => {
+                    const statusMap = { '空闲': 'idle', '执行中': 'busy', '维修': 'maintenance' };
+                    const stCls = statusMap[v.status] || 'idle';
+                    const driverDisplay = v.driver || '未分配';
+                    const details = v.orderDetails || [];
+                    const numRows = details.length > 0 ? details.length : 1;
+                    const evenCls = vi % 2 === 0 ? '' : 'vehicle-even-row';
+
+                    // 多行车辆：预计算每行订单覆盖情况，合并全空闲列
+                    if (numRows > 1) {
+                        // 每行的订单时段覆盖
+                        const rowOrderSlots = details.map(od => {
+                            if (!od) return new Array(TIME_SLOTS.length).fill(false);
+                            const parsed = parseTimeRange(od.time);
+                            return TIME_SLOTS.map((slot, idx) => {
+                                if (!parsed) return false;
+                                return slotCovered(slot.start, slot.end, parsed.start, parsed.end);
+                            });
+                        });
+                        // 每行的订单连续组
+                        const rowGroups = rowOrderSlots.map(slots => {
+                            const groups = [];
+                            let cg = null;
+                            slots.forEach((covered, idx) => {
+                                if (covered) {
+                                    if (!cg) cg = { start: idx, end: idx };
+                                    else cg.end = idx;
+                                } else {
+                                    if (cg) { groups.push({ start: cg.start, end: cg.end, colspan: cg.end - cg.start + 1 }); cg = null; }
+                                }
+                            });
+                            if (cg) groups.push({ start: cg.start, end: cg.end, colspan: cg.end - cg.start + 1 });
+                            return groups;
+                        });
+                        // 哪些列在所有行都是空闲
+                        const allIdleCols = TIME_SLOTS.map((_, colIdx) => {
+                            return rowOrderSlots.every(slots => !slots[colIdx]);
+                        });
+                        for (let r = 0; r < numRows; r++) {
+                            const od = details.length > 0 ? details[r] : null;
+                            const isFirstRow = r === 0;
+                            const isLastRow = r === numRows - 1;
+                            const rowCls = (isLastRow ? 'vehicle-last-row ' : '') + evenCls;
+
+                            html += `<tr class="${rowCls}">`;
+
+                            // 车辆标签（仅第一行，rowspan）
+                            if (isFirstRow) {
+                                html += `<td class="vehicle-label" rowspan="${numRows}"
+                                    style="cursor:${v.status === '空闲' ? 'pointer' : 'default'};"
+                                    onclick="${v.status === '空闲' ? `openAssignModal('${v.id}')` : `openDetailModal('${v.id}')`}">
+                                    <span class="plate">${v.plate}</span>
+                                    <span class="sub">${v.type} · ${v.energy}</span>
+                                    <span class="driver-name">🧑‍✈️ ${driverDisplay}</span>
+                                </td>`;
+                            }
+
+                            // 渲染时段列：全空闲列纵行合并（rowspan），按每时段独立不成组
+                            let col = 0;
+                            while (col < TIME_SLOTS.length) {
+                                // 全空闲列：第一行用 rowspan 覆盖，其他行跳过（不横向合并）
+                                if (allIdleCols[col]) {
+                                    if (isFirstRow) {
+                                        html += `<td class="slot-cell idle" rowspan="${numRows}" onclick="openAssignModal('${v.id}')"><span class="idle-icon">🟢</span></td>`;
+                                    }
+                                    col++;
+                                    continue;
+                                }
+                                // 非全空闲列：渲染当前行自己的内容
+                                const rg = rowGroups[r].find(g => g.start === col);
+                                if (rg) {
+                                    html += `<td class="slot-cell order-block" colspan="${rg.colspan}" onclick="openDetailModal('${v.id}')" style="cursor:pointer;">
+                                        <span class="slot-label">${od.label || ''}</span>
+                                        <span class="order-id">${od.orderId || ''}</span>
+                                    </td>`;
+                                    col += rg.colspan;
+                                } else {
+                                    html += `<td class="slot-cell idle" onclick="openAssignModal('${v.id}')"><span class="idle-icon">🟢</span></td>`;
+                                    col++;
+                                }
+                            }
+
+                            // 状态列（仅第一行）
+                            if (isFirstRow) {
+                                const stLabel = v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修';
+                                html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${stLabel}</span></td>`;
+                            }
+
+                            html += `</tr>`;
+                        }
+                    } else {
+                        // 单行：保持现有逻辑
+                        for (let r = 0; r < numRows; r++) {
+                            const od = details.length > 0 ? details[r] : null;
+                            const isFirstRow = r === 0;
+                            const isLastRow = r === numRows - 1;
+                            const rowCls = (isLastRow ? 'vehicle-last-row ' : '') + evenCls;
+
+                            html += `<tr class="${rowCls}">`;
+
+                            if (isFirstRow) {
+                                html += `<td class="vehicle-label" rowspan="${numRows}"
+                                    style="cursor:${v.status === '空闲' ? 'pointer' : 'default'};"
+                                    onclick="${v.status === '空闲' ? `openAssignModal('${v.id}')` : `openDetailModal('${v.id}')`}">
+                                    <span class="plate">${v.plate}</span>
+                                    <span class="sub">${v.type} · ${v.energy}</span>
+                                    <span class="driver-name">🧑‍✈️ ${driverDisplay}</span>
+                                </td>`;
+                            }
+
+                            if (!od) {
+                                for (let i = 0; i < TIME_SLOTS.length; i++) {
+                                    html += `<td class="slot-cell idle" onclick="openAssignModal('${v.id}')"><span class="idle-icon">🟢</span></td>`;
+                                }
+                                if (isFirstRow) {
+                                    html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修'}</span></td>`;
+                                }
+                                html += `</tr>`;
+                                continue;
+                            }
+
+                            const parsed = parseTimeRange(od.time);
+                            const orderSlots = TIME_SLOTS.map((slot, idx) => {
+                                if (!parsed) return false;
+                                return slotCovered(slot.start, slot.end, parsed.start, parsed.end);
+                            });
+
+                            let groups = [];
+                            let cg = null;
+                            orderSlots.forEach((covered, idx) => {
+                                if (covered) {
+                                    if (!cg) cg = { indices: [idx] };
+                                    else cg.indices.push(idx);
+                                } else {
+                                    if (cg) { groups.push(cg); cg = null; }
+                                }
+                            });
+                            if (cg) groups.push(cg);
+
+                            let gi = 0;
+                            for (let i = 0; i < TIME_SLOTS.length; i++) {
+                                const g = groups[gi];
+                                if (!g || i < g.indices[0]) {
+                                    html += `<td class="slot-cell idle" onclick="openAssignModal('${v.id}')"><span class="idle-icon">🟢</span></td>`;
+                                    continue;
+                                }
+                                if (i === g.indices[0]) {
+                                    const colspan = g.indices.length;
+                                    html += `<td class="slot-cell order-block" colspan="${colspan}" onclick="openDetailModal('${v.id}')" style="cursor:pointer;">
+                                        <span class="slot-label">${od.label || ''}</span>
+                                        <span class="order-id">${od.orderId || ''}</span>
+                                    </td>`;
+                                    i += colspan - 1;
+                                    gi++;
+                                }
+                            }
+
+                            if (isFirstRow) {
+                                const stLabel = v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修';
+                                html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${stLabel}</span></td>`;
+                            }
+
+                            html += `</tr>`;
+                        }
+                    }
+                });
+            });
+
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+            updateStats('calendar');
+        }
+
+        // ================================================================
+        // 6. 月度视图（订单时段 + 演示数据）
+        // ================================================================
+        // 30天窗口起始日期（今天居中）
+        let monthWindowStart = new Date();
+        monthWindowStart.setDate(monthWindowStart.getDate() - 15);
+        const TOTAL_DAYS = 30;
+        const CENTER_INDEX = 15; // 今天在窗口中的位置
+
+        function getWindowDate(index) {
+            const d = new Date(monthWindowStart);
+            d.setDate(d.getDate() + index);
+            return d;
+        }
+
+        function formatWindowTitle() {
+            const s = getWindowDate(0);
+            const e = getWindowDate(TOTAL_DAYS - 1);
+            return `${s.getMonth()+1}/${s.getDate()} — ${e.getMonth()+1}/${e.getDate()}`;
+        }
+
+        function shiftMonthWindow(delta) {
+            if (delta === 0) {
+                monthWindowStart = new Date();
+                monthWindowStart.setDate(monthWindowStart.getDate() - 15);
+            } else {
+                monthWindowStart.setDate(monthWindowStart.getDate() + delta);
+            }
+            document.getElementById('currentMonthDisplay').innerText = formatWindowTitle();
+            if (currentView === 'monthly') renderMonthlyView();
+        }
+
+        function renderMonthlyView() {
+            const container = document.getElementById('monthlyContainer');
+            const fleetFilter = document.getElementById('filterFleet').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const typeFilter = document.getElementById('filterCarType').value;
+            const energyFilter = document.getElementById('filterEnergy').value;
+
+            let filtered = vehiclesData.filter(v => {
+                if (fleetFilter && v.fleet !== fleetFilter) return false;
+                if (statusFilter && v.status !== statusFilter) return false;
+                if (typeFilter && v.type !== typeFilter) return false;
+                if (energyFilter && v.energy !== energyFilter) return false;
+                return true;
+            });
+
+            document.getElementById('filterResultCount').innerText = `显示 ${filtered.length} 辆车`;
+            document.getElementById('currentMonthDisplay').innerText = formatWindowTitle();
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+
+            // 日期表头
+            let dayHeaders = '';
+            for (let i = 0; i < TOTAL_DAYS; i++) {
+                const dt = getWindowDate(i);
+                const wd = dt.getDay();
+                const isWeekend = wd === 0 || wd === 6;
+                const isToday = dt.getFullYear() === today.getFullYear() && dt.getMonth() === today.getMonth() && dt.getDate() === today.getDate();
+                const label = `${dt.getMonth()+1}/${dt.getDate()}`;
+                dayHeaders += `<th class="day-header ${isWeekend ? 'weekend' : ''} ${isToday ? 'today-col' : ''}">${label}</th>`;
+            }
+
+            // 生成窗口内订单
+            const monthlyOrders = generateMonthlyOrdersForWindow();
+
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th class="day-header" style="min-width:100px;text-align:left;">车辆</th>
+                        ${dayHeaders}
+                        <th class="day-header" style="min-width:60px;">状态</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            fleets.forEach(fleet => {
+                const fleetVehicles = filtered.filter(v => v.fleet === fleet);
+                if (fleetVehicles.length === 0) return;
+
+                const total = fleetVehicles.length;
+                const idle = fleetVehicles.filter(v => v.status === '空闲').length;
+                const busy = fleetVehicles.filter(v => v.status === '执行中').length;
+                html += `<tr class="fleet-row-monthly"><td colspan="${TOTAL_DAYS + 2}" style="font-weight:600;">
+                            🚌 ${fleet} — ${total}辆 · 🟢${idle}空闲 · 🟡${busy}执行中
+                        </td></tr>`;
+
+                fleetVehicles.forEach((v, vi) => {
+                    const statusMap = { '空闲': 'idle', '执行中': 'busy', '维修': 'maintenance' };
+                    const stCls = statusMap[v.status] || 'idle';
+                    const driverDisplay = v.driver || '未分配';
+                    const evenCls = vi % 2 === 0 ? '' : 'vehicle-even-row';
+
+                    const vehicleOrders = monthlyOrders.filter(o => o.vehicleId === v.id);
+                    const numRows = vehicleOrders.length > 0 ? vehicleOrders.length : 1;
+
+                    // 多行车辆：预计算每行订单覆盖情况，合并全空闲天
+                    if (numRows > 1) {
+                        // 每行的订单天覆盖
+                        const rowBusyMask = vehicleOrders.map(mo => {
+                            if (!mo) return new Array(TOTAL_DAYS).fill(false);
+                            return Array.from({length: TOTAL_DAYS}, (_, i) => (i >= mo.startIdx && i <= mo.endIdx));
+                        });
+                        // 每行的订单连续组
+                        const rowGroups = rowBusyMask.map(mask => {
+                            const groups = [];
+                            let cg = null;
+                            mask.forEach((busy, idx) => {
+                                if (busy) {
+                                    if (!cg) cg = { start: idx, end: idx };
+                                    else cg.end = idx;
+                                } else {
+                                    if (cg) { groups.push({ start: cg.start, end: cg.end, colspan: cg.end - cg.start + 1 }); cg = null; }
+                                }
+                            });
+                            if (cg) groups.push({ start: cg.start, end: cg.end, colspan: cg.end - cg.start + 1 });
+                            return groups;
+                        });
+                        // 哪些天在所有行都是空闲
+                        const allIdleCols = Array.from({length: TOTAL_DAYS}, (_, colIdx) => {
+                            return rowBusyMask.every(mask => !mask[colIdx]);
+                        });
+                        for (let r = 0; r < numRows; r++) {
+                            const mo = vehicleOrders.length > 0 ? vehicleOrders[r] : null;
+                            const isFirstRow = r === 0;
+                            const isLastRow = r === numRows - 1;
+                            const rowCls = (isLastRow ? 'vehicle-last-row ' : '') + evenCls;
+
+                            html += `<tr class="${rowCls}">`;
+
+                            if (isFirstRow) {
+                                html += `<td class="vehicle-label-monthly" rowspan="${numRows}"
+                                    style="cursor:pointer;" onclick="openDetailModal('${v.id}')">
+                                    <span class="plate">${v.plate}</span>
+                                    <span class="sub">${v.type} · ${v.energy}</span>
+                                    <span class="driver-name" style="font-size:10px;">🧑‍✈️ ${driverDisplay}</span>
+                                </td>`;
+                            }
+
+                            // 渲染天列：全空闲天纵行合并（rowspan），按每天独立不成组
+                            let col = 0;
+                            while (col < TOTAL_DAYS) {
+                                // 全空闲天：第一行用 rowspan 覆盖，其他行跳过（不横向合并）
+                                if (allIdleCols[col]) {
+                                    if (isFirstRow) {
+                                        html += `<td class="day-cell idle" rowspan="${numRows}" onclick="openAssignModal('${v.id}')"><span class="day-num">${getWindowDate(col).getDate()}</span></td>`;
+                                    }
+                                    col++;
+                                    continue;
+                                }
+                                const rg = rowGroups[r].find(g => g.start === col);
+                                if (rg) {
+                                    const dl = (mo.label || mo.id || '').length > 6 ? (mo.label || mo.id || '').slice(0, 6) + '…' : (mo.label || mo.id || '');
+                                    html += `<td class="day-cell order-block order-block-single" colspan="${rg.colspan}"
+                                        onclick="openDetailModal('${v.id}', { orderId: '${mo.id || ''}', startIdx: ${rg.start}, endIdx: ${rg.end}, label: '${mo.label || ''}' })" style="cursor:pointer;">
+                                        <span class="order-block-label">${dl}</span>
+                                        <span class="order-block-id">${mo.id || ''}</span>
+                                    </td>`;
+                                    col += rg.colspan;
+                                } else {
+                                    const dt = getWindowDate(col);
+                                    html += `<td class="day-cell idle" onclick="openAssignModal('${v.id}')"><span class="day-num">${dt.getDate()}</span></td>`;
+                                    col++;
+                                }
+                            }
+
+                            if (isFirstRow) {
+                                const stLabel = v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修';
+                                html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${stLabel}</span></td>`;
+                            }
+
+                            html += `</tr>`;
+                        }
+                    } else {
+                        // 单行：保持现有逻辑
+                        for (let r = 0; r < numRows; r++) {
+                            const mo = vehicleOrders.length > 0 ? vehicleOrders[r] : null;
+                            const isFirstRow = r === 0;
+                            const isLastRow = r === numRows - 1;
+                            const rowCls = (isLastRow ? 'vehicle-last-row ' : '') + evenCls;
+
+                            html += `<tr class="${rowCls}">`;
+
+                            if (isFirstRow) {
+                                html += `<td class="vehicle-label-monthly" rowspan="${numRows}"
+                                    style="cursor:pointer;" onclick="openDetailModal('${v.id}')">
+                                    <span class="plate">${v.plate}</span>
+                                    <span class="sub">${v.type} · ${v.energy}</span>
+                                    <span class="driver-name" style="font-size:10px;">🧑‍✈️ ${driverDisplay}</span>
+                                </td>`;
+                            }
+
+                            if (!mo) {
+                                for (let i = 0; i < TOTAL_DAYS; i++) {
+                                    const dt = getWindowDate(i);
+                                    html += `<td class="day-cell idle" onclick="openAssignModal('${v.id}')"><span class="day-num">${dt.getDate()}</span></td>`;
+                                }
+                                if (isFirstRow) {
+                                    const stLabel = v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修';
+                                    html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${stLabel}</span></td>`;
+                                }
+                                html += `</tr>`;
+                                continue;
+                            }
+
+                            const dayStatus = {};
+                            for (let i = 0; i < TOTAL_DAYS; i++) {
+                                dayStatus[i] = (i >= mo.startIdx && i <= mo.endIdx) ? 'busy' : 'idle';
+                            }
+
+                            let groups = [];
+                            let cg = null;
+                            for (let i = 0; i < TOTAL_DAYS; i++) {
+                                if (dayStatus[i] === 'busy') {
+                                    if (!cg) cg = { indices: [i] };
+                                    else cg.indices.push(i);
+                                } else {
+                                    if (cg) { groups.push(cg); cg = null; }
+                                }
+                            }
+                            if (cg) groups.push(cg);
+
+                            let gi = 0;
+                            for (let i = 0; i < TOTAL_DAYS; i++) {
+                                const g = groups[gi];
+                                if (!g || i < g.indices[0]) {
+                                    const dt = getWindowDate(i);
+                                    html += `<td class="day-cell idle" onclick="openAssignModal('${v.id}')"><span class="day-num">${dt.getDate()}</span></td>`;
+                                    continue;
+                                }
+                                if (i === g.indices[0]) {
+                                    const colspan = g.indices.length;
+                                    const dl = (mo.label || mo.id || '').length > 6 ? (mo.label || mo.id || '').slice(0, 6) + '…' : (mo.label || mo.id || '');
+                                    html += `<td class="day-cell order-block order-block-single" colspan="${colspan}"
+                                        onclick="openDetailModal('${v.id}', { orderId: '${mo.id || ''}', startIdx: ${g.indices[0]}, endIdx: ${g.indices[g.indices.length-1]}, label: '${mo.label || ''}' })" style="cursor:pointer;">
+                                        <span class="order-block-label">${dl}</span>
+                                        <span class="order-block-id">${mo.id || ''}</span>
+                                    </td>`;
+                                    i += colspan - 1;
+                                    gi++;
+                                }
+                            }
+
+                            if (isFirstRow) {
+                                const stLabel = v.status === '空闲' ? '🟢 空闲' : v.status === '执行中' ? '🟡 执行中' : '🔴 维修';
+                                html += `<td rowspan="${numRows}"><span class="status-indicator ${stCls}">${stLabel}</span></td>`;
+                            }
+
+                            html += `</tr>`;
+                        }
+                    }
+                });
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+            updateStats('monthly');
+        }
+
+        // 生成窗口内模拟订单
+        function generateMonthlyOrdersForWindow() {
+            const orders = [];
+            const orderTemplates = [
+                { id: '#OD1023', label: '玉龙雪山', startIdx: 2, duration: 3, vehicleId: 'v1' },
+                { id: '#OD1050', label: '机场往返', startIdx: 4, duration: 5, vehicleId: 'v1' },
+                { id: '#OD1020', label: '泸沽湖', startIdx: 6, duration: 4, vehicleId: 'v4' },
+                { id: '#OD1025', label: '机场往返', startIdx: 10, duration: 3, vehicleId: 'v5' },
+                { id: '#OD1051', label: '市区包车', startIdx: 12, duration: 4, vehicleId: 'v5' },
+                { id: '#OD1028', label: '玉龙雪山', startIdx: 13, duration: 5, vehicleId: 'v9' },
+                { id: '#OD1052', label: '午餐接送', startIdx: 15, duration: 5, vehicleId: 'v9' },
+                { id: '#OD1029', label: '雪山直通', startIdx: 18, duration: 3, vehicleId: 'v11' },
+                { id: '#OD1054', label: '团队包车', startIdx: 20, duration: 4, vehicleId: 'v11' },
+                { id: '#OD1030', label: '古城巡游', startIdx: 3, duration: 2, vehicleId: 'v2' },
+                { id: '#OD1031', label: '拉市海', startIdx: 17, duration: 4, vehicleId: 'v3' },
+                { id: '#OD1032', label: '香格里拉', startIdx: 22, duration: 5, vehicleId: 'v6' },
+            ];
+            orderTemplates.forEach(t => {
+                const endIdx = Math.min(t.startIdx + t.duration - 1, TOTAL_DAYS - 1);
+                if (t.startIdx < TOTAL_DAYS) {
+                    orders.push({
+                        id: t.id,
+                        label: t.label,
+                        vehicleId: t.vehicleId,
+                        startIdx: t.startIdx,
+                        endIdx: endIdx
+                    });
+                }
+            });
+            return orders;
+        }
+
+        // ================================================================
+        // 7. 总览视图 - 地图轨迹 + 车辆列表
+        // ================================================================
+        function initOverviewMap() {
+            if (overviewMap) return; // 已经初始化
+            const mapEl = document.getElementById('overviewMap');
+            if (!mapEl || mapEl.offsetHeight === 0) return;
+
+            overviewMap = L.map('overviewMap', {
+                center: [26.90, 100.25],
+                zoom: 11,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            // OpenStreetMap 瓦片
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                opacity: 0.9
+            }).addTo(overviewMap);
+
+            // 添加丽江古城标记
+            L.circleMarker([26.8720, 100.2298], {
+                radius: 8,
+                color: '#1a2639',
+                fillColor: '#4f9cf7',
+                fillOpacity: 0.8,
+                weight: 2
+            }).addTo(overviewMap).bindPopup('<b>📍 丽江古城</b><br>调度指挥中心');
+
+            // 绘制所有车辆
+            renderVehiclesOnMap();
+        }
+
+        function renderVehiclesOnMap() {
+            if (!overviewMap) return;
+
+            // 清除旧标记和轨迹
+            Object.values(overviewMarkers).forEach(m => overviewMap.removeLayer(m));
+            Object.values(overviewPolylines).forEach(p => overviewMap.removeLayer(p));
+            overviewMarkers = {};
+            overviewPolylines = {};
+
+            vehiclesData.forEach(v => {
+                if (v.status === '维修') return; // 维修车辆不显示在地图上
+
+                const isBusy = v.status === '执行中';
+                const markerColor = isBusy ? '#f5a623' : '#1fb873';
+                const markerIcon = L.divIcon({
+                    className: '',
+                    html: `<div style="
+                        width:28px;height:28px;border-radius:50%;background:${markerColor};
+                        border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25);
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:14px;font-weight:700;color:#fff;
+                        animation: ${isBusy ? 'pulse-busy 2s infinite' : 'pulse-idle 2.5s infinite'};
+                    ">${isBusy ? '📍' : '🟢'}</div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14],
+                    popupAnchor: [0, -16]
+                });
+
+                const marker = L.marker([v.lat, v.lng], { icon: markerIcon }).addTo(overviewMap);
+                const statusLabel = isBusy ? '执行中' : '空闲';
+                const statusCls = isBusy ? 'busy' : 'idle';
+                marker.bindPopup(`
+                    <div class="map-popup">
+                        <div class="popup-plate">🚐 ${v.plate}</div>
+                        <div class="popup-info">
+                            司机：${v.driver || '未分配'}<br>
+                            状态：<span class="popup-badge ${statusCls}">${statusLabel}</span><br>
+                            位置：${v.currentNode}<br>
+                            ${isBusy ? `时速：${v.speed} km/h<br>距终点：${v.distanceToDest} km` : ''}
+                        </div>
+                    </div>
+                `);
+
+                overviewMarkers[v.id] = marker;
+
+                // 绘制轨迹线
+                if (v.trajectory && v.trajectory.length >= 2) {
+                    const polyline = L.polyline(v.trajectory, {
+                        color: '#4f9cf7',
+                        weight: 3,
+                        opacity: 0.7,
+                        dashArray: '8, 6',
+                        lineJoin: 'round'
+                    }).addTo(overviewMap);
+                    overviewPolylines[v.id] = polyline;
+
+                    // 轨迹起点小圆点
+                    const start = v.trajectory[0];
+                    L.circleMarker(start, {
+                        radius: 5,
+                        color: '#4f9cf7',
+                        fillColor: '#fff',
+                        fillOpacity: 1,
+                        weight: 2
+                    }).addTo(overviewMap);
+                }
+            });
+
+            // 重新应用高亮（筛选后保持高亮）
+            if (highlightedVehicleId && overviewPolylines[highlightedVehicleId]) {
+                Object.entries(overviewPolylines).forEach(([vid, poly]) => {
+                    if (vid === highlightedVehicleId) {
+                        poly.setStyle({ weight: 6, opacity: 1, color: '#ff6600', dashArray: null });
+                        poly.bringToFront();
+                    } else {
+                        poly.setStyle({ weight: 2, opacity: 0.2, color: '#4f9cf7' });
+                    }
+                });
+            }
+        }
+
+        let highlightedVehicleId = null;
+
+        function focusVehicleOnMap(vehicleId) {
+            if (!overviewMap) return;
+            const v = vehiclesData.find(v => v.id === vehicleId);
+            if (!v) return;
+            overviewMap.setView([v.lat, v.lng], 14, { animate: true, duration: 0.6 });
+            const marker = overviewMarkers[v.id];
+            if (marker) marker.openPopup();
+
+            // 高亮选中车辆路线，其他变暗
+            highlightedVehicleId = vehicleId;
+            Object.entries(overviewPolylines).forEach(([vid, poly]) => {
+                if (vid === vehicleId) {
+                    poly.setStyle({ weight: 6, opacity: 1, color: '#ff6600', dashArray: null });
+                    poly.bringToFront();
+                } else {
+                    poly.setStyle({ weight: 2, opacity: 0.2, color: '#4f9cf7' });
+                }
+            });
+        }
+
+        function clearRouteHighlight() {
+            highlightedVehicleId = null;
+            Object.entries(overviewPolylines).forEach(([vid, poly]) => {
+                poly.setStyle({ weight: 3, opacity: 0.7, color: '#4f9cf7', dashArray: '8,6' });
+            });
+        }
+
+        function renderOverviewVehicleCards(scrollToId = null) {
+            const container = document.getElementById('ovVehicleList');
+            const fleetFilter = document.getElementById('filterFleet').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const typeFilter = document.getElementById('filterCarType').value;
+            const energyFilter = document.getElementById('filterEnergy').value;
+            const plateSearch = (document.getElementById('ovPlateSearch')?.value || '').trim().toLowerCase();
+
+            let filtered = vehiclesData.filter(v => {
+                if (fleetFilter && v.fleet !== fleetFilter) return false;
+                if (statusFilter && v.status !== statusFilter) return false;
+                if (plateSearch && !v.plate.toLowerCase().includes(plateSearch)) return false;
+                if (typeFilter && v.type !== typeFilter) return false;
+                if (energyFilter && v.energy !== energyFilter) return false;
+                return true;
+            });
+
+            document.getElementById('ovVehicleCount').innerText = `共 ${filtered.length} 辆`;
+            document.getElementById('filterResultCount').innerText = `显示 ${filtered.length} 辆车`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:30px;color:#6b7f9a;">🚫 无匹配车辆</div>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(v => {
+                const isBusy = v.status === '执行中';
+                const statusCls = isBusy ? 'busy' : 'idle';
+                const statusLabel = isBusy ? '执行中' : '空闲';
+                const speedDisplay = isBusy ? `${v.speed} km/h` : '—';
+                const distDisplay = isBusy ? `${v.distanceToDest} km` : '—';
+
+                html += `
+                <div class="ov-vehicle-card" data-vehicle-id="${v.id}" onclick="focusVehicleOnMap('${v.id}');selectOvCard(this);">
+                    <div class="ov-top">
+                        <span class="ov-plate">🚐 ${v.plate}</span>
+                        <span class="ov-status ${statusCls}"><span class="ov-status-dot"></span>${statusLabel}</span>
+                    </div>
+                    <div class="ov-driver">🧑‍✈️ <strong>${v.driver || '未分配'}</strong></div>
+                    <div class="ov-info-grid">
+                        <div class="info-item"><span class="info-label">📍 当前节点</span><span class="info-value">${v.currentNode}</span></div>
+                        <div class="info-item"><span class="info-label">🚀 时速</span><span class="info-value speed">${speedDisplay}</span></div>
+                        <div class="info-item"><span class="info-label">🏁 距终点</span><span class="info-value dist">${distDisplay}</span></div>
+                        <div class="info-item"><span class="info-label">📋 订单</span><span class="info-value">${v.orders.length > 0 ? v.orders[0] : '—'}</span></div>
+                    </div>
+                    <div class="ov-time-row">
+                        🕐 <span class="time-tag">${v.orderStartTime} — ${v.orderEndTime}</span>
+                    </div>
+                    ${v.status === '空闲' ? `
+                    <div class="actions" style="margin-top:8px;">
+                        <button class="btn btn-sm btn-success" onclick="event.stopPropagation();openAssignModal('${v.id}')">📋 分配司机</button>
+                    </div>` : ''}
+                </div>`;
+            });
+
+            container.innerHTML = html;
+
+            if (scrollToId) {
+                setTimeout(() => {
+                    const card = container.querySelector(`[data-vehicle-id="${scrollToId}"]`);
+                    if (card) {
+                        card.classList.add('selected');
+                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 200);
+            }
+        }
+
+        function selectOvCard(el) {
+            document.querySelectorAll('.ov-vehicle-card').forEach(c => c.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+        }
+
+        // 地图空白处点击：取消路线高亮
+        function onMapBlankClick() {
+            clearRouteHighlight();
+            selectOvCard(null);
+            document.querySelectorAll('.ov-vehicle-card').forEach(c => c.classList.remove('selected'));
+        }
+
+        function renderOverviewView() {
+            const container = document.getElementById('overviewViewContainer');
+            if (!container || container.style.display === 'none') return;
+
+            // 初始化地图
+            if (!overviewMap) {
+                // 使用 setTimeout 确保容器可见后再初始化
+                setTimeout(() => initOverviewMap(), 100);
+            } else {
+                setTimeout(() => {
+                    overviewMap.invalidateSize();
+                    renderVehiclesOnMap();
+                }, 100);
+            }
+
+            // 渲染车辆列表
+            renderOverviewVehicleCards();
+
+            // 更新统计
+            const total = vehiclesData.length;
+            const idle = vehiclesData.filter(v => v.status === '空闲').length;
+            const busy = vehiclesData.filter(v => v.status === '执行中').length;
+            const orders = vehiclesData.reduce((sum, v) => sum + (v.orders ? v.orders.length : 0), 0);
+            // 全局统计
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statIdle').innerText = idle;
+            document.getElementById('statBusy').innerText = busy;
+            document.getElementById('statOrders').innerText = orders;
+            document.getElementById('statOrdersSub').innerText = '实时追踪';
+            // 悬浮统计卡片
+            const ovTotal = document.getElementById('ovStatTotal');
+            if (ovTotal) ovTotal.innerText = total;
+            const ovIdle = document.getElementById('ovStatIdle');
+            if (ovIdle) ovIdle.innerText = idle;
+            const ovBusy = document.getElementById('ovStatBusy');
+            if (ovBusy) ovBusy.innerText = busy;
+            const ovOrders = document.getElementById('ovStatOrders');
+            if (ovOrders) ovOrders.innerText = orders;
+            document.getElementById('filterResultCount').innerText = `显示 ${total} 辆车`;
+        }
+
+        // ================================================================
+        // 8. 视图切换
+        // ================================================================
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.view-toggle .toggle-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === view);
+            });
+
+            const overviewContainer = document.getElementById('overviewViewContainer');
+            const listContainer = document.getElementById('listViewContainer');
+            const calendarContainer = document.getElementById('calendarViewContainer');
+            const monthlyContainer = document.getElementById('monthlyViewContainer');
+            const resourcePanel = document.getElementById('resourcePanel');
+            const dayNav = document.getElementById('dayNavControls');
+            const monthNav = document.getElementById('monthNavControls');
+
+            overviewContainer.style.display = 'none';
+            listContainer.style.display = 'none';
+            calendarContainer.style.display = 'none';
+            monthlyContainer.style.display = 'none';
+            resourcePanel.style.display = 'none';
+            dayNav.style.display = 'none';
+            monthNav.style.display = 'none';
+
+            const contentWrapper = document.querySelector('.content-wrapper');
+
+            if (view === 'overview') {
+                overviewContainer.style.display = 'block';
+                if (contentWrapper) contentWrapper.classList.add('overview-mode');
+                renderOverviewView();
+            } else {
+                if (contentWrapper) contentWrapper.classList.remove('overview-mode');
+                if (view === 'list') {
+                    listContainer.style.display = 'block';
+                    renderListView();
+                } else if (view === 'calendar') {
+                    calendarContainer.style.display = 'block';
+                    resourcePanel.style.display = 'flex';
+                    dayNav.style.display = 'flex';
+                    renderCalendarView();
+                } else if (view === 'monthly') {
+                    monthlyContainer.style.display = 'block';
+                    monthNav.style.display = 'flex';
+                    document.getElementById('currentMonthDisplay').innerText = formatWindowTitle();
+                    renderMonthlyView();
+                }
+            }
+        }
+
+        // ================================================================
+        // 9. 筛选
+        // ================================================================
+        function applyFilters() {
+            if (currentView === 'overview') {
+                renderOverviewVehicleCards();
+                if (overviewMap) renderVehiclesOnMap();
+            } else if (currentView === 'list') {
+                renderListView();
+            } else if (currentView === 'calendar') {
+                renderCalendarView();
+            } else if (currentView === 'monthly') {
+                renderMonthlyView();
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('filterFleet').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterCarType').value = '';
+            document.getElementById('filterEnergy').value = '';
+            applyFilters();
+        }
+
+        // ================================================================
+        // 9. 日期/月份控制
+        // ================================================================
+        function changeDate(delta) {
+            if (delta === 0) {
+                currentDate = new Date(2026, 5, 23);
+            } else {
+                currentDate = new Date(currentDate);
+                currentDate.setDate(currentDate.getDate() + delta);
+            }
+            document.getElementById('currentDateDisplay').innerText = formatDate(currentDate);
+            const wd = ['日', '一', '二', '三', '四', '五', '六'];
+            document.getElementById('weekdayDisplay').innerText = '周' + wd[currentDate.getDay()];
+            showToast(`📅 切换到 ${formatDate(currentDate)}`);
+            if (currentView === 'calendar') renderCalendarView();
+        }
+
+        function changeMonth(delta) { shiftMonthWindow(delta); }
+
+        // ================================================================
+        // 10. 车队折叠
+        // ================================================================
+        function toggleFleet(header) {
+            const body = header.nextElementSibling;
+            body.classList.toggle('collapsed');
+            const icon = header.querySelector('span:last-child');
+            if (body.classList.contains('collapsed')) {
+                icon.innerText = '▶';
+            } else {
+                icon.innerText = '▼';
+            }
+        }
+
+        // ================================================================
+        // 11. 分配司机
+        // ================================================================
+        function openAssignModal(vehicleId) {
+            const vehicle = vehiclesData.find(v => v.id === vehicleId);
+            if (!vehicle) return;
+            currentAssignVehicleId = vehicleId;
+            document.getElementById('assignPlate').innerText = vehicle.plate;
+
+            const matchedDrivers = availableDrivers.filter(d => d.type === vehicle.type && d.status === '空闲');
+            const driverList = document.getElementById('driverList');
+            if (matchedDrivers.length === 0) {
+                driverList.innerHTML =
+                    `<div class="text-muted" style="padding:12px 0;">⚠️ 当前没有匹配 ${vehicle.type} 车型的空闲司机</div>`;
+            } else {
+                let html = '';
+                matchedDrivers.forEach(d => {
+                    html += `<div class="driver-option" onclick="selectDriver(this, '${d.name}')">
+                        <span><strong>${d.name}</strong> <span class="badge" style="font-size:10px;">${d.type}</span></span>
+                        <span class="text-muted" style="font-size:12px;">${d.fleet}</span>
+                    </div>`;
+                });
+                driverList.innerHTML = html;
+            }
+            selectedDriverName = null;
+            document.getElementById('assignModal').classList.add('show');
+        }
+
+        function selectDriver(el, name) {
+            document.querySelectorAll('.driver-option').forEach(d => d.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedDriverName = name;
+        }
+
+        function confirmAssign() {
+            if (!selectedDriverName) {
+                showToast('⚠️ 请选择一个司机');
+                return;
+            }
+            const vehicle = vehiclesData.find(v => v.id === currentAssignVehicleId);
+            if (vehicle) {
+                vehicle.driver = selectedDriverName;
+                vehicle.status = '执行中';
+                vehicle.timeSlots = ['08:00-18:00 待排班'];
+                const orderSelect = document.getElementById('assignOrderSelect');
+                if (orderSelect.value) {
+                    vehicle.orders = [orderSelect.value];
+                } else {
+                    vehicle.orders = ['待排班'];
+                }
+                const idx = availableDrivers.findIndex(d => d.name === selectedDriverName);
+                if (idx > -1) availableDrivers[idx].status = '忙碌';
+            }
+            closeModal('assignModal');
+            showToast(`✅ 排班成功！${vehicle.plate} 已分配给 ${selectedDriverName}`);
+            selectedDriverName = null;
+            applyFilters();
+        }
+
+        function quickAssignDriver(driverName) {
+            const driver = availableDrivers.find(d => d.name === driverName && d.status === '空闲');
+            if (!driver) { showToast('⚠️ 该司机当前不可用'); return; }
+            const targetVehicle = vehiclesData.find(v => v.status === '空闲' && v.type === driver.type);
+            if (!targetVehicle) { showToast(`⚠️ 没有可用的 ${driver.type} 车辆`); return; }
+            targetVehicle.driver = driverName;
+            targetVehicle.status = '执行中';
+            targetVehicle.timeSlots = ['08:00-18:00 快速排班'];
+            driver.status = '忙碌';
+            showToast(`✅ ${driverName} 已分配到 ${targetVehicle.plate}`);
+            applyFilters();
+        }
+
+        // ================================================================
+        // 12. 详情模态框（支持订单时段展示）
+        // ================================================================
+        function openDetailModal(vehicleId, orderData = null) {
+            const vehicle = vehiclesData.find(v => v.id === vehicleId);
+            if (!vehicle) return;
+            document.getElementById('detailPlate').innerText = vehicle.plate;
+            document.getElementById('detailDriver').innerText = vehicle.driver || '未分配';
+
+            const statusMap = { '空闲': '🟢 空闲', '执行中': '🟡 执行中', '维修': '🔴 维修/休息' };
+            document.getElementById('detailStatusBadge').innerText = statusMap[vehicle.status] || vehicle.status;
+
+            const tlContainer = document.getElementById('detailTimeline');
+            const orderContainer = document.getElementById('detailOrders');
+            const labelEl = document.getElementById('detailTimelineLabel');
+
+            if (orderData && orderData.startDay && orderData.endDay) {
+                // 月度视图：显示订单时段
+                labelEl.innerText = '📅 订单时段';
+                const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), orderData.startDay);
+                const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), orderData.endDay);
+                const dateStr = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                const duration = orderData.endDay - orderData.startDay + 1;
+                tlContainer.innerHTML = `
+                    <div>📅 ${dateStr(startDate)} 至 ${dateStr(endDate)}（共 ${duration} 天）</div>
+                    <div>📌 ${orderData.label || '订单任务'}</div>
+                `;
+                orderContainer.innerHTML = `
+                    <div>• ${orderData.orderId || '无订单号'} 
+                        <span class="badge" style="font-size:10px;cursor:pointer;" onclick="showToast('跳转至${orderData.orderId}')">查看</span>
+                    </div>
+                    <div style="margin-top:6px;font-size:12px;color:#6b7f9a;">💡 该订单跨 ${duration} 天，已连续排班</div>
+                `;
+            } else {
+                // 列表/日历视图：显示今日时段
+                labelEl.innerText = '📌 今日时段';
+                if (vehicle.timeSlots && vehicle.timeSlots.length > 0) {
+                    tlContainer.innerHTML = vehicle.timeSlots.map(s => `<div>• ${s}</div>`).join('');
+                } else {
+                    tlContainer.innerHTML = '<div class="text-muted">今日暂无排班</div>';
+                }
+                if (vehicle.orders && vehicle.orders.length > 0) {
+                    orderContainer.innerHTML = vehicle.orders.map(o =>
+                        `<div>• ${o} <span class="badge" style="font-size:10px;cursor:pointer;" onclick="showToast('跳转至${o}')">查看</span></div>`
+                    ).join('');
+                } else {
+                    orderContainer.innerHTML = '<div class="text-muted">暂无关联订单</div>';
+                }
+            }
+
+            document.getElementById('detailModal').classList.add('show');
+        }
+
+        // ================================================================
+        // 13. 通用
+        // ================================================================
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) this.classList.remove('show');
+            });
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ================================================================
+        // 15. 初始化
+        // ================================================================
+        document.getElementById('currentDateDisplay').innerText = formatDate(currentDate);
+        const wd = ['日', '一', '二', '三', '四', '五', '六'];
+        document.getElementById('weekdayDisplay').innerText = '周' + wd[currentDate.getDay()];
+        document.getElementById('currentMonthDisplay').innerText = formatWindowTitle();
+
+        switchView('overview');
+    </script>
+
+</body>
+</html>
